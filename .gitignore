@@ -1,0 +1,10 @@
+/node_modules
+/public/upload
+/public/profile
+/public/storage
+/storage/*.key
+/vendor
+/.idea
+/.vagrant
+
+.env

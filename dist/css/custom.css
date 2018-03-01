@@ -1,0 +1,337 @@
+.cp{
+  cursor: pointer;
+}
+
+.none{
+  display: none;
+}
+
+.lang-menu-item{
+  opacity: 0.8;
+  background: #FFF;
+}
+.lang-menu-item:hover{
+  opacity: 1;
+  background: #DDD;
+}
+
+.sidebar-row-margin{
+  margin-left: 25px;
+}
+    
+.addcard-hover{  opacity:1;  }
+.addcard-hover:hover{  opacity:0.5;cursor: pointer;  }
+
+.card-btn-edit {
+  display: none;
+}
+.card:hover {
+  cursor: pointer;
+}
+.card:hover .card-btn-edit{
+  display: block;
+}
+#task-edit-description-btn:hover { cursor:pointer;  }
+/*.modal-body {
+    position: relative;
+    overflow-y: auto;
+    max-height: 400px;
+    padding: 15px;
+}*/
+
+.modal {
+  overflow-y: auto;
+}
+
+.modal-scrollbar {
+    margin-right: 15px;
+}
+.modal-title:hover{ cursor:pointer; }
+.ui-autocomplete{
+  z-index:1050;
+}
+/*tbody tr:nth-child(odd) {background: #DEDEDE!important}
+tfoot tr:nth-child(odd) {background: #DEDEDE!important}*/
+
+.my-autocomplete-ul,.voting-list-ul,.user-can-vote-ul{
+  padding: 0; margin:0;
+  max-height:150px; overflow: auto;
+}
+
+.user-can-vote-ul{
+  height:auto;
+}
+
+
+
+.my-autocomplete-li,.voting-list-li,.user-can-vote-li{
+  height:30px;
+  line-height: 30px;
+  font-size:10px;
+  list-style-type: none;
+  padding: 0;padding-left:5px; margin:0;
+  background: #EEE;
+  border-bottom: 1px solid #ccc;
+}
+
+.voting-list-li,.user-can-vote-li{
+   background: #FFF;
+   border-bottom:0;
+   font-size:14px;
+}
+
+.my-autocomplete-li h5{
+   line-height: 30px;
+   padding:0px;margin:0px;
+}
+
+.my-autocomplete-li:hover {
+   cursor: pointer;
+   background: #3c8dbc;
+   /*background: #f00;*/
+}
+
+.history .item {
+  margin:0 0 20px 0; line-height: 20px;
+}
+.history .item p.header {
+  height: 10px ;
+}
+.history .item p.message:hover {
+  cursor: pointer;
+}
+
+.task-comment > i{ float: left;  }
+.task-comment > h3{ margin-left: 20px; }
+.vm-ct{
+    vertical-align: middle !important ;text-align: center;
+  }
+
+
+.wrapper{
+  overflow-y: hidden;
+}
+
+/*.content > .row {
+  overflow-x: auto;
+  white-space: nowrap;
+}*/
+.content > .row > .col-md-3 {
+  display: inline-block;
+  float: none;
+}
+
+#modal-card-content h4.title { color:#AAA; }
+
+.fl { float: left; }
+
+#modal_task_category .alert:hover{cursor:pointer; border-left:5px solid rgba(0, 0, 0, 0.3);}
+
+.checklist-txt-add-item{
+  cursor: pointer;
+}
+
+.btn-checklist-remove-item {
+  display: none;
+}
+
+.checklist-box-item li{
+  list-style:  none;
+}
+
+.checklist-box-item li:hover {
+  cursor: pointer;
+  background: #ccc;
+}
+.checklist-box-item li:hover .btn-checklist-remove-item{
+  display: block;
+}
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+.capitalize {
+    text-transform:capitalize;
+}
+/*.hide-history{ display: none; }
+.history h4.title:hover{ cursor: pointer; background: #DDD;}
+.history h4.title:hover .hide-history{
+  display:block;
+}*/
+
+.icon-title {margin-top:-5px;height: 20px;}
+.icon-side-menu {margin-top:-5px;margin-right:5px;height: 15px;}
+
+
+.icon-task-menu{
+  max-height:20px;max-width:20px;margin-top:-5px;margin-left:5px;margin-right: 5px;
+}
+
+.bg-rm-user-task {
+  background-color: #ddd !important; 
+}
+
+.bg-rm-new-active {
+  color: #000;
+  background-color: #8a8a8a !important;
+}
+.bg-rm-new {
+  background-color: #bdbdbd !important;
+ /* background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #39cccc), color-stop(1, #7adddd)) !important;
+  background: -ms-linear-gradient(bottom, #39cccc, #7adddd) !important;
+  background: -moz-linear-gradient(center bottom, #39cccc 0%, #7adddd 100%) !important;
+  background: -o-linear-gradient(#7adddd, #39cccc) !important;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#7adddd', endColorstr='#39cccc', GradientType=0) !important;
+  */
+}
+.bg-rm-cancel-active {
+  color: #FFF;
+  background-color: #d2505b !important;
+}
+.bg-rm-cancel {
+  background-color: #f67e88 !important;
+}
+.bg-rm-accept-active {
+  color: #FFF;
+  background-color: #4993c3 !important;
+}
+.bg-rm-accept {
+  background-color: #52a7e0 !important;
+}
+.bg-rm-inprogress-active {
+  color: #FFF;
+  background-color: #c5b156 !important;
+}
+.bg-rm-inprogress {
+  background-color: #e5d469 !important;
+}
+.bg-rm-pending-active {
+  color: #FFF;
+  background-color: #9f60b9 !important;
+}
+.bg-rm-pending {
+  background-color: #aa72c1 !important;
+}
+.bg-rm-done-active {
+  color: #FFF;
+  background-color: #389986 !important;
+}
+.bg-rm-done {
+  background-color: #3cc6ab !important;
+}
+.bg-rm-voting-active {
+  color: #FFF;
+  background-color: #c37949 !important;
+}
+.bg-rm-voting {
+  background-color: #e08b52 !important;
+}
+.bg-rm-voted-active {
+  color: #FFF;
+  background-color: #a0c349 !important;
+}
+.bg-rm-voted {
+  background-color: #a7e052 !important;
+}
+.bg-rm-routine-active {
+  color: #FFF;
+  background-color: #49adc3 !important;
+}
+.bg-rm-routine {
+  background-color: #71cbe4 !important;
+}
+
+.content > .row > .col-ct {
+    display: inline-block;
+    float: none;
+}
+ .col-ct{
+    width: 200px;margin:10px;
+  }
+
+.done-at-label {
+  color:#FFF;
+}
+
+.append-card .box-header .box-title {
+  display: block;
+  line-height: 18px;
+  white-space:normal ;
+}
+
+.room-status{
+  color:#f39c12;
+}
+.room-status.active{
+  color:#255625;
+}
+
+.sidebar-menu li > .pull-right-item {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  margin-top: -7px;
+
+}
+.sidebar-menu li > .pull-right-item > a {
+  color:rgba(255,255,255,0.5);
+}
+.sidebar-menu li > .pull-right-item > a:hover {
+  color:#FFF;
+}
+
+#card_title,.checkbox-item-title,.checkbox-title {
+  height: 30px;
+}
+
+#modal_task_filter .img-rounded{
+  width:25px;height:25px;
+}
+#modal_task_filter .media-heading{
+  margin-top: 5px;
+}
+#modal_task_filter .media:hover{
+    cursor: pointer;
+    background:#ddd; 
+}
+
+#modal_task_filter .media{
+  padding: 10px;margin:0;
+}
+
+.break-line{
+  width: 100%; background: #ddd;height: 1px;
+}
+
+
+
+.col-officer {
+width: 100% !important;
+}
+
+.col-headuser {
+  width: 100% !important;
+}
+
+
+@media (min-width: 992px){
+  .col-officer {
+  width: 20% !important;
+  }
+
+  .col-headuser {
+    width: 25% !important;
+  }
+}
+
+
+.form-control-inline{
+  float: left;margin-right: 10px;
+}
+
+ .text-delete{
+    text-decoration: line-through;
+  }
+     
