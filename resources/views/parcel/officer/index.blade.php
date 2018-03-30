@@ -8,7 +8,6 @@
 
   <link rel="stylesheet" href="{{ url('bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
   <link rel="stylesheet" href="{{ url('public/css/input.css') }}">
-
 @endsection
 
 @section('content-wrapper')
@@ -17,9 +16,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-       
         <i class="fa fa-send"></i>
-       
          {{ $title }}
       </h1>
       <ol class="breadcrumb">
@@ -27,12 +24,8 @@
         <li class="active">{{ $title }}</li>
       </ol>
     </section>
-
     <!-- Main content -->
     <section class="content">
-  
-       @include('layouts.error')
-
       <div class="box">
             <div class="box-header">
               <h3 class="box-title"></h3>

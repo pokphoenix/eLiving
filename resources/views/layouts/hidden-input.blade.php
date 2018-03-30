@@ -7,7 +7,5 @@
 @endif
 
 <input type="hidden" id="mainPath" value="{{url('')}}">
-
 <input type="hidden" id="user_id" value="{{ Auth()->user()->id }}">
-
 <input type="hidden" id="app_local" value="{{ App::getLocale() }}">

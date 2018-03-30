@@ -71,8 +71,8 @@
                     <!-- <li><a href="{{ url('/#') }}">HOME</a></li> -->
                   @endif
                     <!-- <li><a href="#mu-contact">CONTACT</a></li> -->
-                    <!--  <li><a href="{{ url('/signin') }}">LOGIN</a></li>
-                     <li><a href="{{ url('/signup') }}">TRY IT FREE</a></li> -->
+                 <!--  <li><a href="{{ url('/signin') }}">LOGIN</a></li>
+                     <li><a href="{{ url('/signup') }}">TRY IT FREE</a></li>  -->
                 </ul>
             </div><!-- /.navbar-collapse -->
 

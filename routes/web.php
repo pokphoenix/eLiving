@@ -154,6 +154,9 @@ Route::group(['middleware'=>['webserver','web']], function () {
     // Route::get('/', function () {
     //     return view('front.redirect');
     // })->name('home');
+    // Route::get('/', function () {   //--- index page
+    //     return view('front.home');
+    // })->name('home');
     Route::get('/', 'User\LoginController@show');
 
     Route::get('/profile/changepass', 'User\ProfileController@changepass');
@@ -254,6 +257,10 @@ Route::get('notfound', function () {
 });
 Route::get('maintanance', function () {
     return view('front.error.maintanance');
+});
+
+Route::get('main', function () {
+    return view('front.home');
 });
 
 
