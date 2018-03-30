@@ -2,7 +2,6 @@
 
 namespace App\Models\Quotation;
 
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
@@ -15,16 +14,17 @@ class QuotationCompanyAttach extends Model
     public $timestamps = false;
     protected $fillable = ['quotation_id','company_id', 'domain_id','path','image','file_name','file_code','file_extension','file_size'];
   
-	
-	public static function getAttachment($domainId,$companyId,$quotationId){
+    
+    public static function getAttachment($domainId, $companyId, $quotationId)
+    {
      
-        $query = QuotationCompanyAttach::where('quotation_id',$quotationId)
-            ->where('domain_id',$domainId)
+        $query = QuotationCompanyAttach::where('quotation_id', $quotationId)
+            ->where('domain_id', $domainId)
             ->get();
-        if (isset($companyId)){
-            $query = QuotationCompanyAttach::where('quotation_id',$quotationId)
-            ->where('domain_id',$domainId)
-            ->where('company_id',$companyId)
+        if (isset($companyId)) {
+            $query = QuotationCompanyAttach::where('quotation_id', $quotationId)
+            ->where('domain_id', $domainId)
+            ->where('company_id', $companyId)
             ->get();
         }
         foreach ($query as $key => $q) {
@@ -34,9 +34,10 @@ class QuotationCompanyAttach extends Model
         }
         return  $query;
     }
-    public static function getAttachmentList($domainId,$quotationId){
-		$query = QuotationCompanyAttach::where('quotation_id',$quotationId)
-            ->where('domain_id',$domainId)
+    public static function getAttachmentList($domainId, $quotationId)
+    {
+        $query = QuotationCompanyAttach::where('quotation_id', $quotationId)
+            ->where('domain_id', $domainId)
             ->get();
 
         foreach ($query as $key => $q) {
@@ -46,5 +47,5 @@ class QuotationCompanyAttach extends Model
         }
         
         return  $query;
-	}
+    }
 }

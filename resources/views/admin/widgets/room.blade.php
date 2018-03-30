@@ -44,8 +44,11 @@
                         @if(isset($roomUser))
                           @foreach($roomUser as $key=>$ru)
                           <tr>
-                            <td><button type="button" class="btn btn-danger btn-xs btn-user-in-room-del" >
-                            <i class="fa fa-close"></i></button>
+                            <td>
+                              @if(!isset($requestRoom))
+                              <button type="button" class="btn btn-danger btn-xs btn-user-in-room-del" ><i class="fa fa-close"></i></button>
+                              @endif
+                            
                             <input type="hidden" class="room-id" value="{{ $ru['room_id'] }}">
                             <input type="hidden" class="room-approve" value="{{ $ru['approve'] }}">
                             </td>

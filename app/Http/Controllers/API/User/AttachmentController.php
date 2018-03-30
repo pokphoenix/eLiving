@@ -47,16 +47,18 @@ class AttachmentController extends ApiController
 
   
 
-    public function index(){
+    public function index()
+    {
         $idcard = auth()->user()->id_card ;
         $domainId = auth()->user()->recent_domain ;
-        $data['docs'] = User::getImage($domainId,$idcard);
+        $data['docs'] = User::getImage($domainId, $idcard);
         return $this->respondWithItem($data);
-    } 
+    }
    
    
-    public function store(Request $request){
-        $post = $request->all();
+    public function store(Request $request)
+    {
+        $post = $request->except('api_token', '_method');
 
         $userId = auth()->user()->id;
         $idcard = auth()->user()->id_card;
@@ -64,12 +66,12 @@ class AttachmentController extends ApiController
 
         $post['file-type'] = (gettype($post['file-type'])=="string") ? (array)json_decode($post['file-type']) : $post['file-type'] ;
 
-        $uploadImg = Images::uploadImage($request,$domainId);
-        if(!$uploadImg['result']){
+        $uploadImg = Images::uploadImage($request, $domainId);
+        if (!$uploadImg['result']) {
             return $this->respondWithError($uploadImg['error']);
         }
-        if(isset($uploadImg)&&isset($uploadImg['file'])){
-            if(is_array($uploadImg['file'])){
+        if (isset($uploadImg)&&isset($uploadImg['file'])) {
+            if (is_array($uploadImg['file'])) {
                 foreach ($uploadImg['file'] as $key => $v) {
                     $img['id_card']  =  $idcard  ;
                     $img['domain_id']  =  $domainId ;
@@ -85,33 +87,27 @@ class AttachmentController extends ApiController
             }
         }
 
-        $data['docs'] = User::getImage($domainId,$idcard);
+        $data['docs'] = User::getImage($domainId, $idcard);
         return $this->respondWithItem($data);
-    }  
+    }
 
     
 
     public function destroy($id)
     {
         $file = Images::find($id) ;
-        if(isset($file->file_code)){
+        if (isset($file->file_code)) {
             Images::deleteRealImage($file->file_code) ;
         }
 
         $source = public_path('upload/'.$file->path."/".$file->image);
-        if(file_exists($source)){
+        if (file_exists($source)) {
             unlink($source);
         }
         $file->delete();
         $domainId = auth()->user()->recent_domain;
         $idcard = auth()->user()->id_card;
-        $data['docs'] = User::getImage($domainId,$idcard);
+        $data['docs'] = User::getImage($domainId, $idcard);
         return $this->respondWithItem($data);
     }
-
-    
-    
-
-   
-    
 }

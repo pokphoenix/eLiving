@@ -72,7 +72,7 @@
                 <tbody>
         
                 @foreach ($lists as $key=>$list)
-                <tr >
+                <tr @if(!$list['status'])  class="text-delete" @endif>
                   
                   <td>{{ $key+1 }}</td>
                   <td>{{ $list['name_th']}}</td>
@@ -143,7 +143,7 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
                 <button type="button" class="btn btn-primary btn-save">@lang('main.btn_save')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
                 </button>
               </div>
             </div>
@@ -207,6 +207,7 @@ $(".btn-edit").on("click",function(){
         if(r.status==1){
           $("#status").attr('checked',true);
         }
+        $("#data-form #_method").remove('');
         $("#modal-default modal-title").text((($("#app_local").val()=='th') ? 'แก้ไขรายการ' : 'Edit Contact' ));
         $("#data-form").attr({'action': $("#apiUrl").val()+"/"+$("#route").val()+"/"+dateId+"?api_token="+api_token });
          var html = '<input type="hidden" id="_method"  name="_method" value="PUT">';
@@ -248,7 +249,7 @@ $(".btn-delete").on("click",function(){
   }).then((result) => {
           if (result.value) {
               var route = "/"+$("#route").val()+"/"+buyId+"?api_token="+api_token ;
-              ajaxPromise('DELETE',route).done(function(data){
+              ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
                parent.remove();
               }).fail(function(txt) {
                 var error = JSON.stringify(txt);

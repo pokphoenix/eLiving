@@ -63,7 +63,7 @@
   <section class="invoice" style="padding: 0">
     <!-- title row -->
     <div class="row">
-        <div class="col-xs-3"><img src="{{ $setting['logo_left'] }}" height="50" ></div>
+        <div class="col-xs-3"><img src="{{ $logo['logo_domain'] }}" height="50" ></div>
        <div class="col-xs-6">
          <h3 class="text-center">{{ $setting['header']." ".$data['quotation']['title'] }}</h3>
          <div class="row " style="">
@@ -75,7 +75,7 @@
             <span>{{ $setting['inform']}}</span>
          </div>
        </div>
-       <div class="col-xs-3 text-right"><img src="{{ $setting['logo_right'] }}" height="50" ></div>
+       <div class="col-xs-3 text-right"><img src="{{ $logo['logo_officer'] }}" height="50" ></div>
     </div>
   
 

@@ -11,6 +11,11 @@
 
         <div class="col-sm-offset-2 col-sm-8 text-center">
           <h4 style="color: #FFF;" >
+
+          @if(isset($errors))
+             {{ $errors }}
+          @endif
+
 @if(Session::get('error', false))
     <?php $data = Session::get('error'); ?>
     @if (is_array($data))

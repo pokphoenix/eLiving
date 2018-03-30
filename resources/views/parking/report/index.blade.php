@@ -49,6 +49,7 @@
                   <th>@lang('parking.end_date')</th>
                   <th>@lang('parking.used_date')</th>
                   <th>@lang('parking.used')</th>
+                  <th>@lang('parking.debt_hour')</th>
                  
                 </tr>
                 <tr class="thead-search" >
@@ -59,6 +60,7 @@
                   <th class="input-filter">@lang('parking.end_date')</th>
                   <th class="input-filter">@lang('parking.used_date')</th>
                   <th class="input-filter">@lang('parking.used')</th>
+                  <th class="input-filter">@lang('parking.debt_hour')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -82,6 +84,7 @@
                         @lang('parking.use')
                       @endif
                  </td>
+                 <td> {{ $list['debt_hour'] }} </td>
                   
                 </tr>
                 @endforeach

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
+
 class Authenticate
 {
     /**
@@ -22,15 +23,11 @@ class Authenticate
         
         if (Auth::guard($guard)->check()) {
             return redirect('/domain');
-        }else{
-            if($guard=='api'){
+        } else {
+            if ($guard=='api') {
                 $response = ['result'=>false,'errors'=>'Unauthorized.'];
                 return response($response);
             }
-           
         }
-
-       
-       
     }
 }

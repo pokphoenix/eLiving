@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\DB;
 class Search extends Model
 {
    
-    public static function memberTask($domainId,$name,$ids=null){
-    	$url = url('') ;
+    public static function memberTask($domainId, $name, $ids = null)
+    {
+        $url = url('') ;
         $sql = "SELECT u.id 
                 ,CASE WHEN u.profile_url is not null AND u.avartar_id=0 THEN u.profile_url
                 ELSE CONCAT( '".url('')."/public/img/profile/',u.avartar_id,'.png') 
@@ -27,10 +28,10 @@ class Search extends Model
                 ) t2
                 ON t2.id_card = u.id_card
                 WHERE (u.first_name like '%".$name."%' OR u.last_name like '%".$name."%') ";
-        if($ids){
+        if ($ids) {
             $arrId = "" ;
-            foreach ($ids as $id){
-                $arrId .= ",$id" ; 
+            foreach ($ids as $id) {
+                $arrId .= ",$id" ;
             }
             $arrId = substr($arrId, 1) ;
             $sql .= " AND u.id not in ($arrId)" ;
@@ -41,7 +42,5 @@ class Search extends Model
             $query[$key]->img = getBase64Img($q->img);
         }
         return  $query;
-        
     }
-
 }

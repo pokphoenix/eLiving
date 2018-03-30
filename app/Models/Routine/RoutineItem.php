@@ -2,7 +2,6 @@
 
 namespace App\Models\Routine;
 
-
 use App\Facades\Permission;
 use App\Models\Room;
 use App\Models\Task\TaskCategory;
@@ -15,5 +14,4 @@ class RoutineItem extends Model
 
     protected $fillable = ['routine_id','created_at','created_by'];
     protected $dates = ['created_at'];
-
 }

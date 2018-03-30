@@ -229,7 +229,7 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
                 <button type="button" class="btn btn-primary btn-save">@lang('main.btn_save')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
                 </button>
               </div>
             </div>
@@ -434,7 +434,7 @@ $(".btn-delete").on("click",function(){
   }).then((result) => {
           if (result.value) {
               var route = "/parcel/officer/"+buyId+"?api_token="+api_token ;
-              ajaxPromise('DELETE',route).done(function(data){
+              ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
                parent.remove();
               }).fail(function(txt) {
                 var error = JSON.stringify(txt);
@@ -490,11 +490,17 @@ $(function() {
         if($("#is_branch_1").is(':checked')){
           is_branch = 0 ;
         }
-         console.log(is_branch);
+         
 
         form_data.append('is_branch',is_branch);
                
-        
+         var status = 0 ;
+        if($("#status").is(':checked')){
+          status = 1 ;
+        }
+         console.log(status);
+
+        form_data.append('status',status);
 
       
    

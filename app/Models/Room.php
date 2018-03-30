@@ -10,12 +10,12 @@ class Room extends Model
     protected $table = 'rooms';
     public $timestamps = false;
     
-    protected $fillable = ['name','description', 'domain_id','id_card','name_prefix','name_surfix'];
+    protected $fillable = ['name','description', 'domain_id','id_card','name_prefix','name_surfix','car_number'];
     // protected $dates = ['created_at', 'updated_at'];
 
 
-    public function users(){
+    public function users()
+    {
         return $this->belongsToMany('User', 'user_rooms', 'room_id', 'user_id');
     }
-
 }

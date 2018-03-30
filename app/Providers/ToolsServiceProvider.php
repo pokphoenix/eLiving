@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Providers;
+
 use App\Tools\Domain;
 use App\Tools\Permission;
 use Illuminate\Support\ServiceProvider;
+
 class ToolsServiceProvider extends ServiceProvider
 {
     public function register()

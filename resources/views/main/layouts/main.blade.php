@@ -128,6 +128,12 @@
     });
 </script>
 <script type="text/javascript" src=" {{ url('js/utility/ajax.js') }} "></script>
+
+<script>
+var user_id = "{{ Auth()->user()->id }}" ;
+var api_token =  "{{ Auth()->user()->api_token }}";
+</script>
+
 @if(isset($domainId))
 <script src="{{ url('plugins/socketio/socket.io-1.4.5.js') }}"></script>
 <script type="text/javascript">
@@ -137,8 +143,7 @@
 
 
 var socket = io(io_connect);
-var user_id = "{{ Auth()->user()->id }}" ;
-var api_token =  "{{ Auth()->user()->api_token }}";
+
 @foreach(Auth()->user()->getChannelJoin() as $channel)
     room =  "{{ $domainId.'-'.$channel->id }}" ;
     socket.emit('subscribe',room);
@@ -342,7 +347,7 @@ $(document).on("click",".sidebar-remove-contact",function(){
   var channelId = $(this).data('id') ;
   var route = "/channel/"+channelId+"/remove-contact?api_token="+api_token ;
  
-  ajaxPromise('DELETE',route,"").done(function(data){
+  ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
     
   }).fail(function(txt) {
       swal(
@@ -392,9 +397,9 @@ $(document).on("click","p.message > .name",function(){
         $(this).find("span.label").hide();
 
         $.ajax({
-                  method:'PUT',
+                  method:'POST',
                   url: "{{ url('api/notification/seen?api_token=') }}"+api_token,
-                  data: null
+                  data: {'_method':'PUT'} 
               })
               .done(function(html) {
                   console.log(html);
@@ -573,8 +578,12 @@ $(document).on("click","p.message > .name",function(){
                    
     });
         
-getMenuCount();
- function getMenuCount(){
+
+$(function() {
+  getMenuCount();
+});
+
+function getMenuCount(){
   $(".badge-request-room,.badge-wait-user").hide();
    $.ajax({
         method:'GET',
@@ -592,6 +601,8 @@ getMenuCount();
 
             var c_all = ((r.cnt_quotation_voted+r.cnt_quotation_has_voting)>99) ? '99+' : r.cnt_quotation_has_voting ;
 
+            var c_parcel_not_receive = ((r.cnt_parcel_not_receive)>99) ? '99+' : r.cnt_parcel_not_receive ;
+
             if(c_request_room>0){
                $(".badge-request-room").find('.label').text(c_request_room);
                $(".badge-request-room").show();
@@ -604,6 +615,11 @@ getMenuCount();
             @if(Auth()->user()->hasRole('officer'))
             if(c_task_new>0){
                $(".badge-task-ex").find('.label').text(c_task_new).show();
+            }
+            if(c_parcel_not_receive>0){
+               $(".badge-parcel-all").find('.label').text(c_parcel_not_receive).show();
+               $(".badge-parcel-backdate").find('.label').text(c_parcel_not_receive).show();
+
             }
             @endif
 

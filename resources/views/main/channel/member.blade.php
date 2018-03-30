@@ -369,8 +369,8 @@ socket.emit('subscribe',room);
             var userId =  $(this).closest('li').find('.request-user-id').val();
             var channelId = $("#channel_id").val();
             var route = "/channel/"+channelId+"/kick?api_token="+api_token ;
-            var data = { user_id:userId } ;
-            ajaxPromise('DELETE',route,data).done(function(data){
+            var data = { user_id:userId,'_method':'DELETE' } ;
+            ajaxPromise('POST',route,data).done(function(data){
                  var sd = {} ;
                 sd.room = room ;
                 sd.member_channel = data.member_channel ;
@@ -449,8 +449,8 @@ function leaveChannel(){
     var channelId = $("#channel_id").val();
       var text = $("#message_text").val();
       var route = "/channel/"+channelId+"/leave?api_token="+api_token ;
-      var data = null;
-      ajaxPromise('DELETE',route,data).done(function(data){
+
+      ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
           window.location.href= " {{ url($route) }}"+"/"+channelId;
       })
 }

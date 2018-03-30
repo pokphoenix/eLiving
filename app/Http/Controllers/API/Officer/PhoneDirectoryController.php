@@ -45,22 +45,25 @@ class PhoneDirectoryController extends ApiController
     {
     }
 
-    public function search(Request $request){
-      
+    public function search(Request $request)
+    {
     }
 
-    public function index($domainId){
-        $data['phone_directory']  = PhoneDirectory::find(1);
+    public function index($domainId)
+    {
+        $data['phone_directory']  = PhoneDirectory::where('domain_id', $domainId)->first();
         return $this->respondWithItem($data);
-    } 
-    public function data($domainId,$Id){
+    }
+    public function data($domainId, $Id)
+    {
 
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request,$domainId){
-        $post = $request->all();
+    public function store(Request $request, $domainId)
+    {
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -69,23 +72,27 @@ class PhoneDirectoryController extends ApiController
         unset($post['api_token']);
 
         $query = new PhoneDirectory();
+        $query->domain_id = $domainId;
         $query->fill($post)->save();
         return $this->respondWithItem(['phone_directory_id'=>$query->id]);
-    }  
-    public function update(Request $request,$domainId,$Id){
-        $post = $request->all();
-        $query = PhoneDirectory::find($Id) ;
-        if(empty($query)){
+    }
+    public function update(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
+        $query = PhoneDirectory::where('domain_id', $domainId)->first() ;
+        if (empty($query)) {
             $query = new PhoneDirectory();
+            $query->domain_id = $domainId;
         }
         $query->fill($post)->save();
         return $this->respondWithItem(['phone_directory_id'=>$Id]);
-    } 
-    public function destroy(Request $request,$domainId,$Id){
-        $post = $request->all();
+    }
+    public function destroy(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
         $query = PhoneDirectory::find($Id)->delete();
         return $this->respondWithItem(['phone_directory_id'=>$Id]);
-    } 
+    }
     
 
     private function validator($data)
@@ -94,5 +101,4 @@ class PhoneDirectoryController extends ApiController
             'title' => 'required|string|max:255|unique:resolutions,title',
         ]);
     }
-    
 }

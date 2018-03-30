@@ -12,7 +12,4 @@ class ContactType extends Model
     
     protected $fillable = ['name_th','name_en','status','domain_id'];
     // protected $dates = ['created_at', 'updated_at'];
-
-    
-
 }

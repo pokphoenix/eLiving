@@ -175,7 +175,26 @@
                             <a href="{{ url('profile/room') }}" type="button"  class="btn btn-default btn-block btn-social" > <i class="fa fa-key"></i>
                               @lang('main.room')  @if($roomCnt==0&& Auth()->user()->hasRole('user') ) <small class="label label-danger pull-right">@lang('main.not_complete')</small>  @endif
                             </a>
+  
+                            @if(is_null($data['facebook_id']))
+                            <button type="button" onclick="useFacebook()"  class="btn btn-default btn-block btn-social" > <i class="fa fa-facebook"></i>
+                               @lang('user.login_with_facebook')
+                            </button>
+                            @endif
 
+
+
+                            @if(isset($data['facebook_id'])&&$data['migrate_facebook']==0&&$data['migrate_username']==0)
+                            <a href="{{ url('profile/username') }}" type="button"   class="btn btn-default btn-block btn-social" > <i class="fa fa-user"></i>
+                               @lang('user.login_with_username')
+                            </a>
+                            @endif
+
+                            @if(isset($data['facebook_id'])&&($data['migrate_facebook']==1||$data['migrate_username']==1) )
+                            <button type="button" onclick="unlinkFacebook()"  class="btn btn-default btn-block btn-social" > <i class="fa fa-facebook"></i>
+                               @lang('user.unlink_facebook')
+                            </button>
+                            @endif
                             
                          </div>
                        
@@ -286,7 +305,7 @@
 
                   <label for="file_upload"  class="btn btn-primary btn-click-upload-image">
                     <i class="fa fa-cloud-upload"></i> @lang('user.upload_from_computer')
-                     <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
+                     <i class="none fa fa-spinner fa-spin fa-fw" ></i>
                   </label>
                   <input id="file_upload" name='doc_file[]' type="file" style="display:none;" >
                   <button type="button" class="btn btn-default" data-dismiss="modal">@lang('main.close')</button>
@@ -466,10 +485,18 @@ $("#file_upload").change(function() {
 
         console.log(form.action);
 
+          var formData = new FormData($("#create-form")[0]); 
+              @if(isset($edit))
+              formData.append('_method','PUT');
+              @endif
+
              $.ajax({
-                 type: "PUT",
+                  type:'POST',
                  url: "{{ $apiUpdate }}",
-                 data: $(form).serialize(),
+                  data: formData ,
+                 cache:false,
+                  contentType: false,
+                  processData: false,
                  success: function (data) {
                     
                     if(data.result=="true"){
@@ -540,6 +567,115 @@ function uploadProfileImg(){
        }
    });
    return false;   
+}
+
+</script>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : "{{ Service::FACEBOOK_APP_ID }}",
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v2.11'
+    });
+      
+    // FB.AppEvents.logPageView();   
+  
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+<script>
+function useFacebook() {
+  //console.log('signUpFacebook');
+  FB.login(function(response) {
+    //console.log('signUpFacebook',response);
+    if (response.status === 'connected') {
+        var uid = response.authResponse.userID;
+        var accessToken = response.authResponse.accessToken;
+        if (response.authResponse) {
+            var data = { fbid : uid
+              ,fbtoken : accessToken
+              ,_method:'PUT'
+             };
+           
+
+            $.ajax({
+              url: "{{ url('api/profile/facebook?api_token=') }}"+api_token,
+              type: 'POST',
+              dataType: 'json',
+              data: data,
+            })
+            .done(function(res) {
+                if (res.result=="true"){
+                    location.reload();
+                }else{
+                  var error = JSON.stringify(res.errors);
+                  swal(
+                    'Error...',
+                    error,
+                    'error'
+                  )
+                }
+            })
+            .fail(function(data) {
+              var error = JSON.stringify(data.errors);
+              swal(
+                'Error...',
+                error,
+                'error'
+              )
+            })
+        } else {
+            swal(
+              'Error...',
+              'เชื่อมต่อเฟสบุคผิดพลาด กรุณาลองใหม่ในภายหลัง',
+              'error'
+            )
+        }
+    } else {
+      swal(
+              'Error...',
+              'เชื่อมต่อเฟสบุคผิดพลาด กรุณาลองใหม่ในภายหลัง',
+              'error'
+      )
+    }
+  }, {scope: 'email,public_profile'});
+}
+
+function unlinkFacebook(){
+   $.ajax({
+              url: "{{ url('api/profile/unlinkfacebook?api_token=') }}"+api_token,
+              type: 'POST',
+              dataType: 'json',
+              data: {'_method':'PUT'},
+            })
+            .done(function(res) {
+                if (res.result=="true"){
+                    location.reload();
+                }else{
+                  var error = JSON.stringify(res.errors);
+                  swal(
+                    'Error...',
+                    error,
+                    'error'
+                  )
+                }
+            })
+            .fail(function(data) {
+              var error = JSON.stringify(data.errors);
+              swal(
+                'Error...',
+                error,
+                'error'
+              )
+            })
 }
 
 </script>

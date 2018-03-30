@@ -430,7 +430,7 @@ socket.on('suggest', function(data){
     }
 
    	if(data.task!=null&&data.suggest_category!=null&&data.suggest_comments.length==0&&data.suggest_checklists.length==0&&data.suggest_members.length==0){
-    	appendCard('#card_new',data.task.id,data.task.title,data.suggest_category.color,data.suggest_category.name_en);
+    	appendCard('#card_new',data.task.id,data.task.title,data.suggest_category.color,(($("#app_local").val()=='th') ? data.suggest_category.name_th : data.suggest_category.name_en ));
     }
 
    	if(data.task!=null&&data.suggest_id==currentCardId){

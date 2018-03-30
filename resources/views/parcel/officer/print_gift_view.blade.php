@@ -52,8 +52,8 @@
       
        <div class="row">
           <div class="col-xs-12">
-             <button onclick="window.history.back();" class="btn btn-danger" style="margin-left: 10px;" >@lang('main.back')</button>
-             <button onclick="printContent('print_this')" class="btn btn-success" style="margin-left: 10px;" >Print</button>
+             <a href="{{ Request::server('HTTP_REFERER') }}" class="btn btn-danger" style="margin-left: 10px;" >@lang('main.back')</a>
+             <button onclick="printContent('print_this')" class="btn btn-success" style="margin-left: 10px;" >@lang('main.print')</button>
           </div>
         </div>
 
@@ -78,78 +78,101 @@
                   
                  </div>
                  <div class="col-xs-3 text-right">
+                   <div class="col-xs-12">
+                      <h4>{{ $lists[$j]['position'] }}</h4>
+                    </div>
+                    
                  </div>
               </div>
-            
-
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> No. </div>
-                    <div class="col-xs-8 column-view">
-                       {{ $lists[$j]['parcel_code'] }} 
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Date. </div>
-                    <div class="col-xs-5 column-view">
-                       {{ date('d m ',strtotime($lists[$j]['send_date'])).(date('Y',strtotime($lists[$j]['send_date']))+543)." ".date('H:i ',strtotime($lists[$j]['send_date'])) }} 
-                    </div>
-                  </div>
-              </div>
-              <div class="row" style="height: 20px;"></div>
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> Name / ชื่อ </div>
-                    <div class="col-xs-8 column-view">
-                       {{ $lists[$j]['gift_receive_name'] }} 
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Room No / ห้องเลขที่ </div>
-                    <div class="col-xs-5 column-view">
-                       {{ $lists[$j]['room_name'] }} 
-                    </div>
-                  </div>
-              </div>
-              <div class="row" style="height: 20px;"></div>
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4">ลักษณะ</div>
-                    <div class="col-xs-8 column-view">
-                       {{ (isset($lists[$j]['gift_description'])) ? $lists[$j]['gift_description'] : '&nbsp;' }} 
-                    </div>
-                  </div>
-              </div>
               
               <div class="row">
-                  <div class="col-xs-12">
-                    <div class="col-xs-12">กรุณาแสดงบัตรประชาชนเพื่อรับของฝาก ได้ที่ สำนักงานนิติบุคคล<BR>
-                    Please show your ID with this Form for Justistic Person Office
+                <div class="col-xs-2">
+                    @if(isset($lists[$j]['qrcode_key']))
+                    <img class="img-responsive" src="{{ getQRCode($lists[$j]['qrcode_key']) }}" >
+                    @else
+                    <img class="img-responsive" src="{{ getQRCode() }}" >
+                    @endif
+                </div>
+                <div class="col-xs-9">
+                  <div class="row">
+                      <div class="col-xs-6">
+                        <div class="col-xs-4"> No. </div>
+                        <div class="col-xs-8 column-view">
+                           {{ $lists[$j]['parcel_code'] }} 
+                        </div>
+                      </div>
+                      <div class="col-xs-6">
+                        <div class="col-xs-6"> Date. </div>
+                        <div class="col-xs-5 column-view">
+                           {{ date('d/m/',strtotime($lists[$j]['send_date'])).(date('Y',strtotime($lists[$j]['send_date']))+543)." ".date('H:i ',strtotime($lists[$j]['send_date'])) }} 
+                        </div>
+                      </div>
                   </div>
+                  <div class="row" style="height: 20px;"></div>
+                  <div class="row">
+                      <div class="col-xs-6">
+                        <div class="col-xs-4"> Name / ชื่อ </div>
+                        <div class="col-xs-8 column-view">
+                          {{ $lists[$j]['gift_receive_name'] }} 
+                        </div>
+                      </div>
+                      <div class="col-xs-6">
+                        <div class="col-xs-6"> Room No / ห้องเลขที่ </div>
+                        <div class="col-xs-5 column-view">
+                           {{ $lists[$j]['room_name'] }} 
+                        </div>
+                      </div>
+                  </div>
+                  <div class="row" style="height: 20px;"></div>
+                  <div class="row">
+                      <div class="col-xs-6">
+                        <div class="col-xs-4">ลักษณะ</div>
+                        <div class="col-xs-8 column-view">
+                           {{ (isset($lists[$j]['gift_description'])) ? $lists[$j]['gift_description'] : '&nbsp;' }} 
+                        </div>
+                      </div>
                   </div>
                   
-                 
+                  <div class="row">
+                      <div class="col-xs-12">
+                        <div class="col-xs-12">กรุณาแสดงบัตรประชาชนเพื่อรับของฝาก ได้ที่ สำนักงานนิติบุคคล<BR>
+                        Please show your ID with this Form for Justistic Person Office
+                      </div>
+                      </div>
+                      
+                     
+                  </div>
+                  
+                  <div class="row">
+                      <div class="col-xs-6">
+                        <div class="col-xs-4"> 
+                          
+                        </div>
+                        <div class="col-xs-8 ">
+                           Delivered by: (Signature)
+                        </div>
+                       
+                      </div>
+                      <div class="col-xs-6">
+                        <div class="col-xs-6">ลายเซ็นต์ผู้จ่าย</div>
+                        <div class="col-xs-4 column-view">
+                           &nbsp;
+                        </div>
+                        <div class="col-xs-1">Date</div>
+                      </div>
+                     
+                  </div>
+                </div>
+                <div class="col-xs-1">
+                    <div class="pull-right text-right">
+               {{ $setting['ads'] }} <BR><img src="{{ url('public/img/eliving.png') }}" height="50" >
+                    </div>
+                </div>
               </div>
+
+
+
               
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> 
-                      <div class="col-xs-12 column-view"> &nbsp;</div>
-                    </div>
-                    <div class="col-xs-8 ">
-                       Delivered by: (Signature)
-                    </div>
-                   
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6">ลายเซ็นต์ผู้จ่าย</div>
-                    <div class="col-xs-4 column-view">
-                       &nbsp;
-                    </div>
-                    <div class="col-xs-1">Date</div>
-                  </div>
-                 
-              </div>
 
           @else
               <div class="row">
@@ -163,75 +186,85 @@
                  <div class="col-xs-3 text-right">
                  </div>
               </div>
-            
 
               <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> No. </div>
-                    <div class="col-xs-8 column-view">
-                        &nbsp;
+                <div class="col-xs-2">
+                    
+                </div>
+                <div class="col-xs-10">
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> No. </div>
+                          <div class="col-xs-8 column-view">
+                              &nbsp;
+                          </div>
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6"> Date. </div>
+                          <div class="col-xs-5 column-view">
+                              &nbsp;
+                          </div>
+                        </div>
                     </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Date. </div>
-                    <div class="col-xs-5 column-view">
-                        &nbsp;
+                    <div class="row" style="height: 20px;"></div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> Name / ชื่อ </div>
+                          <div class="col-xs-8 column-view">
+                              &nbsp;
+                          </div>
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6"> Room No / ห้องเลขที่ </div>
+                          <div class="col-xs-5 column-view">
+                              &nbsp;
+                          </div>
+                        </div>
                     </div>
-                  </div>
+                    <div class="row" style="height: 20px;"></div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4">ลักษณะ</div>
+                          <div class="col-xs-8 column-view">
+                              &nbsp;
+                          </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-12">
+                          <div class="col-xs-12">กรุณาแสดงบัตรประชาชนเพื่อรับของฝาก ได้ที่ สำนักงานนิติบุคคล<BR>
+                          Please show your ID with this Form for Justistic Person Office
+                        </div>
+                        </div>
+                        
+                       
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> 
+                      
+                          </div>
+                          <div class="col-xs-8 ">
+                             Delivered by: (Signature)
+                          </div>
+                         
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6">ลายเซ็นต์ผู้จ่าย</div>
+                          <div class="col-xs-4 column-view">
+                             &nbsp;
+                          </div>
+                          <div class="col-xs-1">Date</div>
+                        </div>
+                       
+                    </div>   
+                </div>
               </div>
-              <div class="row" style="height: 20px;"></div>
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> Name / ชื่อ </div>
-                    <div class="col-xs-8 column-view">
-                        &nbsp;
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Room No / ห้องเลขที่ </div>
-                    <div class="col-xs-5 column-view">
-                        &nbsp;
-                    </div>
-                  </div>
-              </div>
-              <div class="row" style="height: 20px;"></div>
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4">ลักษณะ</div>
-                    <div class="col-xs-8 column-view">
-                        &nbsp;
-                    </div>
-                  </div>
-              </div>
-              
-              <div class="row">
-                  <div class="col-xs-12">
-                    <div class="col-xs-12">กรุณาแสดงบัตรประชาชนเพื่อรับของฝาก ได้ที่ สำนักงานนิติบุคคล<BR>
-                    Please show your ID with this Form for Justistic Person Office
-                  </div>
-                  </div>
-                  
-                 
-              </div>
-              
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> 
-                      <div class="col-xs-12 column-view"> &nbsp;</div></div>
-                    <div class="col-xs-8 ">
-                       Delivered by: (Signature)
-                    </div>
-                   
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6">ลายเซ็นต์ผู้จ่าย</div>
-                    <div class="col-xs-4 column-view">
-                       &nbsp;
-                    </div>
-                    <div class="col-xs-1">Date</div>
-                  </div>
-                 
-              </div>    
+            
+
+               
           @endif
            <div class="row" style="height: 20px;"><hr></div>
         @endfor
@@ -274,6 +307,12 @@ $(".btn-search").on('click', function(event) {
   var url = $("#baseUrl").val()+'/parcel/print-gift?start_date='+start_date+'&end_date='+end_date ;
  
   window.location.href=url ;
+});
+
+
+$("#backLink").click(function(event) {
+    event.preventDefault();
+    history.back(1);
 });
 
 </script>

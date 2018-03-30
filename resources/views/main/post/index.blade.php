@@ -124,7 +124,7 @@
 				            <div class="box-footer">
 				              	<button  class="btn btn-primary btn-save-post" >
 				              		@lang('post.post')
-				              		<i class="fa fa-spinner fa-spin fa-fw none"></i>
+				              		<i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
 				              	</button>
 				            </div>
 		            <!-- /.box-footer -->
@@ -296,10 +296,10 @@ $(document).on("click",".btn-cancel-edit",function(){
 $(document).on("click",".btn-save-edit",function(){
 	var parent = $(this).closest('.box-widget');
 	var text = parent.find('.text-edit textarea').val();
-	var data = { 'description':text  } ;
+	var data = { 'description':text,'_method':'PUT'   } ;
 	var post_id = parent.find('.post-id').val();
 	var route = "/post/"+post_id+"?api_token="+api_token ;
-	ajaxPromise('PUT',route,data).done(function(data){
+	ajaxPromise('POST',route,data).done(function(data){
 		parent.find('.text-show').text(text).show();
 
 		parent.find('.text-edit').hide();

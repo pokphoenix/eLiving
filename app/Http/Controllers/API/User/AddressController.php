@@ -46,20 +46,23 @@ class AddressController extends ApiController
 
   
 
-    public function index(){
+    public function index()
+    {
         $idcard = auth()->user()->id_card ;
         $domainId = auth()->user()->recent_domain ;
-        $data['user_address'] =  User::getAddressList($domainId,$idcard);
+        $data['user_address'] =  User::getAddressList($domainId, $idcard);
         return $this->respondWithItem($data);
-    } 
+    }
    
-    public function show(){
+    public function show()
+    {
         $data['user'] = auth()->user() ;
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request){
-        $post = $request->all();
+    public function store(Request $request)
+    {
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -72,45 +75,46 @@ class AddressController extends ApiController
         $post['domain_id'] = auth()->user()->recent_domain;
        
         $address = new Address();
-        $address->fill($post)->save(); 
+        $address->fill($post)->save();
 
-        $data['user_address'] =  User::getAddressList($domainId,$idcard);
+        $data['user_address'] =  User::getAddressList($domainId, $idcard);
         return $this->respondWithItem($data);
-    }  
+    }
 
-    public function edit(Request $request,$addressId){
-        $post = $request->all();
+    public function edit(Request $request, $addressId)
+    {
+        $post = $request->except('api_token', '_method');
         $address = Address::find($addressId);
         $data['address'] =  $address ;
         $domainId = auth()->user()->recent_domain;
         $idcard = auth()->user()->id_card;
-        $data['user_address'] =  User::getAddressList($domainId,$idcard);
-        return $this->respondWithItem($data);
-    }  
-    
-    
-    public function update(Request $request,$addressId)
-    {
-        $post = $request->all();
-        $address = Address::find($addressId);
-        $address->fill($post)->save();
-        $domainId = auth()->user()->recent_domain;
-        $idcard = auth()->user()->id_card;
-        $data['user_address'] =  User::getAddressList($domainId,$idcard);
+        $data['user_address'] =  User::getAddressList($domainId, $idcard);
         return $this->respondWithItem($data);
     }
-    public function active(Request $request,$addressId)
+    
+    
+    public function update(Request $request, $addressId)
     {
-        $post = $request->all();
+        $post = $request->except('api_token', '_method');
+        $address = Address::find($addressId);
+        $address->fill($post)->save();
         $domainId = auth()->user()->recent_domain;
         $idcard = auth()->user()->id_card;
-        Address::where('domain_id',$domainId)->where('id_card',$idcard)->update(['active'=>0]);
+        $data['user_address'] =  User::getAddressList($domainId, $idcard);
+        return $this->respondWithItem($data);
+    }
+    public function active(Request $request, $addressId)
+    {
+        $post = $request->except('api_token', '_method');
+        $domainId = auth()->user()->recent_domain;
+        $idcard = auth()->user()->id_card;
+        Address::where('domain_id', $domainId)->where('id_card', $idcard)->update(['active'=>0]);
 
         $address = Address::find($addressId);
         $address->fill($post)->save();
 
 
-        $data['user_address'] =  User::getAddressList($domainId,$idcard);
+        $data['user_address'] =  User::getAddressList($domainId, $idcard);
         return $this->respondWithItem($data);
     }
 
@@ -119,15 +123,15 @@ class AddressController extends ApiController
         $domainId = auth()->user()->recent_domain ;
         $idCard = auth()->user()->id_card ;
         
-        $cnt =  Address::where('domain_id',$domainId)->where('id_card',$idCard)->count();
-        if($cnt <= 1){
+        $cnt =  Address::where('domain_id', $domainId)->where('id_card', $idCard)->count();
+        if ($cnt <= 1) {
             return $this->respondWithError('Cannot delete all address');
         }
 
         $address = Address::find($addressId)->delete();
         $domainId = auth()->user()->recent_domain;
         $idcard = auth()->user()->id_card;
-        $data['user_address'] =  User::getAddressList($domainId,$idcard);
+        $data['user_address'] =  User::getAddressList($domainId, $idcard);
         return $this->respondWithItem($data);
     }
 
@@ -142,7 +146,5 @@ class AddressController extends ApiController
             'district_id' => 'required|numeric',
             'zip_code' => 'required|digits:5',
         ]);
-    } 
-   
-    
+    }
 }

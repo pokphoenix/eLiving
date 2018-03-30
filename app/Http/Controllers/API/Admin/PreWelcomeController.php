@@ -31,17 +31,19 @@ class PreWelcomeController extends ApiController
     {
     }
 
-    public function search(Request $request){
-      
+    public function search(Request $request)
+    {
     }
 
-    public function index($domainId){
-        $data['pre_welcome']  = PreWelcome::find(1);
+    public function index($domainId)
+    {
+        $data['pre_welcome']  = PreWelcome::where('domain_id', $domainId)->first();
         return $this->respondWithItem($data);
-    } 
+    }
    
-    public function store(Request $request,$domainId){
-        $post = $request->all();
+    public function store(Request $request, $domainId)
+    {
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -52,28 +54,30 @@ class PreWelcomeController extends ApiController
         $query = new PreWelcome();
         $query->fill($post)->save();
         return $this->respondWithItem(['pre_welcome_id'=>$query->id]);
-    }  
-    public function update(Request $request,$domainId,$Id){
-        $post = $request->all();
-        $query = PreWelcome::find($Id) ;
-        if(empty($query)){
+    }
+    public function update(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
+        $query = PreWelcome::where('domain_id', $domainId)->first() ;
+        if (empty($query)) {
             $query = new PreWelcome();
+            $query->domain_id = $domainId;
         }
 
         $query->fill($post)->save();
 
-        return $this->respondWithItem(['pre_welcome_id'=>$Id]);
-    } 
-    public function destroy(Request $request,$domainId,$Id){
-        $post = $request->all();
+        return $this->respondWithItem(['pre_welcome_id'=>$query->id]);
+    }
+    public function destroy(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
         $query = PreWelcome::find($Id)->delete();
         return $this->respondWithItem(['pre_welcome_id'=>$Id]);
-    } 
+    }
     private function validator($data)
     {
         return Validator::make($data, [
             'description' => 'required|string|max:255',
         ]);
     }
-    
 }

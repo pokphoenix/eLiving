@@ -36,28 +36,35 @@
       <div class="box">
             <div class="box-header">
               <h3 class="box-title"></h3>
+               @if(!isset($backdate))
                <button class="btn btn-success btn-sm btn-create" > <i class="fa fa-plus"></i> @lang('parcel.insert')</button>
+               <button class="btn btn-primary btn-sm btn-letter" > <i class="fa fa-plus"></i> @lang('parcel.new_letter')</button>
+               @endif
             </div>
             <!-- /.box-header -->
             <div class="box-body">
               <table id="example1" class="table table-bordered table-striped">
                 <thead>
                 <tr>
+                  <th></th>
                   <th>@lang('user.no')</th>
                   <th>@lang('parcel.room')</th>
                   <th>@lang('parcel.type')</th>
                   <th>@lang('parcel.created_at')</th>
                   <th>@lang('parcel.send_date')</th>
                   <th>@lang('parcel.received_at')</th>
+                  <th>@lang('parcel.gift_receive_name')</th>
                   <th>@lang('main.tool')</th>
                 </tr>
                 <tr class="thead-search">
+                  <th ></th>
                   <th ></th>
                   <th class="input-filter">@lang('parcel.room')</th>
                   <th class="input-filter">@lang('parcel.type')</th>
                   <th class="input-filter">@lang('parcel.created_at')</th>
                   <th class="input-filter">@lang('parcel.send_date')</th>
                   <th class="input-filter">@lang('parcel.received_at')</th>
+                  <th class="input-filter">@lang('parcel.gift_receive_name')</th>
                   <th></th>
                 </tr>
                 </thead>
@@ -65,6 +72,7 @@
         
                 @foreach ($lists as $key=>$list)
                 <tr >
+                  <td></td>
                   <td>{{ $list['parcel_code'] }}</td>
                   <td>{{ $list['room_name']}}</td>
                   <td>{{ $list['parcel_type_name']}} 
@@ -74,17 +82,23 @@
                   </td>
                   <td>{{ created_date_format($list['created_at']) }}</td>
                   <td>{{ created_date_format($list['send_date']) }}</td>
+                 
                   <td>@if(isset($list['receive_at']))
                     {{ created_date_format($list['receive_at'])  }} @lang('parking.by') {{ $list['receive_name'] }}
                     @else
                     @lang('parcel.wait_receive')
                     @endif
                   </td>
+                   <td> @if($list['type']==2)
+                       {{ $list['supplies_send_name']}}
+                      @elseif($list['type']==3)
+                      {{ $list['gift_receive_name']}}
+                    @endif</td>
                   <td> 
-                   
+                    @if(!isset($backdate))
                     <button class="btn btn-default btn-edit btn-xs" data-id="{{ $list['id'] }}" ><i class="fa fa-edit"></i></button>
                     <button class="btn btn-danger btn-delete btn-xs" data-id="{{ $list['id'] }}"  ><i class="fa fa-trash-o"></i></button>
-                   
+                    @endif
                   </td>
 
                 </tr>
@@ -163,7 +177,26 @@
                   <div id="row_supplies" class="parcel-row none">
                     <div class="form-group">
                       <label for="name">@lang('parcel.supplies_send_name')</label>
-                      <input type="text" class="form-control" id="supplies_send_name" name="supplies_send_name" placeholder="@lang('parcel.supplies_send_name')"  >
+                      <div class="row">
+                        <div class="col-sm-2">
+                          <select id="supplies_send_title_name" class="form-control"  >
+                            <option></option>
+                           
+                            @if (isset($titleName))
+                              @foreach($titleName as $tn)
+                              <option value="{{ $tn['name'] }}"  > {{ $tn['name'] }} </option>
+                              @endforeach
+                            @endif
+                           
+                          </select>
+                        </div>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="supplies_send_name" name="supplies_send_name" placeholder="@lang('parcel.supplies_send_name')"  >
+                        </div>
+                        
+                      </div>
+
+                      
                     </div>
                     <div class="form-group">
                       <label for="name">@lang('parcel.supplies_type')</label>
@@ -186,11 +219,46 @@
                   <div id="row_gift" class="parcel-row none">
                     <div class="form-group">
                       <label for="name">@lang('parcel.gift_receive_name')</label>
-                      <input type="text" class="form-control" id="gift_receive_name" name="gift_receive_name" placeholder="@lang('parcel.gift_receive_name')"  >
+                      <div class="row">
+                        <div class="col-sm-2">
+                          <select id="gift_receive_title_name" class="form-control"  >
+                            <option></option>
+                           
+                            @if (isset($titleName))
+                              @foreach($titleName as $tn)
+                              <option value="{{ $tn['name'] }}"  > {{ $tn['name'] }} </option>
+                              @endforeach
+                            @endif
+                           
+                          </select>
+                        </div>
+                        <div class="col-sm-10">
+                              <input type="text" class="form-control" id="gift_receive_name" name="gift_receive_name" placeholder="@lang('parcel.gift_receive_name')"  >
+                        </div>
+                        
+                      </div>
+
+                    
                     </div>
                     <div class="form-group">
                       <label for="name">@lang('parcel.gift_send_name')</label>
-                      <input type="text" class="form-control" id="gift_send_name" name="gift_send_name" placeholder="@lang('parcel.gift_send_name')"  >
+                      <div class="row">
+                        <div class="col-sm-2">
+                          <select id="gift_send_title_name" class="form-control"  >
+                            <option></option>
+                            @if (isset($titleName))
+                              @foreach($titleName as $tn)
+                              <option value="{{ $tn['name'] }}"  > {{ $tn['name'] }} </option>
+                              @endforeach
+                            @endif
+                          </select>
+                        </div>
+                        <div class="col-sm-10">
+                             <input type="text" class="form-control" id="gift_send_name" name="gift_send_name" placeholder="@lang('parcel.gift_send_name')"  >
+                        </div>
+                        
+                      </div>
+                     
                     </div>
                     <div class="form-group">
                       <label for="name">@lang('parcel.gift_description')</label>
@@ -198,16 +266,20 @@
                     </div>
                     
                   </div>
+                   <div class="form-group row-position none">
+                      <label for="name">@lang('parcel.position')</label>
+                      <input type="text" class="form-control" id="position" name="position" placeholder="@lang('parcel.position')"  >
+                    </div>
                   
                 </form>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
                 <button type="button" class="btn btn-primary btn-save">@lang('parcel.btn_save_and_close')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
                 </button>
                 <button type="button" class="btn btn-info btn-save-continue none">@lang('parcel.btn_save_and_continue')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
                 </button>
               </div>
             </div>
@@ -216,6 +288,72 @@
           <!-- /.modal-dialog -->
         </div>
 
+
+
+  <div class="modal fade" id="modal-letter">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">@lang('parcel.new_letter')</h4>
+          </div>
+          <div class="modal-body">
+              <div class="form-group">
+                <label for="name">@lang('parcel.send_date')</label>
+                <div class="row">
+                  <div class="col-xs-2"> 
+                    <input type="text" class="form-control" id="send_date_day_letter"  placeholder="@lang('parcel.send_date_day')" value="{{ date('d') }}" >
+                  </div>
+                  <div class="col-xs-2">  
+                    <input type="text" class="form-control" id="send_date_month_letter"  placeholder="@lang('parcel.send_date_month')" value="{{ date('m') }}" >
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="text" class="form-control" id="send_date_year_letter"  placeholder="@lang('parcel.send_date_year')" value="{{ date('Y') }}" >
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="text" class="form-control" id="send_date_hour_letter"  placeholder="@lang('parcel.send_date_hour')" value="{{ date('H') }}" >
+                  </div>
+                  <div class="col-xs-2">
+                    <input type="text" class="form-control" id="send_date_minute_letter"  placeholder="@lang('parcel.send_date_minute')" value="{{ date('i') }}" >
+                  </div>
+                </div>
+              </div>
+              <table class="table table-striped" >
+                <thead>
+                  <th>
+                    <input type="checkbox" id="select_all" >
+                  </th>
+                  <th>@lang('parcel.room')</th>
+                </thead>
+                <tbody>
+                   @if (isset($roomNotSend))
+                      @foreach($roomNotSend as $r)
+                  <tr>
+                    <td>
+                         <input type="checkbox" class="checkbox-room" value="{{ $r['id'] }}"  >
+                    </td>
+                    <td>{{ $r['text' ]}}</td>
+                  </tr>
+                      @endforeach
+                    @endif
+                </tbody>
+              </table>
+              
+              
+              
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
+            <button type="button" class="btn btn-primary btn-save-letter">@lang('parcel.btn_save_letter')
+               <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
+            </button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
 
 @endsection
 
@@ -234,7 +372,7 @@ $(function () {
    var table = $('#example1').DataTable(
       {
         "bSortCellsTop": true
-        ,"order": [[ 3, 'desc' ]]
+       
       }
       );
     
@@ -264,21 +402,42 @@ $("#type").on("change",function(){
   console.log($(this).val());
   var type= $(this).val() ;
   $(".parcel-row").hide();
-   $(".btn-save-continue").hide();
+  $(".btn-save-continue").hide();
+  $(".row-position").show(); 
   if(type==3){
     $("#row_gift").show();
   }else if(type==2||type==5){
     $("#row_supplies").show();
     $(".btn-save-continue").show();
   }else{
-
+    $(".row-position").hide();
   }
+})
+
+$("#select_all").on("change",function(){
+  $(".checkbox-room").prop('checked', ($(this).is(':checked') ? true : false ));
+})
+
+$(".btn-letter").on("click",function(){
+  $("#select_all").prop('checked', false);
+  $(".checkbox-room").prop('checked', false);
+  var d = new Date();
+
+  $("#send_date_year_letter").val( d.getFullYear() );
+  $("#send_date_month_letter").val( d.getMonth()+1 );
+  $("#send_date_day_letter").val( d.getDate() );
+  $("#send_date_hour_letter").val( d.getHours() );
+  $("#send_date_minute_letter").val( d.getMinutes() );
+  $("#modal-letter").modal("toggle");
 })
 
 $(".btn-create").on("click",function(){
    $("#modal-default input").val('');
   $('#room_id').val('').trigger('change');
   $('#type').val('').trigger('change');
+  $('#gift_receive_title_name').val('คุณ').trigger('change').show();
+  $('#gift_send_title_name').val('คุณ').trigger('change').show();
+  $('#supplies_send_title_name').val('คุณ').trigger('change').show();
   $(".parcel-row").hide();
   // $('#send_date').data('daterangepicker').setStartDate(new Date());
 
@@ -330,7 +489,7 @@ $(".btn-delete").on("click",function(){
   }).then((result) => {
           if (result.value) {
               var route = "/parcel/officer/"+buyId+"?api_token="+api_token ;
-              ajaxPromise('DELETE',route).done(function(data){
+              ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
                parent.remove();
               }).fail(function(txt) {
                 var error = JSON.stringify(txt);
@@ -348,7 +507,9 @@ $(".btn-delete").on("click",function(){
 })
 $(".btn-edit").on("click",function(){
    $("#modal-default input").val('');
-
+  $('#gift_receive_title_name').val('').trigger('change').hide();
+  $('#gift_send_title_name').val('').trigger('change').hide();
+  $('#supplies_send_title_name').val('').trigger('change').hide();
 
 
     var parcelId = $(this).data('id');
@@ -371,7 +532,7 @@ $(".btn-edit").on("click",function(){
         var r = data.parking_package ;
         $('#room_id').val(r.room_id).trigger('change');
         $('#type').val(r.type).trigger('change');
-
+        $("#parcel-form #_method").remove('');
         var d = new Date(r.send_date);
         $("#send_date_year").val( d.getFullYear() );
         $("#send_date_month").val( d.getMonth()+1 );
@@ -387,6 +548,7 @@ $(".btn-edit").on("click",function(){
         $('#gift_receive_name').val(r.gift_receive_name);
         $('#gift_send_name').val(r.gift_send_name);
         $('#gift_description').val(r.gift_description);
+        $('#position').val(r.position);
 
         $("#modal-default modal-title").text((($("#app_local").val()=='th') ? 'แก้ไขรายการ' : 'Edit Parcel' ));
         $("#parcel-form").attr({'action': $("#apiUrl").val()+"/parcel/officer/"+parcelId+"?api_token="+api_token });
@@ -406,7 +568,53 @@ $(".btn-edit").on("click",function(){
 
 })
 
+function getDataSave(){
+  var dfd = $.Deferred() ;
 
+  data = { item:[],send_date:''};
+
+  $(".checkbox-room:checked").each(function(){
+      data.item.push($(this).val());
+  });
+
+  var period = $("#send_date_year_letter").val()+"-"+$("#send_date_month_letter").val()+"-"+$("#send_date_day_letter").val()+" "+$("#send_date_hour_letter").val()+":"+$("#send_date_minute_letter").val();
+  data.send_date = period ;
+
+  if(data.item.length>0){
+    dfd.resolve(data);
+  }else{
+    dfd.reject((($("#app_local").val()=='th') ? 'กรุณาเลือกห้อง' : 'Please check room' ));
+  }
+
+
+  return dfd.promise();
+}
+
+$(".btn-save-letter").on("click",function(){
+    eleSpin = ".btn-save-letter" ;
+    $(eleSpin).find('.fa-spinner').show();
+    
+    getDataSave().done(function(data){
+
+        var route = "/parcel/officer/letter?api_token="+api_token ; 
+        ajaxPromise('POST',route,data).done(function(){
+            location.reload();
+        });
+
+    }).fail(function(error){
+        swal(
+            'Error...',
+             error,
+            'error'
+          )
+    })
+
+   
+
+    
+  
+
+})
 
 
 
@@ -451,8 +659,11 @@ $(function() {
        
 
         var period = $("#send_date_year").val()+"-"+$("#send_date_month").val()+"-"+$("#send_date_day").val()+" "+$("#send_date_hour").val()+":"+$("#send_date_minute").val()
-        console.log(period);
+        console.log($("#supplies_send_title_name").val()+$("#supplies_send_name").val());
         form_data.append('send_date',period);
+        form_data.append('supplies_send_name', $("#supplies_send_title_name").val()+$("#supplies_send_name").val()  );
+        form_data.append('gift_send_name', $("#gift_send_title_name").val()+$("#gift_send_name").val()  );
+        form_data.append('gift_receive_name', $("#gift_receive_title_name").val()+$("#gift_receive_name").val()  );
    
              $.ajax({
                  type: $("#parcel-form").attr('method') ,

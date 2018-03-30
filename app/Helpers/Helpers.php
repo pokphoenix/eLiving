@@ -2,29 +2,35 @@
 
 use Carbon\Carbon;
 
-
 if (! function_exists('created_date_format')) {
-    function created_date_format ($date)
+    function created_date_format($date)
     {
-        // return date(CREATE_DATE_FORMAT, strtotime($date))  ;
-
-
-        return date('d',strtotime($date))."-".month_date_short(date('m',strtotime($date)))."-".date('Y',strtotime($date))." ".date('H:i',strtotime($date));
-
+        return date('Y-m-d H:i', strtotime($date))  ;
     }
 }
 if (! function_exists('getLang')) {
-    function getLang ()
+    function getLang()
     {
-        return App::isLocale('en') ? 'en' : 'th' ;
+
+        $user = Auth()->User();
+        if (isset($user)) {
+            $lang = Auth()->User()->current_lang ;
+        } else {
+            $lang = App::getLocale();
+        }
+
+        // var_dump(Auth()->user()->getDomainName()) ;die;
+        return trim($lang) ;
+        // return Auth::user()->current_lang;
+        // return App::isLocale('en');
     }
 }
 
 if (! function_exists('cutStrlen')) {
-    function cutStrlen ($text,$len)
+    function cutStrlen($text, $len)
     {
-        if ( mb_strlen($text,'utf-8') > $len){
-            $text = iconv_substr($text,0,$len, "UTF-8")."..." ;
+        if (mb_strlen($text, 'utf-8') > $len) {
+            $text = iconv_substr($text, 0, $len, "UTF-8")."..." ;
         }
         return $text ;
     }
@@ -33,7 +39,7 @@ if (! function_exists('cutStrlen')) {
 
 
 if (! function_exists('getChannelTypeName')) {
-    function getChannelTypeName ($type)
+    function getChannelTypeName($type)
     {
         switch ($type) {
             case 1:
@@ -45,7 +51,6 @@ if (! function_exists('getChannelTypeName')) {
             case 3:
                 $text = "Secret";
                 break;
-           
         }
 
 
@@ -53,7 +58,7 @@ if (! function_exists('getChannelTypeName')) {
     }
 }
 if (! function_exists('getNotificationType')) {
-    function getNotificationType ($type)
+    function getNotificationType($type)
     {
         switch ($type) {
             case 1:
@@ -78,7 +83,7 @@ if (! function_exists('getNotificationType')) {
     }
 }
 if (! function_exists('getNotificationIcon')) {
-    function getNotificationIcon ($type)
+    function getNotificationIcon($type)
     {
         
         switch ($type) {
@@ -104,101 +109,101 @@ if (! function_exists('getNotificationIcon')) {
     }
 }
 if (! function_exists('month_date')) {
-    function month_date ($month)
+    function month_date($month)
     {
-     
+        
+        $lang = getLang();
+
         switch (intval($month)) {
             case 1:
-                $txt = App::isLocale('en') ? 'January' : 'มกราคม' ;
+                $txt = $lang=='en' ? 'January' : 'มกราคม' ;
                 break;
             case 2:
-                $txt = App::isLocale('en') ? 'February' : 'กุมภาพันธ์' ;
+                $txt = $lang=='en' ? 'February' : 'กุมภาพันธ์' ;
                 break;
             case 3:
-                $txt = App::isLocale('en') ? 'March' : 'มีนาคม' ;
+                $txt = $lang=='en' ? 'March' : 'มีนาคม' ;
                 break;
             case 4:
-                $txt = App::isLocale('en') ? 'April' : 'เมษายน' ;
+                $txt = $lang=='en' ? 'April' : 'เมษายน' ;
                 break;
             case 5:
-                $txt = App::isLocale('en') ?  'May' :'พฤษภาคม' ;
+                $txt = $lang=='en' ?  'May' :'พฤษภาคม' ;
                 break;
             case 6:
-                $txt = App::isLocale('en') ? 'June' : 'มิถุนายน' ;
+                $txt = $lang=='en' ? 'June' : 'มิถุนายน' ;
                 break;
             case 7:
-                $txt = App::isLocale('en') ? 'July' : 'กรกฎาคม' ;
+                $txt = $lang=='en' ? 'July' : 'กรกฎาคม' ;
                 break;
             case 8:
-                $txt = App::isLocale('en') ? 'August' : 'สิงหาคม' ;
+                $txt = $lang=='en' ? 'August' : 'สิงหาคม' ;
                 break;
             case 9:
-                $txt = App::isLocale('en') ? 'September' : 'กันยายน' ;
+                $txt = $lang=='en' ? 'September' : 'กันยายน' ;
                 break;
             case 10:
-                $txt = App::isLocale('en') ? 'October' : 'ตุลาคม' ;
+                $txt = $lang=='en' ? 'October' : 'ตุลาคม' ;
                 break;
             case 11:
-                $txt = App::isLocale('en') ? 'November' : 'พฤษจิกายน' ;
+                $txt = $lang=='en' ? 'November' : 'พฤษจิกายน' ;
                 break;
             case 12:
-                $txt = App::isLocale('en') ? 'December' : 'ธันวาคม' ;
+                $txt = $lang=='en' ? 'December' : 'ธันวาคม' ;
                 break;
-
         }
 
         return $txt ;
     }
 }
 if (! function_exists('month_date_short')) {
-    function month_date_short ($month)
+    function month_date_short($month)
     {
-     
+        $lang = getLang();
         switch (intval($month)) {
             case 1:
-                $txt = App::isLocale('en') ? 'Jan' : 'ม.ค.' ;
+                $txt = $lang=='en' ? 'Jan' : 'ม.ค.' ;
                 break;
             case 2:
-                $txt = App::isLocale('en') ? 'Feb' : 'ก.พ.' ;
+                $txt = $lang=='en' ? 'Feb' : 'ก.พ.' ;
                 break;
             case 3:
-                $txt = App::isLocale('en') ? 'Mar' : 'มี.ค.' ;
+                $txt = $lang=='en' ? 'Mar' : 'มี.ค.' ;
                 break;
             case 4:
-                $txt = App::isLocale('en') ? 'Apr' : 'เม.ษ.' ;
+                $txt = $lang=='en' ? 'Apr' : 'เม.ษ.' ;
                 break;
             case 5:
-                $txt = App::isLocale('en') ?  'May' :'พ.ค.' ;
+                $txt = $lang=='en' ?  'May' :'พ.ค.' ;
                 break;
             case 6:
-                $txt = App::isLocale('en') ? 'Jun' : 'มิ.ย.' ;
+                $txt = $lang=='en' ? 'Jun' : 'มิ.ย.' ;
                 break;
             case 7:
-                $txt = App::isLocale('en') ? 'Jul' : 'ก.ค.' ;
+                $txt = $lang=='en' ? 'Jul' : 'ก.ค.' ;
                 break;
             case 8:
-                $txt = App::isLocale('en') ? 'Aug' : 'ส.ค.' ;
+                $txt = $lang=='en' ? 'Aug' : 'ส.ค.' ;
                 break;
             case 9:
-                $txt = App::isLocale('en') ? 'Sep' : 'ก.ย.' ;
+                $txt = $lang=='en' ? 'Sep' : 'ก.ย.' ;
                 break;
             case 10:
-                $txt = App::isLocale('en') ? 'Oct' : 'ต.ค.' ;
+                $txt = $lang=='en' ? 'Oct' : 'ต.ค.' ;
                 break;
             case 11:
-                $txt = App::isLocale('en') ? 'Nov' : 'พ.ย.' ;
+                $txt = $lang=='en' ? 'Nov' : 'พ.ย.' ;
                 break;
             case 12:
-                $txt = App::isLocale('en') ? 'Dec' : 'ธ.ค.' ;
+                $txt = $lang=='en' ? 'Dec' : 'ธ.ค.' ;
                 break;
-
         }
 
         return $txt ;
     }
 }
 if (! function_exists('getNotificationUrl')) {
-    function getNotificationUrl ($data)
+    function getNotificationUrl($data)
     {
         $dataType = (gettype($data)=="array") ? $data['type'] : $data->type ;
         $dataRefId = (gettype($data)=="array") ? $data['ref_id'] : $data->ref_id ;
@@ -230,7 +235,7 @@ if (! function_exists('getNotificationUrl')) {
 }
 
 if (! function_exists('getStatusText')) {
-    function getStatusText ($type,$lang='EN')
+    function getStatusText($type, $lang = 'EN')
     {
         switch ($type) {
             case 0:
@@ -263,26 +268,26 @@ if (! function_exists('getStatusText')) {
 }
 
 if (! function_exists('getStatusColor')) {
-    function getStatusColor ($type)
+    function getStatusColor($type)
     {
         switch ($type) {
             case 0:
-               $color = "#f39c12";  
+                $color = "#f39c12";
                 break;
             case 1:
-               $color = "#00a65a";  
+                $color = "#00a65a";
                 break;
             case 2:
-               $color = "#3c8dbc";  
+                $color = "#3c8dbc";
                 break;
             case 3:
-                $color = "#f56954";  
+                $color = "#f56954";
                 break;
             case 4:
-                $color = "#dd4b39";  
+                $color = "#dd4b39";
                 break;
             case 5:
-                $color = "#00a65a";  
+                $color = "#00a65a";
                 break;
         }
         return  $color ;
@@ -290,14 +295,14 @@ if (! function_exists('getStatusColor')) {
 }
 
 if (! function_exists('strDotted')) {
-    function strDotted ($text,$length=10)
+    function strDotted($text, $length = 10)
     {
-        return  (strlen($text) > $length ) ? substr($text, 0,$length)."..." :  $text ; 
+        return  (strlen($text) > $length ) ? substr($text, 0, $length)."..." :  $text ;
     }
 }
 
 if (! function_exists('diffByNow')) {
-    function diffByNow ($date)
+    function diffByNow($date)
     {
         $carbonated_date = Carbon::createFromTimestamp($date);
         return $carbonated_date->diffForHumans(Carbon::now());
@@ -305,13 +310,13 @@ if (! function_exists('diffByNow')) {
 }
 
 if (! function_exists('labelClass')) {
-    function labelClass ($task)
+    function labelClass($task)
     {
-        if (isset($task['due_date_complete_at']) &&  strtotime($task['due_date_complete_at'])<=strtotime($task['due_dated_at'])){
+        if (isset($task['due_date_complete_at']) &&  strtotime($task['due_date_complete_at'])<=strtotime($task['due_dated_at'])) {
             $res = "label-success" ;
-        }elseif(strtotime($task['due_dated_at'])<=time()){
+        } elseif (strtotime($task['due_dated_at'])<=time()) {
             $res = "label-danger" ;
-        }else{
+        } else {
             $res = "label-warning" ;
         }
         return $res ;
@@ -319,47 +324,79 @@ if (! function_exists('labelClass')) {
 }
 
 if (! function_exists('dueDateTime')) {
-    function dueDateTime ($task)
+    function dueDateTime($task)
     {
-        return date('d/m/Y h:i ',strtotime($task['due_dated_at']));
+        return date('d/m/Y h:i ', strtotime($task['due_dated_at']));
     }
 }
 
 
 if (! function_exists('getUserName')) {
-    function getUserName ()
+    function getUserName()
     {
         return Auth::user()->first_name." ".Auth::user()->last_name  ;
     }
 }
 
+if (! function_exists('getQRCode')) {
+    function getQRCode($hash = null)
+    {
+        if (is_null($hash)) {
+            $hash = time()."".str_random(10);
+        }
+        $base64Hash = base64_encode($hash);
+        $return = substr($hash, 0, 20);
+        // echo " hash :  $return<BR>";
+
+        $renderer = new \BaconQrCode\Renderer\Image\Png();
+        $renderer->setHeight(256);
+        $renderer->setWidth(256);
+        $writer = new \BaconQrCode\Writer($renderer);
+        $writer->writeString($return);
+        $fileName = "temp.png";
+        $writer->writeFile($return, $fileName);
+            
+        $img = Image::make($fileName);
+        $mime = $img->mime() ;
+        $img->encode('png');
+        // var_dump($mime);
+        // $type = 'png';
+        $base64 = 'data:' . $mime . ';base64,' . base64_encode($img);
+        unset($fileName);
+        return $base64 ;
+    }
+}
+
+
+
+
 if (! function_exists('getBase64Img')) {
-    function getBase64Img ($image)
+    function getBase64Img($image)
     {
         $defaultImg =  'data:image/png;base64,' . base64_encode(Image::make(url('/public/img/error-image.jpg'))->encode('png'));
 
-        if(is_null($image)){
+        if (is_null($image)) {
             return  null ;
         }
         //--- check file exits
         $file_headers = @get_headers(htmlspecialchars($image));
-        if($file_headers[0]!="HTTP/1.1 200 OK"){
+        if ($file_headers[0]!="HTTP/1.1 200 OK") {
             return  $defaultImg ;
         }
 
         // $img = Image::make($image)->mime();
         // $mime = $img->mime() ;
         $type = pathinfo($image, PATHINFO_EXTENSION);
-        if(strtolower($type)=="jpg"|| strtolower($type)=="png"){
+        if (strtolower($type)=="jpg"|| strtolower($type)=="png") {
             $image = $image ;
-        }elseif($type=="txt"){
+        } elseif ($type=="txt") {
             $image = url('/public/img/file_format/txt.png') ;
-        }elseif($type=="pdf"){
+        } elseif ($type=="pdf") {
             $image = url('/public/img/file_format/pdf.png') ;
-        }elseif($type=="xls"){
+        } elseif ($type=="xls") {
             $image = url('/public/img/file_format/xls.png') ;
-        }else{
-            $image = url('/public/img/file_format/etc.png') ; 
+        } else {
+            $image = url('/public/img/file_format/etc.png') ;
         }
 
         return $image;
@@ -381,17 +418,16 @@ if (! function_exists('getBase64Img')) {
         // // var_dump($mime);
         // // $type = 'png';
         // $base64 = 'data:' . $mime . ';base64,' . base64_encode($img);
-       
     }
 }
 
 if (! function_exists('uploadfile')) {
-    function uploadfile($request,$name,$domainId,$resize=null)
+    function uploadfile($request, $name, $domainId, $resize = null)
     {
         $result = ['result'=>true,'error'=>''];
         if ($request->hasFile($name)) {
             $file = $request->file($name);
-            if(is_array($file)){ 
+            if (is_array($file)) {
                 foreach ($request->file($name) as $key => $file) {
                     $fileArray = array('image' => $file);
                     $rules = array(
@@ -399,65 +435,62 @@ if (! function_exists('uploadfile')) {
                       'image' => 'max:2048' // max 10000kb
                     );
                     $validator = Validator::make($fileArray, $rules);
-                    if ($validator->fails())
-                    {
+                    if ($validator->fails()) {
                         $result['result'] = false;
                         $result['error'] = $validator->errors()->getMessages() ;
-                    }else{
+                    } else {
                         $folderName = UPLOAD_PATH.$domainId."/".date('Ym') ;
                         $fileName = uniqid().'_'.$file->getClientOriginalName();
                         if (!is_dir(public_path('storage/'.$folderName))) {
-                            File::makeDirectory(public_path('storage/'.$folderName),0777,true);  
+                            File::makeDirectory(public_path('storage/'.$folderName), 0777, true);
                         }
                         $type = pathinfo($file, PATHINFO_EXTENSION);
                         $destinationPath = public_path('storage/'.$folderName);
-                        if($type=="jpg"||$type=="png"){
-                            $image_resize = Image::make($file->getRealPath()); 
-                            if(isset($resize)){
-                                $image_resize->resize($resize['w'], $resize['h']);    
-                            } 
+                        if ($type=="jpg"||$type=="png") {
+                            $image_resize = Image::make($file->getRealPath());
+                            if (isset($resize)) {
+                                $image_resize->resize($resize['w'], $resize['h']);
+                            }
                             $image_resize->save($destinationPath.'/'.$fileName);
-                        }else{
+                        } else {
                             $file->move($destinationPath, $fileName);
-                        }   
-                        $imagePath = str_replace(UPLOAD_PATH,'',$folderName.'/') ;
+                        }
+                        $imagePath = str_replace(UPLOAD_PATH, '', $folderName.'/') ;
                         $result['imagePath'][$key] = $imagePath ;
                         $result['imageName'][$key] = $fileName ;
                     }
                 }
-            }else{
+            } else {
                 $fileArray = array('image' => $file);
                 $rules = array(
                   'image' => 'max:2048' // max 10000kb
                 );
                 $validator = Validator::make($fileArray, $rules);
-                if ($validator->fails())
-                {
+                if ($validator->fails()) {
                     $result['result'] = false;
                     $result['error'] = $validator->errors()->getMessages() ;
-                }else{
+                } else {
                     $folderName = UPLOAD_PATH.$domainId."/".date('Ym') ;
                     $fileName = uniqid().'_'.$request->$name->getClientOriginalName();
                     if (!is_dir(public_path('storage/'.$folderName))) {
-                        File::makeDirectory(public_path('storage/'.$folderName),0777,true);  
+                        File::makeDirectory(public_path('storage/'.$folderName), 0777, true);
                     }
 
                     $type = pathinfo($file, PATHINFO_EXTENSION);
                     $destinationPath = public_path('storage/'.$folderName);
-                    if($type=="jpg"||$type=="png"){
-                        $image_resize = Image::make($file->getRealPath()); 
-                        if(isset($resize)){
-                            $image_resize->resize($resize['w'], $resize['h']);    
-                        } 
+                    if ($type=="jpg"||$type=="png") {
+                        $image_resize = Image::make($file->getRealPath());
+                        if (isset($resize)) {
+                            $image_resize->resize($resize['w'], $resize['h']);
+                        }
                         $image_resize->save($destinationPath.'/'.$fileName);
-                    }else{
+                    } else {
                         $file->move($destinationPath, $fileName);
-                    }    
-                    $imagePath = str_replace(UPLOAD_PATH,'',$folderName.'/') ;
+                    }
+                    $imagePath = str_replace(UPLOAD_PATH, '', $folderName.'/') ;
                     $result['imagePath'] = $imagePath ;
                     $result['imageName'] = $fileName ;
                 }
-               
             }
         }
         return $result;

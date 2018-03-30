@@ -4,7 +4,7 @@
 @section('style')
  <!-- DataTables -->
   <link rel="stylesheet" href="{{ url('bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
-
+<link rel="stylesheet" href="{{ url('bower_components/select2/dist/css/select2.min.css') }}">
   <link href="{{ url('plugins/iCheck/square/red.css') }}" rel="stylesheet">
 
    <style type="text/css">
@@ -38,14 +38,14 @@
   text-align: center;
 }
 .td-left-side{
-  width: 70px; text-align: right; float: left;
+  width: 100px; text-align: right; float: left;
 }
 .td-license-left-side{
-  width: 70px;float:left; font-size: 36px; text-align: right; margin-right: 10px;
+  width: 100px;float:left; font-size: 36px; text-align: right; margin-right: 10px;
 }
 
   </style>
-}
+
 @endsection
 
 @section('content-wrapper')
@@ -76,9 +76,19 @@
               <form id="search_license_plate" >
               <input type="text" class="form-control" style="float: left;margin-right: 10px;width:70px;" id="license_plate_category" name="license_plate_category" placeholder="@lang('parking.license_plate_category')" maxlength="3">
                <input type="text"  id="license_plate" name="license_plate" class="form-control" style="float: left;margin-right: 10px;width:100px;" placeholder="@lang('parking.license_plate')" maxlength="4">
-
-               <button  class="btn btn-success btn-sm btn-search" > <i class="fa fa-search"></i>@lang('parking.search')</button>
+                <select class="select2 form-control"  id="province_id" name="province_id" style="width:190px;float: left;margin-right: 10px;" >
+                       
+                        @if (isset($province))
+                          @foreach($province as $key=> $p)
+                          <option value="{{ $p['id'] }}" @if($key==0) selected="" @endif  > {{ $p['text'] }}</option>
+                          @endforeach
+                        @endif
+                </select>
+               <button  class="btn btn-success btn-sm btn-search fl" style="margin-right: 10px;" > <i class="fa fa-search"></i>@lang('parking.search')</button>
              </form>
+
+              
+
             </div>
             <!-- /.box-header -->
             <div class="box-body">
@@ -94,24 +104,31 @@
 				        @foreach ($lists as $key=>$list)
                 <tr >
                   <td class="vm-ct"><input class="custom-checkbox" type="checkbox" data-license-plate="{{$list['license_plate_category'].$list['license_plate']." ".$list['province_name']}}" 
-                    data-start-date="{{$list['start_date']}}" 
-                    data-end-date="{{$list['end_date']}}"  
+                    data-start-date="{{$list['created_at']}}" 
+                   
                     data-id="{{ $list['id'] }}"></td>
                   <td> <div  class="td-license-left-side">{{ $list['license_plate_category'] }}</div> 
                      <div class=""  style="font-size: 36px;">{{ $list['license_plate']." ".$list['province_name'] }}
                      </div>
                      <div class="td-left-side" style="font-size: 22px;"> @lang('parking.room') : </div> 
-                     <div class="" style="font-size: 22px;">{{ $list['room_name'] }}</div> 
+                     <div class="" style="font-size: 22px;">
+                      @if(isset($list['room_name'])&&$list['room_name']!='')
+                      {{  $list['room_name'] }}
+                      @else
+                      @lang('room.no_room')
+                      @endif
+                   </div> 
                    
                       <div class="td-left-side"> @lang('parking.in') : </div> 
-                      <div> {{  date('d',strtotime($list['start_date']))." ".month_date(date('m',strtotime($list['start_date'])))." ".date('Y H:i',strtotime($list['start_date']))}}</div>
-                      <div class="td-left-side"> @lang('parking.out') : </div> 
-                      <div> @if(isset($list['end_date']))
-                      {{  date('d',strtotime($list['end_date']))." ".month_date(date('m',strtotime($list['end_date'])))." ".date('Y H:i',strtotime($list['end_date']))}}
-                      @else
-                      @lang('parking.is_until_out')
-                      @endif
-                    </div>
+                      <div> {{  date('d',strtotime($list['created_at']))." ".month_date(date('m',strtotime($list['created_at'])))." ".date('Y H:i',strtotime($list['created_at']))}}</div>
+                      <div class="td-left-side"> @lang('parking.parking_hour') : </div> 
+                       <div>@if($list['set_used_hour']!=0) 
+                             {{ $list['set_used_hour'] }}
+                            @else
+                             @lang('parking.is_until_out')
+                            @endif 
+                      </div>
+                      
                   </td>
                  
                 
@@ -122,8 +139,39 @@
             </div>
             <!-- /.box-body -->
           </div>
+
     </section>
     <!-- /.content -->
+<div class="modal fade" id="modal-debt">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="debt-title"></h3>
+          <h5 class="debt-text"></h5>
+        </div>
+        <div class="modal-body">
+           <select id="debt_type" name="debt_type" class="form-control">
+               <option value="0">@lang('parking.please_select_debt_type')</option>
+            @if(isset($debtType))
+              @foreach($debtType as $d)
+                 <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+              @endforeach
+            @endif
+          </select> 
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
+          <button type="button" class="btn btn-primary btn-save"> @lang('parking.accept_pay_debt')
+             <i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
+          </button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
 
 @endsection
 
@@ -131,11 +179,11 @@
 <!-- DataTables -->
 
 <script src="{{ url('plugins/iCheck/icheck.js') }} "></script>
-
+<script src=" {{ url('bower_components/select2/dist/js/select2.full.min.js') }}"></script>
 <script type="text/javascript" src=" {{ url('plugins/jquery-validate/jquery.validate.min.js') }} "></script>
 <script type="text/javascript">
 $(function () {
-	
+	$("#province_id").select2();
 
  
 
@@ -144,28 +192,16 @@ $(function () {
 function getDataLicense(){
   var dfd = $.Deferred();
   
-  var data = {id:[],license_plate:[],date:[],debt:0} ;
-  $("#table_license input[type='checkbox']").each(function(){
-       console.log($(this).is(':checked'),$(this).data('id'));
-     
+  var data = { id:0 };
+  $("#table_license input[type='checkbox']:checked").each(function(){
       if($(this).is(':checked')){
-          data.id.push($(this).data('id'));
-          console.log(data.license_plate.length,$.inArray( $(this).data('license-plate') , data.license_plate ));
-          if(data.license_plate.length>0 && $.inArray( $(this).data('license-plate') , data.license_plate ) == -1 ){
-             // dfd.reject((($("#app_local").val()=='th') ? 'เลขทะเบียนไม่ตรงกัน' : 'Wrong License Plate' ));
-             // return  dfd.promise();
-          }
-          data.license_plate.push($(this).data('license-plate'));
-          var dataDate = { start_date : $(this).data('start-date') , end_date: $(this).data('end-date') };
-          data.date.push(dataDate);
-
+          data.id = $(this).data('id') ;
       }
-
   })
-  if (data.id.length>0){
+  if ($("#table_license input[type='checkbox']:checked").length==1){
     dfd.resolve(data);
   }else{
-    dfd.reject("");
+    dfd.reject("กรุณาระบุเพียงทะเบียนเดียว");
   }
   return dfd.promise();
   
@@ -284,35 +320,51 @@ function checkDebtHour(send_data){
   var route = "/parking/guard/check-hour?api_token="+api_token ;
   ajaxPromise('POST',route,send_data).done(function(data){
        console.log(data);
-     
-        if(data.debt_hour>0){ 
-          var debt = data.debt_hour;
+        if(data.total_debt_hour>0){ 
+          var debt = data.total_debt_hour;
           var maxDate = moment.unix(data.max_end_date).format("DD/MM/YYYY HH:mm");
           var nowDate = moment.unix(data.now_date).format("DD/MM/YYYY HH:mm");
 
-          swal({
-                  title:(($("#app_local").val()=='th') ? 'คูปองใช้สิทธิ์ได้ถึงเวลา?'+maxDate : 'Are you sure?' ) ,
-                  text:(($("#app_local").val()=='th') ? 'โดยขณะนี้ '+nowDate+' ต้องจ่ายเงินเพิ่ม จำนวน '+debt+' ชั่วโมง' : "You want to paid "+debt+" hour !" ) ,
-                  type: 'warning',
-                  showCancelButton: true,
-                  confirmButtonText: (($("#app_local").val()=='th') ? 'ยืนยันจ่ายเงินเพิ่ม' : 'Ok' ),
-                  cancelButtonText: (($("#app_local").val()=='th') ? 'ยกเลิก' : 'Cancel' ),
-                  confirmButtonClass: 'btn btn-danger',
-                  cancelButtonClass: 'btn btn-default',
-                  buttonsStyling: false,
-                  reverseButtons: true
-            }).then((result) => {
+          var title=(($("#app_local").val()=='th') ? 'คูปองใช้สิทธิ์ได้ถึงเวลา?'+maxDate : 'Are you sure?' ) ;
+          var text=(($("#app_local").val()=='th') ? 'โดยขณะนี้ '+nowDate+' ต้องจ่ายเงินเพิ่ม จำนวน '+debt+' ชั่วโมง ' : "You want to paid "+debt+" hour !" ) ;
+
+          if(data.previus_month_debt_hour>0){
+              var previusDebt = data.previus_month_debt_hour;
+              var currentDebt = data.debt_hour;
+            text+= (($("#app_local").val()=='th') ? 'โดยแบ่งเป็นของเดือนก่อนหน้า '+previusDebt+' ชั่วโมง และ เดือนปัจจุบัน '+currentDebt+' ชั่วโมง ' : "it is previous month "+previusDebt+" hour and current month "+currentDebt+" hour !" ) ;
+          }
+
+
+          $(".debt-title").text(title);
+          $(".debt-text").text(text);
+
+          $("#modal-debt").modal('show');
+
+          return false;
+
+          // swal({
+          //         title:(($("#app_local").val()=='th') ? 'คูปองใช้สิทธิ์ได้ถึงเวลา?'+maxDate : 'Are you sure?' ) ,
+          //         text:(($("#app_local").val()=='th') ? 'โดยขณะนี้ '+nowDate+' ต้องจ่ายเงินเพิ่ม จำนวน '+debt+' ชั่วโมง' : "You want to paid "+debt+" hour !" ) ,
+          //         type: 'warning',
+          //         showCancelButton: true,
+          //         confirmButtonText: (($("#app_local").val()=='th') ? 'ยืนยันจ่ายเงินเพิ่ม' : 'Ok' ),
+          //         cancelButtonText: (($("#app_local").val()=='th') ? 'ยกเลิก' : 'Cancel' ),
+          //         confirmButtonClass: 'btn btn-danger',
+          //         cancelButtonClass: 'btn btn-default',
+          //         buttonsStyling: false,
+          //         reverseButtons: true
+          //   }).then((result) => {
             
-                    if (result.value) {
-                        dfd.resolve(send_data);
+          //           if (result.value) {
+          //               dfd.resolve(send_data);
 
-                    } else if (result.dismiss === 'cancel') {
-                      console.log('cancel');
-                       location.reload();
+          //           } else if (result.dismiss === 'cancel') {
+          //             console.log('cancel');
+          //              location.reload();
 
-                        // dfd.reject("");
-                    }
-                  })
+          //               // dfd.reject("");
+          //           }
+          //         })
 
        }else{
           dfd.resolve(send_data);
@@ -331,15 +383,24 @@ $("#btn_used").on("click",function(){
        console.log(data);
         var route = "/parking/guard?api_token="+api_token ;
         ajaxPromise('POST',route,data).done(function(data){
-             $("#table_license input[type='checkbox']").each(function(){
-               console.log($(this).is(':checked'),$(this).data('id'));
+          swal({
+                title: "@lang('parking.checkout_success')" ,
+                type: 'success',
+                showCancelButton: false,
+                confirmButtonText: "@lang('main.ok')"
+              }).then((result) => {
+                if (result.value) {
+                  $("#table_license input[type='checkbox']").each(function(){
+                      if($(this).is(':checked')){
+                          $(this).closest('tr').remove();
+
+                      }
+
+                  })
+                }
+              })
              
-              if($(this).is(':checked')){
-                  $(this).closest('tr').remove();
-
-              }
-
-          })
+             
         });
 
        return false;
@@ -358,6 +419,47 @@ $("#btn_used").on("click",function(){
    
 
 })
+
+$(".btn-save").on("click",function(){
+
+    getDataLicense()
+    .done(function(data){
+       console.log(data);
+       data.debt_type = $("#debt_type").val();
+        var route = "/parking/guard?api_token="+api_token ;
+        ajaxPromise('POST',route,data).done(function(data){
+
+              $(".debt-title").text('');
+             $(".debt-text").text('');
+             $("#debt_type").val(0);
+             $("#modal-debt").modal('hide');
+             $("#table_license input[type='checkbox']").each(function(){
+               console.log($(this).is(':checked'),$(this).data('id'));
+             
+                if($(this).is(':checked')){
+                    $(this).closest('tr').remove();
+
+                }
+
+              })
+        });
+
+       return false;
+
+       
+    }).fail(function(error){
+        swal(
+          'Error...',
+         error,
+          'error'
+        )
+    })
+
+})
+
+
+
+
 
 function getDateThai(date){
   var month = [
@@ -427,8 +529,8 @@ $(function() {
                                 "<td class=\"vm-ct\">"+
                                 "<input class=\"custom-checkbox\"  data-id=\""+res[i].id+"\" "+
                                 "data-license-plate=\""+res[i].license_plate_category+res[i].license_plate+" "+res[i].province_name+"\" "+
-                                 "data-start-date=\""+res[i].start_date+"\" "+
-                                "data-end-date=\""+res[i].end_date+"\" type=\"checkbox\">"+
+                                 "data-start-date=\""+res[i].created_at+"\" "+
+                                " type=\"checkbox\">"+
                                 "</td>"+
                                 "<td>"+
                                 "<div class=\"td-license-left-side\">"+
@@ -437,14 +539,14 @@ $(function() {
                                 res[i].license_plate+" "+res[i].province_name+"</div>"+
                                 "<div class=\"td-left-side\" style=\"font-size: 22px;\"> "+
                                 "@lang('parking.room') : </div> "+
-                                "<div style=\"font-size: 22px;\">"+res[i].room_name+"</div>"+ 
+                                "<div style=\"font-size: 22px;\">"+(res[i].room_name!='' ? res[i].room_name : "@lang('room.no_room')" )+"</div>"+ 
                                 "<div class=\"td-left-side\">"+(($("#app_local").val()=='th') ? ' เวลาเข้า' : 'In' )+" : </div>"+ 
-                                "<div> "+getDateThai(res[i].start_date)+"</div>"+
-                                "<div class=\"td-left-side\">"+(($("#app_local").val()=='th') ? ' เวลาออก' : 'Out' )+" : </div>";
-                      if(res[i].end_date!=null){
-                        html += "<div> "+getDateThai(res[i].end_date)+"</div>";
+                                "<div> "+getDateThai(res[i].created_at)+"</div>"+
+                                "<div class=\"td-left-side\">"+"@lang('parking.parking_hour')"+" : </div>";
+                      if(res[i].set_used_hour!=0){
+                        html += "<div> "+set_used_hour+"</div>";
                       }else{
-                         html += (($("#app_local").val()=='th') ? 'จนกว่าจะออก' : 'Until out' )
+                         html += "@lang('parking.is_until_out')";
                       }
 
                                

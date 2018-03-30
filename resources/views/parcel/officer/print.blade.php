@@ -8,6 +8,7 @@
 
 @media print {
   
+   tr{ font-size: 14px; }
   
   .invoice { page-break-after: always;
         page-break-inside: avoid; }
@@ -38,67 +39,12 @@
     <section class="content">
   
        @include('layouts.error')
-    
+      @include('widgets.search.search')
       <div class="row">
-          <div class="col-xs-12">
-             <div class="row">
-              <form id="search-form" method="GET" action="">
-                <div class="form-group col-sm-4">
-                    <label for="name">@lang('parcel.start_date')</label>
-                    <div >
-                      <div class="col-xs-2" style="padding:0px"> 
-                      <input type="text" class="form-control" id="start_date_day"  placeholder="@lang('parcel.send_date_day')" value="{{ date('d',$startDate) }}" >
-                     </div>
-                    <div class="col-xs-2" style="padding:0px">  
-                      <input type="text" class="form-control" id="start_date_month"  placeholder="@lang('parcel.send_date_month')" value="{{ date('m',$startDate) }}" >
-                    </div>
-                    <div class="col-xs-2" style="padding:0px">
-                      <input type="text" class="form-control" id="start_date_year"  placeholder="@lang('parcel.send_date_year')" value="{{ date('Y',$startDate) }}" >
-                    </div>
-                    <div class="col-xs-2" style="padding:0px">
-                      <input type="text" class="form-control" id="start_date_hour"  placeholder="@lang('parcel.send_date_hour')" value="{{ date('H',$startDate) }}" >
-                    </div>
-                    <div class="col-xs-2" style="padding:0px">
-                      <input type="text" class="form-control" id="start_date_minute"  placeholder="@lang('parcel.send_date_minute')" value="{{ date('i',$startDate) }}" >
-                    </div>
-                    </div>
-                    
-                </div>
-                <div class="form-group col-sm-4">
-                    <label for="name">@lang('parcel.end_date')</label>
-                    <div >
-                      <div class="col-xs-2" style="padding:0px"> 
-                      <input type="text" class="form-control" id="end_date_day"  placeholder="@lang('parcel.send_date_day')" value="{{ date('d',$endDate) }}" >
-                     </div>
-                    <div class="col-xs-2" style="padding:0px">  
-                      <input type="text" class="form-control" id="end_date_month"  placeholder="@lang('parcel.send_date_month')" value="{{ date('m',$endDate) }}" >
-                    </div>
-                    <div class="col-xs-2" style="padding:0px">
-                      <input type="text" class="form-control" id="end_date_year"  placeholder="@lang('parcel.send_date_year')" value="{{ date('Y',$endDate) }}" >
-                    </div>
-                    <div class="col-xs-2" style="padding:0px">
-                      <input type="text" class="form-control" id="end_date_hour"  placeholder="@lang('parcel.send_date_hour')" value="{{ date('H',$endDate) }}" >
-                    </div>
-                    <div class="col-xs-2" style="padding:0px">
-                      <input type="text" class="form-control" id="end_date_minute"  placeholder="@lang('parcel.send_date_minute')" value="{{ date('i',$endDate) }}" >
-                    </div>
-                    </div>
-                    
-                </div>
-                 <div class="form-group col-sm-4">
-                    <label for="name">&nbsp;</label>
-                    <div>
-                    <button type="button" class="btn btn-primary btn-search"><i class="fa fa-search"></i> @lang('main.search')</button>  
-                    </div>
-                    
-                    
-                </div>
-              </form>
-            </div>
-          </div>
+          
 
           <div class="col-xs-12">
-             <button onclick="printContent('print_this')" class="btn btn-success" style="margin-left: 10px;" >Print</button>
+             <button onclick="printContent('print_this')" class="btn btn-success" style="margin-left: 10px;" >@lang('main.print')</button>
           </div>
       <div class="row">
           <div class="col-xs-12" id="print_this">
@@ -111,7 +57,7 @@
     <div class="row">
         <div class="col-xs-3 text-center">
           <div class="text-center" style="border:5px solid #CCC;margin-top: 10px;">
-            <h2 style="margin-top: 10px;" > {{ date('d')."/".date('m')."/".( date('Y')+543) }}</h2>
+            <h2 style="margin-top: 10px;" > {{ date('d')."/".date('m')."/".( date('Y')) }}</h2>
           </div>
         </div>
        <div class="col-xs-6">
@@ -119,8 +65,10 @@
          <h4 class="text-center">{{ $setting['header_officer'] }}</h4>
        </div>
        <div class="col-xs-3 text-right">
-        <div class="col-xs-6" style="margin-top: 20px;"> <img src="{{ $setting['logo_domain'] }}" width="100" height="50" style="background: #CCC;" ></div>
-        <div class="col-xs-6" style="margin-top: 20px;"> <img src="{{ $setting['logo_officer'] }}" height="50" style="background: #CCC;"></div>
+        <div class="col-xs-6" style="margin-top: 20px;"> 
+           <img src="{{ $setting['logo_officer'] }}" width="100" height="50"  >
+          </div> 
+        <div class="col-xs-6" style="margin-top: 20px;"> <img src="{{ $setting['logo_domain'] }}" height="50" style="background: #CCC;"></div>
        </div>
     </div>
 
@@ -129,11 +77,11 @@
             <table class="table table-bordered table-striped">
               <thead>
                 <tr class="text-center">
-                  <th rowspan="2" class="vm-ct" style="width: 100px;">@lang('parcel.no')</th>
+                  <th rowspan="2" class="vm-ct" style="width: 60px;">@lang('parcel.no')</th>
                   <th rowspan="2" class="vm-ct" style="width: 100px;">@lang('parcel.room_id')</th>
-                  <th rowspan="2" class="vm-ct" style="width: 200px;">@lang('parcel.supplies_send_name')</th>
+                  <th rowspan="2" class="vm-ct" style="width: 150px;">@lang('parcel.supplies_send_name')</th>
                   <th colspan="3" class="vm-ct" >@lang('parcel.type')</th>
-                  <th rowspan="2" class="vm-ct" style="width: 100px;">@lang('parcel.supplies_code')</th>
+                  <th rowspan="2" class="vm-ct" style="width: 150px;">@lang('parcel.supplies_code')</th>
                   <th rowspan="2" class="vm-ct" style="width: 150px;">@lang('parcel.receiver')</th>
                   <th rowspan="2" class="vm-ct" style="width: 150px;">@lang('parcel.received_tel')</th>
                   <th rowspan="2" class="vm-ct" style="width: 150px;">@lang('parcel.received_at')</th>
@@ -154,7 +102,7 @@
           <tr>
                 <!-- <td>{{ $j+1 }}</td> -->
                 <td class="text-right"><span>{{ $lists[$j]['parcel_code'] }}</span></td>
-                <td class="text-right">{{ $lists[$j]['room_name'] }}</td>
+                <td class="text-center">{{ $lists[$j]['room_name'] }}</td>
                 <td><span>
                   {{ (isset($lists[$j]['supplies_send_name'])) ? $lists[$j]['supplies_send_name'] : '' }}
                   {{ (isset($lists[$j]['gift_send_name'])) ? $lists[$j]['gift_send_name'] : '' }}
@@ -185,8 +133,10 @@
          
               </tbody>
             </table>
-  
-
+          <div class="pull-right">
+               {{ $setting['ads'] }} <img src="{{ url('public/img/eliving.png') }}" height="25" >
+          </div>
+         
        
        </div>
     </div>

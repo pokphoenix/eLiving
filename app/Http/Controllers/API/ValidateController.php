@@ -28,22 +28,22 @@ class ValidateController extends ApiController
     {
     }
 
-    public function username(Request $request){
+    public function username(Request $request)
+    {
         $data = $request->input('username');
-        $query = User::where('username',$data)->first();
+        $query = User::where('username', $data)->first();
         echo (empty($query)) ? "true" : "false" ;
-
     }
-    public function idcard(Request $request){
+    public function idcard(Request $request)
+    {
         $data = $request->input('id_card');
-        $query = User::where('id_card',$data)->first();
+        $query = User::where('id_card', $data)->first();
         echo (empty($query)) ? "true" : "false" ;
-        
-    } 
-    public function domainName(Request $request){
+    }
+    public function domainName(Request $request)
+    {
         $data = $request->input('name');
-        $query = Domain::where('name',$data)->first();
+        $query = Domain::where('name', $data)->first();
         echo (empty($query)) ? "true" : "false" ;
-        
     }
 }

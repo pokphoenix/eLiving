@@ -134,7 +134,7 @@
        
         <div class="col-sm-12" style="height: 50px;">
            <button type="submit" id="save" class="btn btn-primary">@lang('main.btn_save')
-             <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+             <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
  
            </button>
 
@@ -172,7 +172,7 @@
 @if(!isset($edit))
 
 $(document).on("input","#id_card",function(e) {
-  if($(this).val().length==13){
+  // if($(this).val().length==13){
     var route = "{{ url('api/search/user-data') }}" ;
     var idCard = $(this).val();
     var data ={id_card:idCard} ;
@@ -210,7 +210,7 @@ $(document).on("input","#id_card",function(e) {
       .fail(function() {
        
       })
-  }
+  // }
   
 });
 @endif
@@ -230,7 +230,7 @@ $(function() {
         },
         id_card: {
           required: true,
-          minlength: 13,
+        
           maxlength: 13
 
           @if(!isset($edit))

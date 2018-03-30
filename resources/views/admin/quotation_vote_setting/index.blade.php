@@ -67,7 +67,7 @@
 
                   <div class="col-sm-12" style="height: 50px;">
                      <button type="submit" id="save" class="btn btn-primary">@lang('main.btn_save')
-                       <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                       <i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
            
                      </button>
 

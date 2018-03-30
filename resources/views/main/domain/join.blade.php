@@ -13,12 +13,11 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        {{ $title }}
-        <small>เข้าร่วมโครงการ</small>
+       @lang('sidebar.domain_join')
       </h1>
       <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i> Home</a></li>
-        <li class="active">Domain</li>
+        <li><a href="#"><i class="fa fa-home"></i>@lang('main.home')</a></li>
+        <li class="active">@lang('sidebar.domain_join')</li>
       </ol>
     </section>
 
@@ -31,7 +30,7 @@
       	<div class="col-sm-offset-3 col-sm-6">
       		<div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">เข้าร่วมโครงการใหม่</h3>
+              <h3 class="box-title">@lang('domain.join_new_domain')</h3>
 
             </div>
             <!-- /.box-header -->
@@ -49,7 +48,7 @@
                    
                   </select>
                       <span class="input-group-btn" >
-                        <button type="submit" class="btn btn-info btn-flat" style="height: 34px;">เข้าร่วม</button>
+                        <button type="submit" class="btn btn-info btn-flat" style="height: 34px;">@lang('domain.join')</button>
                       </span>
                 </div>
               </div>

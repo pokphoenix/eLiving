@@ -27,7 +27,8 @@ class RoleController extends ApiController
     }
 
 
-    public function index(){
+    public function index()
+    {
         $roles = Role::all();
         $data['roles'] = $roles;
         return $this->respondWithItem($data);

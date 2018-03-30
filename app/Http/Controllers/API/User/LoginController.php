@@ -45,11 +45,12 @@ class LoginController extends ApiController
 
     protected function guard()
     {
-      return Auth::guard('api');
+        return Auth::guard('api');
     }
 
-    public function signin(Request $request){
-        $post = $request->all();
+    public function signin(Request $request)
+    {
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
 
         if ($validator->fails()) {
@@ -57,11 +58,11 @@ class LoginController extends ApiController
         }
 
         $active = 0 ;
-        if(isset($post['remember'])){
+        if (isset($post['remember'])) {
             $active = 1 ;
         }
 
-        if (!Auth::attempt(['username' => $post['username'], 'password' => $post['password'] ],$active)) {
+        if (!Auth::attempt(['username' => $post['username'], 'password' => $post['password'] ], $active)) {
             return $this->respondWithError('username or password invalid');
         }
        
@@ -69,12 +70,13 @@ class LoginController extends ApiController
         LogActivity::SetLogActivity(1);
 
         return $this->respondWithItem(Auth()->user());
-    } 
+    }
 
-    public function facebookSignin(Request $request){
-        $post = $request->all();
+    public function facebookSignin(Request $request)
+    {
+        $post = $request->except('api_token', '_method');
         $active = 0 ;
-        if(isset($post['remember'])){
+        if (isset($post['remember'])) {
             $active = 1 ;
         }
 
@@ -82,18 +84,18 @@ class LoginController extends ApiController
                 FROM users u
                 WHERE facebook_id = ".$post['fb'];
         $user = DB::select(DB::raw($sql));
-        if(!$user){
+        if (!$user) {
             return $this->respondWithError('not found');
         }
         Auth::loginUsingId($user[0]->id);
         return $this->respondWithItem(Auth()->user());
     }
 
-     private function validator($data)
+    private function validator($data)
     {
         return Validator::make($data, [
-            'username' => 'required|string|max:255',
-            'password' => 'required|string|min:5',
+           'username' => 'required|string|max:255',
+           'password' => 'required|string|min:5',
         ]);
     }
 }

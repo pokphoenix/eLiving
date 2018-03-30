@@ -31,12 +31,80 @@
     <section class="content">
   
        @include('layouts.error')
+      <div class="box">
+            <div class="box-header">
+              <h3 class="box-title"></h3>
+              <div>
+                      
+                       <input type="text" class="form-control" style="width:60px;float: left;margin-right: 10px;" id="s_license_plate_category" name="s_license_plate_category" maxlength="3" placeholder="@lang('parking.license_plate_category')" value="" >
+                    <input type="text" class="form-control" style="width:100px;float: left;margin-right: 10px;" id="s_license_plate" name="s_license_plate" placeholder="@lang('parking.license_plate')" maxlength="4"  value="" >
+                        <select class="select2 form-control"  id="s_province_id" name="s_province_id" style="width:190px;" >
+                       
+                        @if (isset($province))
+                          @foreach($province as $key=> $p)
+                          <option value="{{ $p['id'] }}" @if($key==0) selected="" @endif  > {{ $p['text'] }}</option>
+                          @endforeach
+                        @endif
+                    </select>
+                    <button type="button"  class="btn btn-primary btn-search"><i class="fa fa-search"></i></button>
+                    </div>
+              <!--  <button class="btn btn-success btn-sm btn-create" > <i class="fa fa-plus"></i> @lang('parking.use_coupon')</button>
+              -->
+
+               <input type="hidden" id="remain_hour" name="remain_hour" value="">
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <table id="checkin" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                  <th>@lang('user.no')</th>
+                  <th>@lang('parking.license_plate')</th>
+                  <th>@lang('parking.hour_use')</th>
+                  <th>@lang('parking.start_date')</th>
+                  <th>@lang('main.tool')</th>
+                </tr>
+                <tr class="thead-search">
+                  <th></th> 
+                  <th class="input-filter">@lang('parking.license_plate')</th>
+                  <th class="input-filter">@lang('parking.hour_use')</th>
+                  <th class="input-filter">@lang('parking.start_date')</th>
+                  <th ></th>
+                </tr>
+                </thead>
+                <tbody>
+        
+                @foreach ($checkins as $key=>$checkin)
+                <tr >
+                  <td>{{ $key+1 }}</td>
+                  <td>{!! $checkin['license_plate_category']." ".$checkin['license_plate']."<BR>".$checkin['province_name'] !!}</td>
+                   <td>{{ $checkin['set_used_hour'] }}</td>
+                  <td>{{ created_date_format($checkin['created_at']) }}</td>
+                 
+                  <td> 
+                      <button class="btn btn-success btn-setuse btn-xs" data-id="{{ $checkin['id'] }}" data-license-plate="{{$checkin['license_plate']}}"
+                      data-license-plate-category="{{$checkin['license_plate_category']}}"
+                      data-province-id="{{$checkin['province_id']}}"
+                      data-start-date="{{ $checkin['created_at'] }}"
+                       ><i class="fa fa-clock-o"></i></button> 
+                  </td>
+                 
+                </tr>
+                @endforeach
+               
+              </table>
+            </div>
+            <!-- /.box-body -->
+          </div>
+
+
+
 
     	<div class="box">
             <div class="box-header">
               <h3 class="box-title"></h3>
             
-               <button class="btn btn-success btn-sm btn-create" > <i class="fa fa-plus"></i> @lang('parking.use_coupon')</button>
+              <!--  <button class="btn btn-success btn-sm btn-create" > <i class="fa fa-plus"></i> @lang('parking.use_coupon')</button> -->
              
 
                <input type="hidden" id="remain_hour" name="remain_hour" value="">
@@ -56,6 +124,7 @@
                   <th>@lang('parking.created_at')</th>
                   <th>@lang('parking.used')</th>
                   <th>@lang('main.tool')</th>
+                  <th>@lang('parking.created_by')</th>
                 </tr>
                 <tr class="thead-search">
                   <th></th>
@@ -68,6 +137,7 @@
                   <th class="input-filter">@lang('parking.created_at')</th>
                   <th class="input-filter">@lang('parking.used')</th>
                   <th ></th>
+                  <th class="input-filter">@lang('parking.created_by')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -86,11 +156,13 @@
                   <td>{{ created_date_format($list['start_date']) }}</td>
                   <td>@if(isset($list['end_date']))
                     {{ created_date_format($list['end_date']) }}
+                  @elseif($list['is_until_out']==0)
+                    -
                   @else
                     @lang('parking.is_until_out')
                   @endif 
                   </td>
-                  <td>{{ created_date_format($list['created_at'])." by ".$list['first_name']." ".$list['last_name'] }}</td>
+                  <td>{{ created_date_format($list['created_at']) }} </td>
                   <td>@if(is_null($list['used_date']))
                         @lang('parking.not_use')
                       @else
@@ -103,8 +175,19 @@
                    
                     @elseif(is_null($list['used_date']))
                      <button class="btn btn-danger btn-delete btn-xs" data-id="{{ $list['id'] }}"  ><i class="fa fa-trash-o"></i></button> 
+                      <button class="btn btn-default btn-edit btn-xs" data-id="{{ $list['id'] }}"
+                       data-license-plate="{{$list['license_plate']}}"
+                       data-license-plate-category="{{$list['license_plate_category']}}"
+                       data-province-id="{{$list['province_id']}}"
+                       data-start-date="{{$list['start_date']}}"
+                       data-checkin-id="{{$list['parking_checkin_id']}}"
+                       data-is-until-out={{$list['is_until_out']}}>
+                       <i class="fa fa-edit"></i></button> 
                     @endif
                    </td>
+                  <td>
+                    {{ $list['first_name']." ".$list['last_name'] }}
+                  </td>
                 </tr>
                 @endforeach
                
@@ -123,45 +206,18 @@
                 <h4 class="modal-title">@lang('parking.use_coupon')</h4>
               </div>
               <div class="modal-body">
-                <h4>@lang('parking.remain_e_coupon') 
-                 <!--  <BR>
-                  <span class="change-month">{{ month_date(date('m'))." ".date('Y')  }}</span> : 
-                  <span class="remain-hour"></span> -->
-               <!--  @lang('parking.hour') --></h4>
-                <?php 
-                   $previosMonth = strtotime("-1 months") ;
-                   $nextMonth = strtotime("+1 months") ;
                 
-                ?>
-
-                 <!--  <select  id="month-year" name="month-year" >
-                    <option value=""></option>
-                    <option value="{{date('Y-m',$previosMonth)}}" >{{ month_date(date('m',$previosMonth))." ".date('Y',$previosMonth) }}</option> 
-                    <option value="{{date('Y-m')}}" selected="selected"  >{{ month_date(date('m'))." ".date('Y') }}</option> 
-                    <option value="{{date('Y-m',$nextMonth)}}"  >{{ month_date(date('m',$nextMonth))." ".date('Y',$nextMonth) }}</option>
-                     
-                  </select> -->
-  
-                <select id="month-year" name="month-year" class="form-control">
-                  @if(isset($package))
-                    @foreach($package as $p)
-                       <option value="{{date('Y-m',strtotime($p['period_at']))
-                     }}"  data-remain="{{$p['remain_hour']}}" data-id="{{ $p['id'] }}" >{{ month_date(date('m', strtotime($p['period_at'])))." ".date('Y', strtotime($p['period_at'])) }}  
-                   @lang('parking.remain'){{  " [ ".$p['remain_hour']." ]" }} @lang('parking.hour')  </option>
-                    @endforeach
-                  @else
-                    <option value="">@lang('parking.please_buy_package')</option>
-                  @endif
-                </select>
 
                  <form id="parking-form" role="form" method="POST" action="{{$action}}" enctype="multipart/form-data"  >
                  
-                  <div class="form-group">
+                  <div class="form-group none">
                     <label for="name">@lang('parking.license_plate')</label>
                     <div>
+                       <input type="hidden" id="start_date" value="">
+                       <input type="hidden" id="parking_checkin_id" name="parking_checkin_id" value="">
                        <input type="text" class="form-control" style="width:60px;float: left;margin-right: 10px;" id="license_plate_category" name="license_plate_category" maxlength="3" placeholder="@lang('parking.license_plate_category')" value="" >
                     <input type="text" class="form-control" style="width:100px;float: left;margin-right: 10px;" id="license_plate" name="license_plate" placeholder="@lang('parking.license_plate')" maxlength="4"  value="" >
-                        <select class="select2 form-control"  id="province_id" name="province_id" style="width:190px; >
+                        <select class="select2 form-control"  id="province_id" name="province_id" style="width:190px;" >
                        
                         @if (isset($province))
                           @foreach($province as $key=> $p)
@@ -172,37 +228,7 @@
                     </div>
                    
                   </div> 
-                  <div class="form-group">
-                    <label for="name">@lang('parking.start_date')</label>
-                    <div>
-                        <select class="form-control" style="width: 70px; float: left;" id="start_day" name="start_day" >
-                          @for($d=1; $d <= date("t"); $d++ )
-                          <option value="{{ $d }}" >{{ $d }}</option> 
-                          @endfor
-                        </select>
-                        <select class="form-control form-control-inline" style="width: 150px; " id="start_month" name="start_month"  disabled="">
-                          <option value="{{date('Y-m',$previosMonth)}}" >{{ month_date(date('m',$previosMonth))." ".date('Y',$previosMonth) }}</option> 
-
-              
-
-                          <option value="{{date('Y-m')}}" selected="selected"  >{{ month_date(date('m'))." ".date('Y') }}</option> 
-  
-                          @for($m=1;$m <= 6 ;$m++ )
-                          <?php $nextMonth = strtotime("+".$m." months") ; ?>
-
-                          <option value="{{date('Y-m',$nextMonth)}}"  >{{ month_date(date('m',$nextMonth))." ".date('Y',$nextMonth) }}</option>
-                             @endfor
-                          </select>
-
-                          <input type="text" class="form-control form-control-inline" style="width:70px;" id="start_hour" name="start_hour" maxlength="2" min="0" max="23" placeholder="@lang('parking.hour')" value="{{ date('H') }}" >
-
-                          <input type="text" class="form-control" style="width:60px;" id="start_minute" name="start_minute" maxlength="2" min="0" max="59" placeholder="@lang('parking.minute')" value="00" >
-      
-        
-                          
-                    </div>
-                    
-                  </div> 
+                  
                   <div class="form-group">
                       <label for="name">@lang('parking.hour_limit')</label>
                       <input type="text" class="form-control"  id="hour_use" name="hour_use"  placeholder="@lang('parking.hour_limit')"  value="1" >
@@ -218,36 +244,13 @@
                       </label>
                   </div>
 
-                   <!-- <div class="form-group">
-                    <label for="name">@lang('parking.end_date')</label>
-                    <div> 
-                        <select class="form-control" style="width: 70px; float: left;" id="end_day" name="end_day" >
-                          @for($d=1; $d <= date("t"); $d++ )
-                          <option value="{{ $d }}" >{{ $d }}</option> 
-                          @endfor
-                        </select>
-                        <select class="form-control form-control-inline" style="width: 150px;" id="end_month" name="end_month" disabled="">
-                          <option value="{{date('Y-m',$previosMonth)}}" >{{ month_date(date('m',$previosMonth))." ".date('Y',$previosMonth) }}</option> 
-                          <option value="{{date('Y-m')}}" selected="selected"  >{{ month_date(date('m'))." ".date('Y') }}</option> 
-                          <option value="{{date('Y-m',$nextMonth)}}"  >{{ month_date(date('m',$nextMonth))." ".date('Y',$nextMonth) }}</option>
-                             
-                        </select>
-                          <input type="text" class="form-control form-control-inline" style="width:70px;" id="end_hour" name="end_hour" maxlength="2" min="0" max="24" placeholder="@lang('parking.hour')" value="{{ date('H') }}" >
-
-                          <input type="text" class="form-control" style="width:60px;" id="end_minute" name="end_minute" maxlength="2" min="0" max="59" placeholder="@lang('parking.minute')"  value="{{ date('i') }}" >
-      
-                    </div>
-                    
-                  </div>  -->
-                  <!-- <div class="form-group">
-                    <label for="name">@lang('parking.diff_in_hour') : <span id="diff_hour"></span> @lang('parking.hour')</label>
-                  </div>  -->
+                   
                 </form>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
                 <button type="button" class="btn btn-primary btn-save">@lang('main.btn_save')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
                 </button>
               </div>
             </div>
@@ -255,6 +258,10 @@
           </div>
           <!-- /.modal-dialog -->
         </div>
+
+
+ 
+
 @endsection
 
 @section('javascript')
@@ -286,6 +293,7 @@ $(function () {
         } );
     } );
   $("#province_id").select2();
+  $("#s_province_id").select2();
   setTimeout(function() {
     $('#province_id').val(1).trigger('change');
   }, 500);
@@ -368,17 +376,16 @@ $("#hour_use").on("keyup",function(){
 })
 
 function GetDateEnd(){
-  var startMonth = $("#start_month").val();
-  var startDay = $("#start_day").val();
-  var startHour = $("#start_hour").val();
-  var startMinute = $("#start_minute").val();
-  var start_date = startMonth+'-'+startDay+" "+startHour+":"+startMinute;
-
-
-  var start = new Date(start_date);
+  // var startMonth = $("#start_month").val();
+  // var startDay = $("#start_day").val();
+  // var startHour = $("#start_hour").val();
+  // var startMinute = $("#start_minute").val();
+  // var start_date = startMonth+'-'+startDay+" "+startHour+":"+startMinute;
+  var startDate = $("#start_date").val();
+  var start = new Date(startDate);
   var endDate = start.getTime()+($("#hour_use").val()*60*60*1000);
-   var end = new Date(endDate);
-   console.log(start.getTime(),endDate, (endDate-start.getTime())/1000/60/60  )
+  var end = new Date(endDate);
+  // console.log(start.getTime(),endDate, (endDate-start.getTime())/1000/60/60  )
 
 
 
@@ -444,9 +451,70 @@ $(".btn-create").on("click",function(){
 
   $("#modal-default").modal("toggle");
 })
+$(document).on("click",".btn-setuse",function(){
+  $("#modal-default input").val('');
+  var licensePlate = $(this).data('license-plate');
+  var licensePlateCategory = $(this).data('license-plate-category');
+  var provinceId = $(this).data('province-id');
+  var startDate = $(this).data('start-date');
+  var checkinId = $(this).data('id');
+
+  $("#license_plate").val(licensePlate);
+  $("#license_plate_category").val(licensePlateCategory);
+  $("#province_id").val(provinceId);
+  $("#start_date").val(startDate);
+  $("#parking_checkin_id").val(checkinId);
+  
+  $("#modal-default #parking_use_id").remove();
+  $("#hour_use").val(1).attr('disabled',false);
+  GetDateEnd();
+  $("#is_until_out").prop('checked', false);
+
+  $("#month-year").val($("#month-year option:first").val()).trigger('change');
+
+  $("#modal-default").modal("toggle");
+})
 $(".btn-save").on("click",function(){
   $("#parking-form").submit();
 })
+
+$(".btn-edit").on("click",function(){
+  console.log('btn-edit click');
+
+   $("#modal-default #parking_use_id").remove();
+
+   $("#modal-default input").val('');
+  var licensePlate = $(this).data('license-plate');
+  var licensePlateCategory = $(this).data('license-plate-category');
+  var provinceId = $(this).data('province-id');
+  var startDate = $(this).data('start-date');
+  var checkinId = $(this).data('checkin-id');
+  var useId = $(this).data('id');
+  var isUntilOut = $(this).data('is-until-out');
+  console.log(isUntilOut);
+
+  $("#license_plate").val(licensePlate);
+  $("#license_plate_category").val(licensePlateCategory);
+  $("#province_id").val(provinceId);
+  $("#start_date").val(startDate);
+  $("#parking_checkin_id").val(checkinId);
+  var html = "<input type=\"hidden\" id=\"parking_use_id\" value=\""+useId+"\">";
+  
+  $("#hour_use").val(1).attr('disabled',false);
+  GetDateEnd();
+  if(isUntilOut){
+    $("#is_until_out").prop('checked', true);
+    $("#hour_use").val('').attr('disabled',true);
+  }else{
+     $("#is_until_out").prop('checked', false);
+     $("#hour_use").val(1).attr('disabled',false);
+  }
+  
+  $("#month-year").val($("#month-year option:first").val()).trigger('change');
+  $("#modal-default").append(html);
+  $("#modal-default").modal("toggle");
+})
+
 $(".btn-delete").on("click",function(){
   var parent = $(this).closest('tr') ;
   var buyId = $(this).data('id');
@@ -464,7 +532,7 @@ $(".btn-delete").on("click",function(){
   }).then((result) => {
           if (result.value) {
               var route = "{{$route}}/"+buyId+"?api_token="+api_token ;
-              ajaxPromise('DELETE',route).done(function(data){
+              ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
                 parent.addClass('text-delete');
                 parent.find('td:last-child').html((($("#app_local").val()=='th') ? 'ยกเลิกรายการ' : 'deleted' ));
               }).fail(function(txt) {
@@ -590,20 +658,20 @@ $(function() {
       ,submitHandler: function (form) {
         $(".btn-save").find('.fa-spinner').show();
 
-        var remainHour = $("#month-year option:selected").data('remain');
-        var packageId = $("#month-year option:selected").data('id');
-
+        //var remainHour = $("#month-year option:selected").data('remain');
+       
         // var remainHour = $(".remain-hour").text();
         // var diffInHour = parseInt($("#diff_hour").text());
 
-        var startMonth = $("#start_month").val();
-        var startDay = $("#start_day").val();
-        var startHour = $("#start_hour").val();
-        var startMinute = $("#start_minute").val();
-        var start_date = startMonth+'-'+startDay+" "+startHour+":"+startMinute;
+        // var startMonth = $("#start_month").val();
+        // var startDay = $("#start_day").val();
+        // var startHour = $("#start_hour").val();
+        // var startMinute = $("#start_minute").val();
+        // var start_date = startMonth+'-'+startDay+" "+startHour+":"+startMinute;
 
+        var startDate = $("#start_date").val();
         var diffInHour = parseInt($("#hour_use").val());
-        var start = new Date(start_date);
+        var start = new Date(startDate);
         var endDate = start.getTime()+($("#hour_use").val()*60*60*1000);
         var end = new Date(endDate);
         // console.log(start.getTime(),endDate, (endDate-start.getTime())/1000/60/60  );
@@ -624,101 +692,171 @@ $(function() {
         // var end_date = endMonth+'-'+endDay+" "+endHour+":00";  
 
         // console.log(diffInHour);
-        console.log(remainHour,start_date,end_date);
+        // console.log(remainHour,start_date,end_date);
         // console.log(remainHour,start,end,diff);
         // console.log(parseInt(remainHour),diffInHour,parseInt(remainHour) < diffInHour);
-        if(diffInHour==0){
-           swal(
-                'Error...',
-                (($("#app_local").val()=='th') ? 'ระบุเวลาจอดรถให้ถูกต้อง' : 'Wrong Date time' ),
-                'error'
-              )
-            $(".btn-save").find('.fa-spinner').hide();
-          return false;
-        }else if(remainHour=="0"  || parseInt(remainHour) < diffInHour ){
-          swal(
-                'Error...',
-                (($("#app_local").val()=='th') ? 'จำนวนชั่วโมงคงเหลือไม่เพียงพอ' : 'Remain Hour not enough' ),
-                'error'
-              )
-           $(".btn-save").find('.fa-spinner').hide();
-          return false;
-        }else if(packageId==null){
-          swal(
-                'Error...',
-                (($("#app_local").val()=='th') ? 'กรุณาเลือกคูปอง' : 'Please select coupon' ),
-                'error'
-              )
-           $(".btn-save").find('.fa-spinner').hide();
-          return false;
-        }
+        // if(diffInHour==0){
+        //    swal(
+        //         'Error...',
+        //         (($("#app_local").val()=='th') ? 'ระบุเวลาจอดรถให้ถูกต้อง' : 'Wrong Date time' ),
+        //         'error'
+        //       )
+        //     $(".btn-save").find('.fa-spinner').hide();
+        //   return false;
+        // }else if(remainHour=="0"  || parseInt(remainHour) < diffInHour ){
+        //   swal(
+        //         'Error...',
+        //         (($("#app_local").val()=='th') ? 'จำนวนชั่วโมงคงเหลือไม่เพียงพอ' : 'Remain Hour not enough' ),
+        //         'error'
+        //       )
+        //    $(".btn-save").find('.fa-spinner').hide();
+        //   return false;
+        // }
 
-        console.log($("#is_until_out").is(":checked"));
+       
 
-        if($("#is_until_out").is(":checked")){
-
-        }
-
+       
+        var UseUrl = form.action ;
         var form_data = new FormData($("#parking-form")[0]);
-
-
-
-        form_data.append('start_date',start_date);
-     
-        form_data.append('package_id',packageId);
+        if($("#is_until_out").is(":checked")){
+            form_data.append('hour_use',1);
+        }
+        if($("#modal-default #parking_use_id").length > 0){
+           form_data.append('except_id',$("#modal-default #parking_use_id").val());
+        } 
+        // console.log('url',UseUrl);
+        // return false;
+        // form_data.append('start_date',start_date);
         form_data.append('is_until_out',$("#is_until_out").is(":checked"));
-        
-             $.ajax({
-                 type: $("#parking-form").attr('method') ,
-                 url: form.action ,
-                 data: form_data ,
-                 processData: false,
-                 contentType: false,
-                 success: function (data) {
-                    if($("#parking-form").attr('method')=="PUT"){
-                      title = "@lang('main.update_success')";
-                    }else{
-                      title = "@lang('main.create_success')";
-                    }
-                    $(".btn-save").find('.fa-spinner').hide();
-                    if(data.result=="true"){
-                      swal({
-                          title:title ,
-                          type: 'success',
-                          showCancelButton: false,
-                          confirmButtonText: "@lang('main.ok')"
-                        }).then((result) => {
-                          if (result.value) {
-                            location.reload();
-                          }
-                        })
+        var route = "/parking/{{$roomId}}/use/check-debt-hour?api_token="+api_token;
+        $.ajax({
+         type: 'POST' ,
+         url: $("#apiUrl").val()+route ,
+         data: form_data ,
+         processData: false,
+         contentType: false,
+         success: function (data) {
+          
+            if(data.result=="true"){
+                saveSetUse(UseUrl,form_data);
+            }else{
+                var error = JSON.stringify(data.errors);
+                swal({
+                  title:error ,
+                  type: 'warning',
+                  showCancelButton: false,
+                  confirmButtonText: "@lang('main.ok')"
+                }).then((result) => {
+                  if (result.value) {
+                     saveSetUse(UseUrl,form_data);
+                  }else{
+                      $(".btn-save").find('.fa-spinner').hide();
+                  }
 
-                     
-                      
-                    }else{
-                      var error = JSON.stringify(data.errors);
-                      swal(
-                        'Error...',
-                        error,
-                        'error'
-                      )
-                    }
-                 }
+                })
+            }
+         }
 
-             }).fail(function() {
-              $(".btn-save").find('.fa-spinner').hide();
-                      swal(
-                        'Error...',
-                        "@lang('main.something_when_wrong')",
-                        'error'
-                      )
-            });
+     })
+
+             
              return false; // required to block normal submit since you used ajax
          }
 
     });
 
   });
+
+
+function saveSetUse(form_action,form_data){
+    $.ajax({
+       type: $("#parking-form").attr('method') ,
+       url: form_action ,
+       data: form_data ,
+       processData: false,
+       contentType: false,
+       success: function (data) {
+          if($("#modal-default #parking_use_id").length){
+            title = "@lang('main.update_success')";
+          }else{
+            title = "@lang('main.create_success')";
+          }
+          $(".btn-save").find('.fa-spinner').hide();
+          if(data.result=="true"){
+            swal({
+                title:title ,
+                type: 'success',
+                showCancelButton: false,
+                confirmButtonText: "@lang('main.ok')"
+              }).then((result) => {
+                if (result.value) {
+                  location.reload();
+                }
+              })
+          }else{
+            var error = JSON.stringify(data.errors);
+            swal(
+              'Error...',
+              error,
+              'error'
+            )
+          }
+       }
+
+    }).fail(function() {
+       $(".btn-save").find('.fa-spinner').hide();
+        swal(
+          'Error...',
+          "@lang('main.something_when_wrong')",
+          'error'
+        )
+    });
+}
+
+$(".btn-search").on("click",function(){
+
+    var data = { 
+      "license_plate" : $("#s_license_plate").val()
+      ,"license_plate_category" : $("#s_license_plate_category").val()
+      ,"province_id": $("#s_province_id").val()
+    };
+
+    var route = "/parking/search/checkin?api_token="+api_token;
+
+    ajaxPromise('POST',route,data).done(function(data){
+        console.log(data);
+
+        var html = '';
+
+        var max = data.parking_checkins.length;
+        if (max>0){
+            var res = data.parking_checkins;
+            for(var i =0 ; i<max ;i++){
+              html += "<tr>"+
+                      "<td>"+(i+1)+"</td>"+
+                      "<td>"+res[i].license_plate_category+
+                      " "+res[i].license_plate+
+                      "<BR> "+res[i].province_name+"</td>"+
+                      "<td>"+moment(res[i].created_at).format("YYYY-MM-DD HH:mm")+"</td>"+
+                      "<td>"+ 
+                      "<button class=\"btn btn-success btn-setuse btn-xs\" "+
+                      " data-id=\""+res[i].id+"\" "+
+                      " data-license-plate=\""+res[i].license_plate+"\" "+ 
+                      " data-license-plate-category=\""+res[i].license_plate_category+"\" "+
+                      " data-province-id=\""+res[i].province_id+"\" "+
+                      " data-start-date=\""+res[i].created_at+" \" "+
+                      "><i class=\"fa fa-clock-o\"></i></button> "+
+                      "</td>"+
+                      "</tr>";
+            }
+            
+        }
+
+        $("#checkin tbody").html(html);
+
+    })
+})
+
 
 </script>
 @endsection		

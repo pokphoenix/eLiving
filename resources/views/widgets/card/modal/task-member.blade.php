@@ -5,7 +5,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">@lang('task.btn_member')</h4>
+        <h4 class="modal-title">@if(isset($memberTitle)) 
+    {{ $memberTitle }}  
+    @else
+    @lang('task.btn_member')
+    @endif
+       </h4>
       </div>
       <div class="modal-body">
       		<div>

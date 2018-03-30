@@ -4,11 +4,7 @@
 
 @section('section')
 
-<style type="text/css">
-    .column-view {
-        padding:0 10px; border-bottom: 1px dotted #000;
-    }
-</style>
+
 
 <div class="col-sm-12">
         <div class="row">

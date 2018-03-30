@@ -2,7 +2,6 @@
 
 namespace App;
 
-
 use App\Models\Address;
 use App\Models\Domain;
 use App\Models\Notification ;
@@ -26,7 +25,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'username', 'email', 'password','first_name','last_name','api_token','tel','job_title','id_card','recent_domain','facebook_id','profile_url','displayname','remark','is_review','profile_url','avartar_id','alert_text','onlined_at'
-        ,'nick_name'
+        ,'nick_name','current_lang','migrate_facebook','migrate_username'
     ];
 
     /**
@@ -40,101 +39,109 @@ class User extends Authenticatable
 
     protected function setPrimaryKey($key)
     {
-      $this->primaryKey = $key;
+        $this->primaryKey = $key;
     }
 
-    public function domains(){
+    public function domains()
+    {
         $sql = "SELECT *
                 FROM  user_domains 
-                WHERE id_card = ".$this->id_card ;
+                WHERE id_card = '".$this->id_card."'" ;
         $query = DB::select(DB::raw($sql));
 
         return $query ;
-    } 
+    }
 
-    public function getProfile(){
+    public function getProfile()
+    {
         $user = Auth()->user() ;
         $user->profile_img = url('/public/img/profile/0.png')  ;
-        if(isset($user->profile_url) && $user->avartar_id==0 ){
-            $user->profile_img = $user->profile_url ; 
-        }elseif($user->avartar_id!=0){
+        if (isset($user->profile_url) && $user->avartar_id==0) {
+            $user->profile_img = $user->profile_url ;
+        } elseif ($user->avartar_id!=0) {
             $user->profile_img = url("/public/img/profile/".$user->avartar_id.".png") ;
         }
 
         $user->profile_img = getBase64Img($user->profile_img);
         return   $user ;
-    } 
+    }
 
 
-    public function domain(){
+    public function domain()
+    {
         return $this->belongsToMany('App\Models\Domain', 'user_domains', 'id_card', 'domain_id');
-    } 
-    public function role(){
+    }
+    public function role()
+    {
         return $this->belongsToMany('App\Models\Role', 'role_user', 'id_card', 'role_id');
     }
-    public function room(){
+    public function room()
+    {
         return $this->belongsToMany('App\Models\Room', 'user_rooms', 'id_card', 'room_id');
     }
     
-    public function syncData(){
+    public function syncData()
+    {
         $sql = "SELECT *
                 FROM  user_domains 
-                WHERE id_card = ".$this->id_card ;
+                WHERE id_card = '".$this->id_card."'" ;
         $query = DB::select(DB::raw($sql));
-        if(count($query)==1){
+        if (count($query)==1) {
             $this->recent_domain = $query[0]->domain_id;
             $this->save();
         }
-        if(empty($query)){
+        if (empty($query)) {
             foreach ($query as $key => $q) {
-                $user->makeUserRole('user',$q->domain_id);
+                $user->makeUserRole('user', $q->domain_id);
             }
-           
         }
     }
 
-    public function joinDomain($domainId,$approve){
+    public function joinDomain($domainId, $approve)
+    {
         $approvedAt = null ;
         $createdAt = Carbon::now();
-        if($approve){
+        if ($approve) {
             $approvedAt = $createdAt ;
         }
 
       
         $sql = "SELECT *
                 FROM  user_domains 
-                WHERE id_card = ".$this->id_card." AND domain_id=".$domainId ;
+                WHERE id_card = '".$this->id_card."' AND domain_id=".$domainId ;
         $query = DB::select(DB::raw($sql));
-        if(empty($query)){
+        if (empty($query)) {
             // $sql = "INSERT INTO user_domains (id_card,domain_id,approve,approved_at,created_at)
             //     VALUES ('".$this->id_card."',".$domainId.",".$approve.",".$approvedAt.",".$createdAt.")";
             // $query = DB::select(DB::raw($sql));
 
             DB::insert('INSERT INTO user_domains (id_card,domain_id,approve,approved_at,created_at)
                 VALUES  (?,?,?,?,?)', [$this->id_card, $domainId,$approve,$approvedAt,$createdAt]);
-        }else{
+        } else {
             DB::update("UPDATE user_domains SET approve=?,approved_at=? WHERE  id_card=? AND domain_id = ?", [$approve,$approvedAt,$this->id_card,$domainId]);
-        }       
+        }
 
         // if (! ($this->domain->contains($domainId))) {
         //     $this->domain()->attach([$domainId =>['created_at'=>Carbon::now(),'approve'=>$approve ]]);
         // }
     }
-    public function joinRoom($roomId){
+    public function joinRoom($roomId)
+    {
         $sql = "SELECT *
                 FROM  user_rooms 
-                WHERE id_card = ".$this->id_card." AND room_id=".$roomId ;
+                WHERE id_card = '".$this->id_card."' AND room_id=".$roomId ;
         $query = DB::select(DB::raw($sql));
-        if(empty($query)){
+        if (empty($query)) {
             $sql = "INSERT INTO user_rooms (id_card,room_id)
                 VALUES ('".$this->id_card."',".$roomId.")";
             $query = DB::select(DB::raw($sql));
-        }        
+        }
         // if (! ($this->room->contains($roomId))) {
         //     $this->room()->attach($roomId);
         // }
-    } 
-    public function insertAddress($domainId,$post){
+    }
+    public function insertAddress($domainId, $post)
+    {
         $addressData['id_card'] =  $this->id_card ;
         $addressData['domain_id'] =  $domainId ;
         $addressData['address'] =  isset($post['address']) ? $post['address'] : null ;
@@ -143,26 +150,27 @@ class User extends Authenticatable
         $addressData['province_id'] = isset($post['province_id']) ? $post['province_id'] : null ;
         $addressData['zip_code'] = isset($post['zip_code']) ? $post['zip_code'] : null ;
         
-        if(isset($post['address_id'])){
+        if (isset($post['address_id'])) {
              // $address = Address::where('id_card', $this->id_card)->where('domain_id',$domainId)->orderBy('active','desc')->first();
             $address = Address::find($post['address_id']);
         }
-        if(empty($address)){
+        if (empty($address)) {
             $address = new Address();
         }
-        $address->fill($addressData)->save(); 
+        $address->fill($addressData)->save();
     }
 
-    public function makeUserRole($title,$domainId,$update = false){
+    public function makeUserRole($title, $domainId, $update = false)
+    {
         $roles = \App\Models\Role::all()->toArray();
 
-        $roles = array_column($roles,'name','id');
+        $roles = array_column($roles, 'name', 'id');
         $roleId = $this->getIdInArray($roles, $title);
         // if($roleId&&! ($this->role->contains($roleId))){
         //     $this->role()->attach([$roleId =>['created_at'=>Carbon::now(),'domain_id'=>$domainId ]]);
         // }
 
-        if($update){
+        if ($update) {
             $sql = "UPDATE role_user SET  role_id = ".$roleId." WHERE id_card = '".$this->id_card."' AND domain_id=".$domainId ;
             $query = DB::update(DB::raw($sql));
             return ;
@@ -170,33 +178,36 @@ class User extends Authenticatable
 
         $sql = "SELECT *
                 FROM  role_user 
-                WHERE id_card = ".$this->id_card." AND role_id=".$roleId." AND domain_id=".$domainId ;
+                WHERE id_card = '".$this->id_card."' AND role_id=".$roleId." AND domain_id=".$domainId ;
         $query = DB::select(DB::raw($sql));
-        if(empty($query)){
+        if (empty($query)) {
             $sql = "INSERT INTO role_user (id_card,role_id,domain_id)
                 VALUES ('".$this->id_card."',".$roleId.",".$domainId.")";
-            $query = DB::select(DB::raw($sql));
-        }    
+            $query = DB::insert(DB::raw($sql));
+        }
     }
 
-    public function checkRoom($roomData,$domainId,$idcard){
+    public function checkRoom($roomData, $domainId, $idcard)
+    {
         $sql = "SELECT r.id,ur.id_card
                 FROM  rooms r
                 INNER JOIN user_rooms ur ON ur.room_id = r.id 
                 WHERE r.name = '".$roomData["name"]."' AND r.domain_id=".$domainId ;
-        $query = collect(DB::select(DB::raw($sql)))->first(); 
-        if(!empty($query)){
-            if($query->id_card != $idcard)
+        $query = collect(DB::select(DB::raw($sql)))->first();
+        if (!empty($query)) {
+            if ($query->id_card != $idcard) {
                 return ['result'=>false,'error'=>'หมายเลขห้องที่ระบุมีเจ้าของเป็นคนอื่นค่ะ'];
-        }else{
+            }
+        } else {
             $room = new Room();
-            $room->fill($roomData)->save(); 
+            $room->fill($roomData)->save();
             $this->joinRoom($room->id);
         }
         return ['result'=>true];
     }
 
-    public static function getEditData($domainId,$idcard){
+    public static function getEditData($domainId, $idcard)
+    {
         $sql = "SELECT u.id_card,u.first_name,u.last_name,u.email,u.tel,r.name as room_name,u.remark,u.is_review,u.username,u.alert_text,CASE WHEN ud.approve=4 THEN 1 ELSE 0 END as is_ban
                 ,u.nick_name
                 FROM  users u 
@@ -209,29 +220,29 @@ class User extends Authenticatable
                 ON r.id = ur.room_id
                 AND r.domain_id = ud.domain_id
                 WHERE u.id_card = '".$idcard."'" ;
-        $user = collect(DB::select(DB::raw($sql)))->first(); 
+        $user = collect(DB::select(DB::raw($sql)))->first();
         $user = (array)$user;
-        if(!empty($user)){
+        if (!empty($user)) {
              $user['role'] = [];
             $sql2 = "SELECT rol.name as role_name
                 FROM  role_user ru 
                 LEFT JOIN roles rol 
                 ON rol.id = ru.role_id
                 WHERE ru.id_card = '".$idcard."' AND ru.domain_id=$domainId" ;
-            $query2 = DB::select(DB::raw($sql2)); 
-            if(!empty($query2)){
+            $query2 = DB::select(DB::raw($sql2));
+            if (!empty($query2)) {
                 foreach ($query2 as $key => $q) {
                      $user['role'][] = $q->role_name ;
                 }
-               
-            } 
+            }
         }
 
 
-        return $user; 
+        return $user;
     }
 
-    public static function getImage($domainId,$idcard){
+    public static function getImage($domainId, $idcard)
+    {
         $sql = "SELECT * ,CONCAT('".url('public/upload/')."/',path,'/',image) as img
                 FROM  user_images
                 WHERE id_card = '".$idcard."' AND domain_id = ".$domainId ."
@@ -242,33 +253,35 @@ class User extends Authenticatable
             $query[$key]->img = getBase64Img($q->img);
         }
 
-        return $query ; 
+        return $query ;
     }
 
 
 
-    public static function getAddress($domainId,$idcard){
+    public static function getAddress($domainId, $idcard)
+    {
         return  Address::from('user_address as ud')
         ->leftJoin('districts as d', 'ud.district_id', '=', 'd.DISTRICT_ID')
         ->leftJoin('amphures as a', 'ud.amphur_id', '=', 'a.AMPHUR_ID')
         ->leftJoin('provinces as p', 'ud.province_id', '=', 'p.PROVINCE_ID')
-        ->select(DB::raw( "ud.address,ud.district_id,d.DISTRICT_NAME as district_name,ud.amphur_id,a.AMPHUR_NAME as amphur_name,ud.province_id,p.PROVINCE_NAME as province_name,ud.zip_code,ud.address_name,ud.id"))
-        ->where('ud.id_card',$idcard)->where('ud.domain_id',$domainId)->orderBy('ud.active','DESC')->first();
+        ->select(DB::raw("ud.address,ud.district_id,d.DISTRICT_NAME as district_name,ud.amphur_id,a.AMPHUR_NAME as amphur_name,ud.province_id,p.PROVINCE_NAME as province_name,ud.zip_code,ud.address_name,ud.id"))
+        ->where('ud.id_card', $idcard)->where('ud.domain_id', $domainId)->orderBy('ud.active', 'DESC')->first();
     }
 
-    public static function getAddressList($domainId,$idcard){
+    public static function getAddressList($domainId, $idcard)
+    {
         return  Address::from('user_address as ud')
         ->leftJoin('districts as d', 'ud.district_id', '=', 'd.DISTRICT_ID')
         ->leftJoin('amphures as a', 'ud.amphur_id', '=', 'a.AMPHUR_ID')
         ->leftJoin('provinces as p', 'ud.province_id', '=', 'p.PROVINCE_ID')
-        ->select(DB::raw( "ud.id,ud.address,ud.district_id,d.DISTRICT_NAME as district_name,ud.amphur_id,a.AMPHUR_NAME as amphur_name,ud.province_id,p.PROVINCE_NAME as province_name,ud.zip_code,ud.address_name,ud.active"))
-        ->where('ud.id_card',$idcard)->where('ud.domain_id',$domainId)
-        ->orderBy('ud.active','desc')
+        ->select(DB::raw("ud.id,ud.address,ud.district_id,d.DISTRICT_NAME as district_name,ud.amphur_id,a.AMPHUR_NAME as amphur_name,ud.province_id,p.PROVINCE_NAME as province_name,ud.zip_code,ud.address_name,ud.active"))
+        ->where('ud.id_card', $idcard)->where('ud.domain_id', $domainId)
+        ->orderBy('ud.active', 'desc')
         ->get();
     }
 
     private function getIdInArray($array, $term)
-     {
+    {
         foreach ($array as $key => $value) {
             if ($value == $term) {
                  return $key;
@@ -282,11 +295,11 @@ class User extends Authenticatable
     */
     public function authorizeRoles($roles)
     {
-      if (is_array($roles)) {
-          return $this->hasAnyRole($roles) || 
+        if (is_array($roles)) {
+            return $this->hasAnyRole($roles) ||
                  abort(401, 'This action is unauthorized.');
-      }
-      return $this->hasRole($roles) || 
+        }
+        return $this->hasRole($roles) ||
              abort(401, 'This action is unauthorized.');
     }
     /**
@@ -295,7 +308,7 @@ class User extends Authenticatable
     */
     public function hasAnyRole($roles)
     {
-      return null !== $this->role()->whereIn(‘name’, $roles)->first();
+        return null !== $this->role()->whereIn(‘name’, $roles)->first();
     }
     /**
     * Check one role
@@ -310,7 +323,17 @@ class User extends Authenticatable
                 ON r.id = ru.role_id 
                 WHERE ru.id_card = '".Auth()->user()->id_card."' AND r.name='".$role.
                 "' AND ru.domain_id=".Auth()->user()->recent_domain ;
-        return !empty(collect(DB::select(DB::raw($sql)))->first()) ? true : false ; 
+        return !empty(collect(DB::select(DB::raw($sql)))->first()) ? true : false ;
+    }
+    public function getRolesId()
+    {
+        $data = DB::table('role_user')
+            ->select('role_id')
+            ->where('id_card','=',Auth()->user()->id_card)
+            ->where('domain_id','=',Auth()->user()->recent_domain)
+            ->get();
+        $result =    collect($data)->map(function($x){ return (array) $x; })->toArray();
+        return $result;
     }
     public function getDomainName()
     {
@@ -318,29 +341,33 @@ class User extends Authenticatable
         return  (!empty($query)) ? $query->url_name : null ;
     }
 
-    public function checkApprove($domainId=null){
-        if(is_null($domainId)) 
+    public function checkApprove($domainId = null)
+    {
+        if (is_null($domainId)) {
             $domainId = Auth()->user()->recent_domain;
+        }
 
         $sql = "SELECT approve FROM user_domains 
-                WHERE id_card =".Auth()->user()->id_card."
+                WHERE id_card ='".Auth()->user()->id_card."'
                 AND domain_id =$domainId" ;
         $query = collect(DB::select(DB::raw($sql)))->first();
-        if(empty($query)) {
+        if (empty($query)) {
             return false;
-        } 
+        }
         return  ($query->approve==1) ? true : false ;
     }
 
-    public function checkStatusApprove(){
+    public function checkStatusApprove()
+    {
         $sql = "SELECT approve FROM user_domains 
-                WHERE id_card =".Auth()->user()->id_card."
+                WHERE id_card ='".Auth()->user()->id_card."'
                 AND domain_id =".Auth()->user()->recent_domain ;
         $query = collect(DB::select(DB::raw($sql)))->first();
-        return  $query->approve ;
+        return   (isset($query)) ? $query->approve : 0 ;
     }
 
-    public function getChannelJoin(){
+    public function getChannelJoin()
+    {
         $userId = Auth()->user()->id ;
         $domainId = Auth()->user()->recent_domain ;
 
@@ -352,8 +379,8 @@ class User extends Authenticatable
                 AND cu.accept = 1
                 AND c.direct_message=0
                 AND c.domain_id= $domainId" ;
-        $query =  DB::select(DB::raw($sql)) ; 
-        if(!empty($query)){
+        $query =  DB::select(DB::raw($sql)) ;
+        if (!empty($query)) {
             foreach ($query as $key => $q) {
                 $sql2 = "SELECT  cm.channel_id,count(cm.id) as unseen_count
                         FROM channel_messages cm
@@ -362,16 +389,16 @@ class User extends Authenticatable
                         GROUP BY cm.channel_id" ;
                         // var_dump($sql2);die;
                 $unseen = collect(DB::select(DB::raw($sql2)))->first() ;
-                if(isset($unseen)){
+                if (isset($unseen)) {
                     $query[$key]->unseen_count = $unseen->unseen_count;
                 }
             }
         }
 
         return $query ;
-       
     }
-    public function getContact($all=null){
+    public function getContact($all = null)
+    {
         $userId = Auth()->user()->id ;
         $domainId = Auth()->user()->recent_domain ;
         $sql = "SELECT cu.*, CONCAT(u.first_name,' ',u.last_name) as name
@@ -395,27 +422,27 @@ class User extends Authenticatable
                 WHERE cu.user_id !=  $userId 
                 AND cu.domain_id=  $domainId";
                
-        if(!isset($all)){
+        if (!isset($all)) {
             $sql .=  " AND cu.show_list = 1";
         }
-        $query =  DB::select(DB::raw($sql)) ; 
-        if(!empty($query)){
+        $query =  DB::select(DB::raw($sql)) ;
+        if (!empty($query)) {
             foreach ($query as $key => $q) {
-            
                 $sql2 = "SELECT  cm.channel_id,count(cm.id) as unseen_count
                         FROM channel_messages cm
                         WHERE cm.id > IFNULL((SELECT max(channel_message_id) as channel_message_id  FROM channel_seen WHERE channel_id = ".$q->channel_id." AND seen_by=$userId GROUP BY channel_id),0)
                         AND cm.channel_id = ".$q->channel_id."
                         GROUP BY cm.channel_id" ;
                 $unseen = collect(DB::select(DB::raw($sql2)))->first() ;
-                if(isset($unseen)){
+                if (isset($unseen)) {
                     $query[$key]->unseen_count = $unseen->unseen_count;
                 }
             }
         }
         return $query;
     }
-    public function getChannel(){
+    public function getChannel()
+    {
         $sql = "SELECT c.*
                     ,IFNULL(cu.accept, 0) accept  
                 FROM channels c
@@ -436,10 +463,11 @@ class User extends Authenticatable
                  AND c.type = 3
                  AND c.direct_message=0
                  AND c.domain_id= ".Auth()->user()->recent_domain ;
-        return DB::select(DB::raw($sql)) ; 
+        return DB::select(DB::raw($sql)) ;
     }
 
-    public function getRoom(){
+    public function getRoom()
+    {
       
         $sql = "  SELECT r.* FROM rooms r
                     INNER JOIN user_rooms ur
@@ -448,74 +476,79 @@ class User extends Authenticatable
                     AND r.domain_id=".Auth()->user()->recent_domain."
                     AND ur.approve=1
                     ";
-        return DB::select(DB::raw($sql)) ; 
-
+        return DB::select(DB::raw($sql)) ;
     }
 
-    public function getProfileImg(){
+    public function getProfileImg()
+    {
         $user = Auth()->user() ;
         $fbImg = $user->profile_url  ;
         $avartarId = $user->avartar_id  ;
-        if(isset($fbImg)&&$avartarId==0) {
+        if (isset($fbImg)&&$avartarId==0) {
             $img = $fbImg ;
-        }else{
+        } else {
             $img = url('')."/public/img/profile/". $avartarId.".png" ;
         }
         return $img ;
     }
 
-    public function homeUrl(){
+    public function homeUrl()
+    {
         return url(Auth()->user()->recent_domain.'/dashboard');
     }
 
-    public function approveSendNoti($idCard){
+    public function approveSendNoti($idCard, $domainId)
+    {
         $sql = "select u.id_card,ud.noti_player_id 
                 from users as u 
-                on tv.user_id = u.id 
                 inner join user_domains as ud 
                 on ud.id_card = u.id_card 
-                and ud.domain_id = tv.domain_id 
+                and ud.domain_id = $domainId
                 and ud.approve = 1
-                where u.id_card = $idCard";
+                where u.id_card = '$idCard'";
         $query = DB::select(DB::raw($sql));
-        if(!empty($query)){
-
-            if(isset($query->noti_player_id)){
+        if (!empty($query)) {
+            if (isset($query->noti_player_id)) {
                 $parsedBody['user_id_list'][] = $query->noti_player_id ;
             }
-            if(isset($query->noti_player_id_mobile)){
+            if (isset($query->noti_player_id_mobile)) {
                 $parsedBody['user_id_list'][] = $query->noti_player_id_mobile ;
             }
-            if(isset($parsedBody['user_id_list'])){
+            if (isset($parsedBody['user_id_list'])) {
                 $parsedBody['direct'] = true;
-                $parsedBody['message'] = (App::isLocale('en')) ? 'Admin activated your account' : 'แอดมินยืนยันรหัสผู้ใช้ของคุณแล้ว สามารถใช้งานระบบได้แล้วค่ะ' ;
+                $parsedBody['message'] = (getLang()=='en') ? 'Admin activated your account' : 'แอดมินยืนยันรหัสผู้ใช้ของคุณแล้ว สามารถใช้งานระบบได้แล้วค่ะ' ;
                 $sendNoti = Notification::sendNoti($parsedBody);
             }
         }
     }
 
-    public static function userAddRoom($post,$idCard){
+    public static function userAddRoom($post, $idCard, $searchRoomId = null)
+    {
         $room = (gettype($post['user-room'])=="string") ?  (array)json_decode($post['user-room']) : $post['user-room'] ;
-        RoomUser::where('id_card',$idCard)->delete();
         $userData = [] ;
-
+        $ids = [];
+        if (isset($searchRoomId)) {
+            $ids = RoomUser::where('room_id', $searchRoomId)->pluck('id_card')->toArray();
+        }
         foreach ($room as $key => $u) {
-            if(is_array($u)){
+            if (is_array($u)) {
                 $roomId = $u['room_id'];
                 $idCard = $u['id_card'];
                 $roomApprove = isset($u['room_approve']) ? $u['room_approve'] : 0 ;
-            }else{
+            } else {
                 $roomId = $u->room_id ;
                 $idCard = $u->id_card ;
                 $roomApprove = isset($u->room_approve) ? $u->room_approve : 0 ;
             }
-
+            if (in_array($idCard, $ids)) {
+                continue;
+            }
             $userRoom['room_id'] = $roomId ;
-            $userRoom['id_card'] = $idCard ; 
+            $userRoom['id_card'] = $idCard ;
             $userRoom['approve'] = $roomApprove ;
             $userRoom['approved_at'] = null ;
             $userRoom['approved_by'] = null ;
-            if($roomApprove==1&&Auth()->user()->hasRole('admin') ){
+            if ($roomApprove==1&&Auth()->user()->hasRole('admin')) {
                 $userRoom['approved_at'] = Carbon::now();
                 $userRoom['approved_by'] = Auth()->user()->id ;
             }
@@ -525,8 +558,9 @@ class User extends Authenticatable
         RoomUser::insert($userData);
     }
 
-    public function getNotification($idCard=null){
-        if(is_null($idCard)){
+    public function getNotification($idCard = null)
+    {
+        if (is_null($idCard)) {
             $idCard = auth()->user()->id_card ;
         }
 
@@ -538,14 +572,14 @@ class User extends Authenticatable
         $hasAdmin = Auth()->user()->hasRole('admin');
         $hasOfficer = Auth()->user()->hasRole('officer');
         $hasHeaduser = Auth()->user()->hasRole('head.user');
-        if($hasAdmin||$hasOfficer||$hasHeaduser){
+        if ($hasAdmin||$hasOfficer||$hasHeaduser) {
             $mainQuery = " AND type != 0 ";
         }
 
         $sql .= $mainQuery ;
 
 
-        if($hasAdmin){
+        if ($hasAdmin) {
             $sql .= " UNION ALL
                 SELECT id,message,type,status,ref_id,created_at FROM 
                 notifications 
@@ -564,7 +598,7 @@ class User extends Authenticatable
         // ->limit(10)
         // ->get();
         $sqlCount = "";
-        if($hasAdmin){ 
+        if ($hasAdmin) {
             $sqlCount .= "SELECT SUM(cnt) as cnt FROM ( " ;
         }
         $sqlCount .= "SELECT count(*) as cnt FROM 
@@ -573,7 +607,7 @@ class User extends Authenticatable
                 AND id_card = '".$idCard."'
                 AND seen = 0 
                 AND type != 0 " ;
-        if($hasAdmin){
+        if ($hasAdmin) {
             $sqlCount .= " UNION
                 SELECT count(*) as cnt FROM 
                 notifications 
@@ -582,12 +616,12 @@ class User extends Authenticatable
         }
        
         $queryCount   =  DB::select(DB::raw($sqlCount));
-        $count = (!empty($queryCount)) ? $queryCount[0]->cnt : 0 ; 
+        $count = (!empty($queryCount)) ? $queryCount[0]->cnt : 0 ;
 
         // $count = Notification::where('id_card',$idCard)
         // ->where('domain_id',auth()->user()->recent_domain)
         // ->where('seen',0)
-        // ->count(); 
+        // ->count();
 
         $data =  new \stdClass();
         $data->notification = $notification ;
@@ -595,14 +629,12 @@ class User extends Authenticatable
         return $data;
     }
 
-    public static function active(){
+    public static function active()
+    {
 
         $user =  Auth()->user();
-        if(isset($user)){
+        if (isset($user)) {
             User::find($user->id)->update(['onlined_at'=>Carbon::now()]) ;
         }
-       
     }
-
-
 }

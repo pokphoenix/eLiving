@@ -41,14 +41,14 @@
 
               	<div class="form-group">
                   <label for="exampleInputEmail1">ชื่อโครงการ</label>
-                  <input type="text" class="form-control" id="name" name="name" placeholder="ชื่อโดเมนของโครงการ">
+                  <input type="text" class="form-control" id="name" name="name" placeholder="ชื่อของโครงการ">
                 </div>
                
                 <div class="form-group">
-                  <label for="exampleInputPassword1">ชื่อบริษัทบริหาร</label>
-                  <input type="text" class="form-control" id="company_name" name="company_name" placeholder="ชื่อบริษัท">
+                  <label for="exampleInputPassword1">url (ที่ให้เว็บเรียก)</label>
+                  <input type="text" class="form-control" id="url_name" name="url_name" placeholder="ชื่อบริษัท">
                 </div>
-                <div class="form-group">
+               <!--  <div class="form-group">
                   <label for="exampleInputPassword1">จำนวน unit</label>
                   <select class="form-control" id="unit" name="unit" >
                   		@foreach($units as $key => $unit)
@@ -56,7 +56,7 @@
                   		@endforeach
                   </select>
                  
-                </div>
+                </div> -->
                 <!-- <div class="form-group">
                   <label for="exampleInputFile">File input</label>
                   <input type="file" id="exampleInputFile">
@@ -68,7 +68,8 @@
               <!-- /.box-body -->
 
               <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="{{ url('domain/list') }}" type="button" class="btn btn-danger"  >@lang('main.btn_cancel')</a>
+                <button type="submit" class="btn btn-primary">@lang('main.btn_save')</button>
               </div>
             </form>
           </div>
@@ -108,12 +109,12 @@
                 },
               
                
-                company_name: "required",
+                // company_name: "required",
               },
               messages: {
                 name: {
-                  required: 'กรุณากรอกชื่อโดเมน',
-                  remote: 'ชื่อโดเมนซ้ำ'
+                  required: 'กรุณากรอกชื่อโครงการ',
+                  remote: 'ชื่อโครงการซ้ำ'
 
                 },
                

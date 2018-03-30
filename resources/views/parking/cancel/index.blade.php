@@ -19,11 +19,11 @@
        
         <i class="fa fa-circle-o"></i>
        
-         {{ $title }}
+         @lang('sidebar.parking_cancel')
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-home"></i> @lang('main.home')</a></li>
-        <li class="active">{{ $title }}</li>
+        <li class="active">@lang('sidebar.parking_cancel')</li>
       </ol>
     </section>
 
@@ -48,7 +48,7 @@
                   <th>@lang('parking.start_date')</th>
                   <th>@lang('parking.end_date')</th>
                   <th>@lang('parking.used_date')</th>
-                  <th>@lang('parking.used')</th>
+                  <th>@lang('parking.show_used')</th>
                   <th>@lang('main.tool')</th>
                 </tr>
                 <tr class="thead-search">
@@ -59,7 +59,7 @@
                   <th class="input-filter">@lang('parking.start_date')</th>
                   <th class="input-filter">@lang('parking.end_date')</th>
                   <th class="input-filter">@lang('parking.used_date')</th>
-                  <th class="input-filter">@lang('parking.used')</th>
+                  <th class="input-filter">@lang('parking.show_used')</th>
                   <th ></th>
                 </tr>
                 </thead>
@@ -69,19 +69,19 @@
                 <tr >
                   <td>{{ $key+1 }}</td>
                   <td>{{ $list['room_name'] }}</td>
-                   <td>{!! $list['license_plate_category']." ".$list['license_plate']."<BR>".$list['province_name'] !!}</td>
-                  <td>{{ created_date_format($list['start_date']) }}</td>
-                  <td>@if(isset($list['end_date']))
-                  {{ created_date_format($list['end_date'])}}
+                  <td>{!! $list['license_plate_category']." ".$list['license_plate']."<BR>".$list['province_name'] !!}</td>
+                  <td>{{ created_date_format($list['created_at']) }}</td>
+                  <td>@if(isset($list['outed_at']))
+                  {{ created_date_format($list['outed_at'])}}
                   @else
                      @lang('parking.is_until_out')
                   @endif
                   </td>
-                  <td>{{   (isset($list['used_date'])) ? created_date_format($list['used_date']) : '' }}</td>
-                  <td>@if(is_null($list['used_date']))
-                        @lang('parking.not_use')
+                  <td>{{   (isset($list['used_at'])) ? created_date_format($list['used_at']) : '' }}</td>
+                  <td>@if($list['free_park']==1)
+                        @lang('parking.free')
                       @else
-                        @lang('parking.use')
+                        @lang('parking.not_free')
                       @endif
                  </td>
                   <td> 
@@ -135,7 +135,7 @@
                    <td>{!! $list['license_plate_category']." ".$list['license_plate']."<BR>".$list['province_name'] !!}</td>
                   <td>{{ created_date_format($list['created_at']) }}</td>
                   <td>{{ $list['first_name']." ".$list['last_name'] }}
-                 </td>
+                  </td>
                  
                 </tr>
                 @endforeach
@@ -218,7 +218,7 @@ $(".btn-delete").on("click",function(){
   }).then((result) => {
           if (result.value) {
               var route = "/parking/cancel/"+useId+"?api_token="+api_token ;
-              ajaxPromise('DELETE',route).done(function(data){
+              ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
                parent.remove();
               }).fail(function(txt) {
                 var error = JSON.stringify(txt);

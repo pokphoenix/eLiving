@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Main;
 use App\Http\Controllers\ApiController;
 use App\Models\Company;
 use App\Models\Domain;
+use App\Models\Images;
 use App\Models\Notification;
 use App\Models\Room;
 use App\Models\Search;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 
@@ -44,40 +46,40 @@ class TaskController extends ApiController
 
     public function __construct()
     {
-       
-       
     }
 
-    public function search(Request $request){
-      
+    public function search(Request $request)
+    {
     }
 
-    public function index($domainId){
-        if(!Auth()->user()->hasRole('officer')&&!Auth()->user()->hasRole('head.user')&&!Auth()->user()->hasRole('admin')){
-          return $this->respondWithError('คุณไม่สามารถดูรายการนี้ได้');
+    public function index($domainId)
+    {
+        if (!Auth()->user()->hasRole('officer')&&!Auth()->user()->hasRole('head.user')&&!Auth()->user()->hasRole('admin')) {
+            return $this->respondWithError('คุณไม่สามารถดูรายการนี้ได้');
         }
-
-        $data['tasks'] = Task::getTaskListData($domainId,1);
-        $data['master_status_history'] = StatusHistory::where('status',1)->get();
+        $data['tasks'] = Task::getTaskListData($domainId, 1);
+        $data['master_status_history'] = StatusHistory::where('status', 1)->get();
 
 
         $data['master_task_category'] = TaskCategory::getTaskCategory(1) ;
-        $data['member_task'] = Search::memberTask($domainId,'');
+        $data['member_task'] = Search::memberTask($domainId, '');
         return $this->respondWithItem($data);
-    } 
-    public function show($domainId,$taskId){
-        if(!Auth()->user()->hasRole('officer')&&!Auth()->user()->hasRole('head.user')&&!Auth()->user()->hasRole('admin')){
-          return $this->respondWithError('คุณไม่สามารถดูรายการนี้ได้');
+    }
+    public function show($domainId, $taskId)
+    {
+        if (!Auth()->user()->hasRole('officer')&&!Auth()->user()->hasRole('head.user')&&!Auth()->user()->hasRole('admin')) {
+            return $this->respondWithError('คุณไม่สามารถดูรายการนี้ได้');
         }
 
 
-        $data = Task::getTaskData($domainId,$taskId);
+        $data = Task::getTaskData($domainId, $taskId);
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request,$domainId){
+    public function store(Request $request, $domainId)
+    {
         $userId = Auth::user()->id ;
-        $post = $request->all();
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -86,7 +88,7 @@ class TaskController extends ApiController
         $task = new Task();
         $task->title = $post['title'] ;
 
-        if($post['start']){
+        if ($post['start']) {
             $task->start_task_at = Carbon::now() ;
         }
 
@@ -113,81 +115,85 @@ class TaskController extends ApiController
         $data['task'] = Task::find($task->id);
         $data['task_id'] = $task->id;
         return $this->respondWithItem($data);
-    }  
-    public function update(Request $request,$domainId,$taskId){
-        $post = $request->all();
+    }
+    public function update(Request $request, $domainId, $taskId)
+    {
+        $post = $request->except('api_token', '_method');
         $task = Task::find($taskId)->update($post);
 
-        if(isset($post['due_dated_at'])){
-            $this->setHistory($domainId,$taskId,10,$post) ;
+        if (isset($post['due_dated_at'])) {
+            $this->setHistory($domainId, $taskId, 10, $post) ;
         }
 
-        if(isset($post['due_dated_complete'])){
+        if (isset($post['due_dated_complete'])) {
             $statusId = ($post['due_dated_complete']==1) ? 11 : 12 ;
-            $this->setHistory($domainId,$taskId,$statusId) ;
+            $this->setHistory($domainId, $taskId, $statusId) ;
         }
-        $data = Task::getTaskData($domainId,$taskId);
+        $data = Task::getTaskData($domainId, $taskId);
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
-    } 
+    }
 
-    public function destroy($domainId,$taskId){
+    public function destroy($domainId, $taskId)
+    {
 
         $task = Task::find($taskId);
-        if(($task->created_by!=Auth()->user()->id)&&(!Auth()->user()->hasRole('officer')&&!Auth()->user()->hasRole('headuser')&&!Auth()->user()->hasRole('admin'))){
+        if (($task->created_by!=Auth()->user()->id)&&(!Auth()->user()->hasRole('officer')&&!Auth()->user()->hasRole('headuser')&&!Auth()->user()->hasRole('admin'))) {
             return $this->respondWithError('คุณไม่สามารถลบงานนี้ได้ค่ะ');
         }
 
         $task->delete();
 
-        Notification::where('type',2)->where('ref_id',$taskId)->delete();
+        Notification::where('type', 2)->where('ref_id', $taskId)->delete();
 
         $data['delete_task_id'] = $taskId ;
         return $this->respondWithItem($data);
     }
 
-    private function setHistory($domainId,$taskId,$statusId,$data=null){
+    private function setHistory($domainId, $taskId, $statusId, $data = null)
+    {
         $history = new TaskHistory();
         $history->task_id = $taskId;
         $history->domain_id = $domainId;
         $history->status = $statusId ;
         $history->created_at = Carbon::now() ;
         $history->created_by = Auth::user()->id;
-        if($statusId==10){
+        if ($statusId==10) {
             $history->duedate_to = Carbon::Parse($data['due_dated_at']) ;
         }
 
-        if ($statusId==7||$statusId==8||$statusId==9){
+        if ($statusId==7||$statusId==8||$statusId==9) {
             $history->task_comment_id = $data['comment_id'];
         }
 
-        if($statusId==20||$statusId==21){
+        if ($statusId==20||$statusId==21) {
             $history->task_attach_id = $data['attach_id'] ;
         }
-        if($statusId==22||$statusId==23){
+        if ($statusId==22||$statusId==23) {
             $history->task_category_id = $data['category_id'] ;
         }
-        if($statusId==3||$statusId==4){
+        if ($statusId==3||$statusId==4) {
             $history->assign_to_user_id = $data['user_id'] ;
         }
-        if($statusId==25||$statusId==26||$statusId==31){
+        if ($statusId==25||$statusId==26||$statusId==31) {
             $history->checklist_id = $data['checklist_id'] ;
         }
 
         $history->save();
     }
 
-    public function status(Request $request,$domainId,$taskId){
-        $post = $request->all();
-        if($post['status']==7){
+    public function status(Request $request, $domainId, $taskId)
+    {
+        $post = $request->except('api_token', '_method');
+        if ($post['status']==7) {
             $post['doned_at'] = Carbon::now();
-        }else{
+        } else {
             $post['doned_at'] = null;
         }
 
-        if($post['status']==3){
-            $member = TaskMember::where('task_id',$taskId)->where('domain_id',$domainId)->count();
-            if(!$member){
+        if ($post['status']==3) {
+            $member = TaskMember::where('task_id', $taskId)->where('domain_id', $domainId)->count();
+            if (!$member) {
                  return $this->respondWithError('กรุณามอบหมายงานให้เจ้าหน้าที่');
             }
         }
@@ -196,62 +202,76 @@ class TaskController extends ApiController
         $task->update($post);
 
         switch ($post['status']) {
-            case 1:$statusId = 13 ;break;
-            case 2:$statusId = 14 ;break;
-            case 3:$statusId = 15 ;break;
-            case 4:$statusId = 16 ;break;
-            case 5:$statusId = 17 ;break;
-            case 6:$statusId = 18 ;break;
-            case 7:$statusId = 19 ;break;
+            case 1:
+                $statusId = 13 ;
+                break;
+            case 2:
+                $statusId = 14 ;
+                break;
+            case 3:
+                $statusId = 15 ;
+                break;
+            case 4:
+                $statusId = 16 ;
+                break;
+            case 5:
+                $statusId = 17 ;
+                break;
+            case 6:
+                $statusId = 18 ;
+                break;
+            case 7:
+                $statusId = 19 ;
+                break;
         }
 
-        $this->setHistory($domainId,$taskId,$statusId) ;
+        $this->setHistory($domainId, $taskId, $statusId) ;
 
         // if($post['status']==4){
         //      QuotationVote::where('quotation_id',$quotationId)
         //     ->where('domain_id',$domainId)
         //     ->delete();
         // }
-        $task =  Task::where('id',$taskId)->first() ;
+        $task =  Task::where('id', $taskId)->first() ;
+        $lang= getLang();
         // if(!empty($task)){
-            switch ($post['status']) {
-                case 1:
-                    $statusTxt = (App::isLocale('en'))  ? "Re submit" :  "รายการใหม่"  ;
-                    $notiStatus = 4 ;
-                    break;
-                case 2:
-                    $statusTxt = (App::isLocale('en'))  ? "Re submit" :  "รายการใหม่"  ;
-                    $notiStatus = 4 ;
-                    break;
-                case 3:
-                    $statusTxt = (App::isLocale('en'))  ? "Re submit" :  "รายการใหม่"  ;
-                    $notiStatus = 4 ;
-                    break;
-                case 4:
-                    $statusTxt = (App::isLocale('en'))  ? "Cancel" :  "ยกเลิก"  ;  
-                    $notiStatus = 1 ;
-                    break;
-                case 5:
-                    $statusTxt = (App::isLocale('en'))  ? "In progress" :  "กำลังดำเนินการ"  ; 
-                    $notiStatus = 2 ;
-                    break;
-                case 6:
-  
-                    $statusTxt = (App::isLocale('en'))  ? "Pending" :  "รอดำเนินการ"  ; 
-                    $notiStatus = 2 ;
-                    break;
-                case 7:
-                    $notiMsg = $task->title.' status Done';
-                    $statusTxt = (App::isLocale('en'))  ? "Done" :  "เสร็จแล้ว"  ;  
-                    $notiStatus = 3 ;
-                    break;
-            }
+        switch ($post['status']) {
+            case 1:
+                $statusTxt = ($lang=='en')  ? "Re submit" :  "รายการใหม่"  ;
+                $notiStatus = 4 ;
+                break;
+            case 2:
+                $statusTxt = ($lang=='en')  ? "Re submit" :  "รายการใหม่"  ;
+                $notiStatus = 4 ;
+                break;
+            case 3:
+                $statusTxt = ($lang=='en')  ? "Re submit" :  "รายการใหม่"  ;
+                $notiStatus = 4 ;
+                break;
+            case 4:
+                $statusTxt = ($lang=='en')  ? "Cancel" :  "ยกเลิก"  ;
+                $notiStatus = 1 ;
+                break;
+            case 5:
+                $statusTxt = ($lang=='en')  ? "In progress" :  "กำลังดำเนินการ"  ;
+                $notiStatus = 2 ;
+                break;
+            case 6:
+                $statusTxt = ($lang=='en')  ? "Pending" :  "รอดำเนินการ"  ;
+                $notiStatus = 2 ;
+                break;
+            case 7:
+                $notiMsg = $task->title.' status Done';
+                $statusTxt = ($lang=='en')  ? "Done" :  "เสร็จแล้ว"  ;
+                $notiStatus = 3 ;
+                break;
+        }
 
-             if(App::isLocale('en')){
-                $notiMsg = "task \"".cutStrlen($task->title,SUB_STR_MESSAGE)."\" status ".$statusTxt ;
-            }else{
-                $notiMsg = "แจ้งงาน \"".cutStrlen($task->title,SUB_STR_MESSAGE)."\" สถานะ  ".$statusTxt ;
-            }
+        if ($lang=='en') {
+            $notiMsg = "task \"".cutStrlen($task->title, SUB_STR_MESSAGE)."\" status ".$statusTxt ;
+        } else {
+            $notiMsg = "แจ้งงาน \"".cutStrlen($task->title, SUB_STR_MESSAGE)."\" สถานะ  ".$statusTxt ;
+        }
 
             //if($task->type==2){
                 //--- send to owner
@@ -273,24 +293,25 @@ class TaskController extends ApiController
                 where tv.task_id = $taskId and tv.domain_id = $domainId";
             $query = DB::select(DB::raw($sql));
            
-            if(!empty($query)){
-                Notification::addNotificationMulti($query,$domainId,$notiMsg,$notiStatus,2,$taskId);
-            }
+        if (!empty($query)) {
+            Notification::addNotificationMulti($query, $domainId, $notiMsg, $notiStatus, 2, $taskId);
+        }
         // }
         
         
 
-        $data = Task::getTaskData($domainId,$taskId);
+        $data = Task::getTaskData($domainId, $taskId);
         return $this->respondWithItem($data);
-    }  
+    }
     
    
-    public function attachment($domainId,$taskId){
-        $data['attachment'] = TaskAttach::where('quotation_id',$quotationId)
-            ->where('domain_id',$domainId)
-            ->where('company_id',$companyId)
+    public function attachment($domainId, $taskId)
+    {
+        $data['attachment'] = TaskAttach::where('quotation_id', $quotationId)
+            ->where('domain_id', $domainId)
+            ->where('company_id', $companyId)
             ->get();
-        $data['task_id'] = $taskId;     
+        $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
     }
     // public function companyAttachmentStore($domainId,$quotationId,$companyId){
@@ -304,15 +325,16 @@ class TaskController extends ApiController
     //     return $this->respondWithItem($data);
     // }
 
-    public function attachmentStore(Request $request,$domainId,$taskId){
+    public function attachmentStore(Request $request, $domainId, $taskId)
+    {
 
-        $post = $request->all();
+        $post = $request->except('api_token', '_method');
         $attachments = (gettype($post['attachment'])=="string") ? (array)json_decode($post['attachment']) : $post['attachment']  ;
-        try{
-            if(count($attachments)>0){
-                $files = $this->saveImage($domainId,$attachments) ;
+        try {
+            if (count($attachments)>0) {
+                $files = $this->saveImage($domainId, $attachments) ;
 
-                if(!$files['result']){
+                if (!$files['result']) {
                     return $this->respondWithError($files['error']);
                 }
                 foreach ($files['path'] as $key => $i) {
@@ -326,41 +348,41 @@ class TaskController extends ApiController
 
                 $attach = TaskAttach::create($filesData[0]);
                 $history['attach_id'] = $attach->id ;
-                $this->setHistory($domainId,$taskId,20,$history) ;
-
+                $this->setHistory($domainId, $taskId, 20, $history) ;
             }
-
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return $this->respondWithError($e->getMessage());
         }
 
-        $data['task_attachs'] =  Task::getTaskAttach($domainId,$taskId);
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
+        $data['task_attachs'] =  Task::getTaskAttach($domainId, $taskId);
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
     }
-    public function attachmentDelete(Request $request,$domainId,$taskId,$attachId){
+    public function attachmentDelete(Request $request, $domainId, $taskId, $attachId)
+    {
         $attach = TaskAttach::find($attachId) ;
-        if(empty($attach)){
+        if (empty($attach)) {
             return $this->respondWithError('ไม่พบรูป');
         }
 
-        if($attach->created_by!=Auth()->user()->id){
+        if ($attach->created_by!=Auth()->user()->id) {
             return $this->respondWithError('ไม่สามารถลบข้อมูลคอมเมนท์ของผู้อื่นได้');
         }
         $attach->delete();
 
         $data['attach_id'] = $attachId ;
-        $this->setHistory($domainId,$taskId,21,$data) ;
-        $data['task_attachs'] =  Task::getTaskAttach($domainId,$taskId);
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
-        $data['task_id'] = $taskId;     
+        $this->setHistory($domainId, $taskId, 21, $data) ;
+        $data['task_attachs'] =  Task::getTaskAttach($domainId, $taskId);
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
+        $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
     }
 
 
-    public function commentStore(Request $request,$domainId,$taskId){
-        $post = $request->all();
+    public function commentStore(Request $request, $domainId, $taskId)
+    {
+        $post = $request->except('api_token', '_method');
         $comment = new TaskComment();
         $comment->task_id = $taskId ;
         $comment->domain_id = $domainId ;
@@ -370,10 +392,10 @@ class TaskController extends ApiController
         $comment->save();
         $data['comment_id'] = $comment->id ;
 
-        $this->setHistory($domainId,$taskId,7,$data) ;
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
-        $data['task_comments'] = Task::getTaskComment($domainId,$taskId);
-        $data['task_id'] = $taskId;     
+        $this->setHistory($domainId, $taskId, 7, $data) ;
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
+        $data['task_comments'] = Task::getTaskComment($domainId, $taskId);
+        $data['task_id'] = $taskId;
 
         $task = Task::find($taskId) ;
         $txt = $post['description'];
@@ -402,33 +424,35 @@ class TaskController extends ApiController
                     where tm.task_id = $taskId and tm.domain_id = $domainId
                 ) x";
         $query = DB::select(DB::raw($sql));
-        if(!empty($query)){
-            Notification::addNotificationMulti($query,$domainId,$notiText,4,2,$taskId,true);
+        if (!empty($query)) {
+            Notification::addNotificationMulti($query, $domainId, $notiText, 4, 2, $taskId, true);
         }
 
         return $this->respondWithItem($data);
     }
 
-    public function commentUpdate(Request $request,$domainId,$taskId,$commentId){
-        $post = $request->all();
+    public function commentUpdate(Request $request, $domainId, $taskId, $commentId)
+    {
+        $post = $request->except('api_token', '_method');
         $comment = TaskComment::find($commentId);
-        if($comment->created_by!=Auth()->user()->id){
+        if ($comment->created_by!=Auth()->user()->id) {
             return $this->respondWithError('ไม่สามารถแก้ไขข้อมูลคอมเมนท์ของผู้อื่นได้');
         }
         $comment->update($post) ;
        
         $data['comment_id'] = $commentId ;
-        $this->setHistory($domainId,$taskId,8,$data) ;
-        $data['task_comments'] = Task::getTaskComment($domainId,$taskId);
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
+        $this->setHistory($domainId, $taskId, 8, $data) ;
+        $data['task_comments'] = Task::getTaskComment($domainId, $taskId);
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
     }
-    public function commentDelete(Request $request,$domainId,$taskId,$commentId){
+    public function commentDelete(Request $request, $domainId, $taskId, $commentId)
+    {
         $comment = TaskComment::find($commentId) ;
         
-        if(!empty($comment)){
-            if($comment->created_by!=Auth()->user()->id){
+        if (!empty($comment)) {
+            if ($comment->created_by!=Auth()->user()->id) {
                 return $this->respondWithError('ไม่สามารถลบข้อมูลคอมเมนท์ของผู้อื่นได้');
             }
             $comment->delete();
@@ -436,20 +460,21 @@ class TaskController extends ApiController
       
 
         $data['comment_id'] = $commentId ;
-        $this->setHistory($domainId,$taskId,9,$data) ;
-        $data['task_comments'] = Task::getTaskComment($domainId,$taskId);
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
+        $this->setHistory($domainId, $taskId, 9, $data) ;
+        $data['task_comments'] = Task::getTaskComment($domainId, $taskId);
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
     }
 
-    public function viewer(Request $request,$domainId,$taskId){
+    public function viewer(Request $request, $domainId, $taskId)
+    {
         $userId = Auth()->user()->id;
-        $viewer = TaskViewer::where('domain_id',$domainId)
-        ->where('task_id',$taskId)
-        ->where('user_id',$userId)
+        $viewer = TaskViewer::where('domain_id', $domainId)
+        ->where('task_id', $taskId)
+        ->where('user_id', $userId)
         ->first();
-        if(empty($viewer)){
+        if (empty($viewer)) {
             $viewer = new TaskViewer;
             $viewer->domain_id = $domainId;
             $viewer->user_id = $userId;
@@ -457,7 +482,7 @@ class TaskController extends ApiController
             $viewer->created_at = Carbon::now();
             $viewer->save();
             $txt = 'add' ;
-        }else{
+        } else {
             $viewer->delete();
             $txt = 'delete' ;
         }
@@ -465,59 +490,62 @@ class TaskController extends ApiController
 
         $data['viewer'] = $txt ;
         return $this->respondWithItem($data);
-    } 
+    }
 
    
-    public function category(Request $request,$domainId,$taskId,$categoryId){
+    public function category(Request $request, $domainId, $taskId, $categoryId)
+    {
         $userId = Auth()->user()->id;
-        $task = Task::where('domain_id',$domainId)
-        ->where('id',$taskId)
+        $task = Task::where('domain_id', $domainId)
+        ->where('id', $taskId)
         ->first();
         $his['category_id'] = $categoryId;
-        if ($task->category_id==$categoryId){
+        if ($task->category_id==$categoryId) {
             $task->category_id = 0 ;
             $statusId = 23;
-        }else{
+        } else {
             $task->category_id = $categoryId ;
             $statusId = 22;
         }
         $task->save();
 
-        $this->setHistory($domainId,$taskId,$statusId,$his) ;
+        $this->setHistory($domainId, $taskId, $statusId, $his) ;
         $data['task_lastest_category_id'] = $categoryId ;
         $data['task_id'] = $taskId ;
         $data['task_category'] = TaskCategory::find($task->category_id);
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
         return $this->respondWithItem($data);
     }
 
-    private function hasRole($role,$memberData,$domainId){
+    private function hasRole($role, $memberData, $domainId)
+    {
         $sql = "SELECT role_id 
                 FROM role_user ru
                 LEFT JOIN roles r 
                 ON r.id = ru.role_id 
                 WHERE ru.id_card = '".$memberData->id_card."' AND r.name='".$role.
                 "' AND ru.domain_id=".$domainId ;
-        return collect(DB::select(DB::raw($sql)))->first(); 
+        return collect(DB::select(DB::raw($sql)))->first();
     }
 
-    public function member(Request $request,$domainId,$taskId,$memberId){
+    public function member(Request $request, $domainId, $taskId, $memberId)
+    {
         $userId = Auth()->user()->id;
         $memberData = User::find($memberId);
         // if(!Auth()->user()->hasRole('officer')){
         //     return $this->respondWithError('คุณไม่สามารถมอบหมายงานให้ผู้ใช้นี้ได้ค่ะ');
         // }
-        if(!$this->hasRole('officer',$memberData,$domainId)&&!$this->hasRole('head.user',$memberData,$domainId)){
+        if (!$this->hasRole('officer', $memberData, $domainId)&&!$this->hasRole('head.user', $memberData, $domainId)) {
             return $this->respondWithError('ไม่สามารถมอบหมายงานให้ผู้ใช้นี้ได้ค่ะ');
         }
 
-        $taskMember = TaskMember::where('domain_id',$domainId)
-        ->where('task_id',$taskId)
-        ->where('user_id',$memberId)
+        $taskMember = TaskMember::where('domain_id', $domainId)
+        ->where('task_id', $taskId)
+        ->where('user_id', $memberId)
         ->first();
 
 
-        if(empty($taskMember)){
+        if (empty($taskMember)) {
             $member = new TaskMember;
             $member->domain_id = $domainId;
             $member->user_id = $memberId;
@@ -526,35 +554,33 @@ class TaskController extends ApiController
             $member->save();
             $statusId = 3;
 
-            if($memberId!=$userId){
-                $user = User::where('id',$memberId)->first();
+            if ($memberId!=$userId) {
+                $user = User::where('id', $memberId)->first();
                 $notiMsg = "You were tasked id ".$taskId;
                 $notiStatus = 4;
                 $notiType = 2;
-                if(!empty($user)){
-                    Notification::addNotificationDirect($user->id_card,$domainId,$notiMsg,$notiStatus,$notiType,$taskId);
+                if (!empty($user)) {
+                    Notification::addNotificationDirect($user->id_card, $domainId, $notiMsg, $notiStatus, $notiType, $taskId);
                 }
             }
-            
-
-
-        }else{
+        } else {
             $taskMember->delete();
             $txt = 'delete' ;
             $statusId = 4;
         }
         $his['user_id'] = $memberId ;
-        $this->setHistory($domainId,$taskId,$statusId,$his) ;
+        $this->setHistory($domainId, $taskId, $statusId, $his) ;
 
        
 
-        $data = Task::getTaskData($domainId,$taskId);
+        $data = Task::getTaskData($domainId, $taskId);
         $data['task_id'] = $taskId;
 
         return $this->respondWithItem($data);
-    } 
+    }
 
-    public function checklistStore(Request $request,$domainId,$taskId){
+    public function checklistStore(Request $request, $domainId, $taskId)
+    {
         $userId = Auth()->user()->id;
         $title = $request->input("title") ;
         $checklist = new TaskChecklist() ;
@@ -567,16 +593,17 @@ class TaskController extends ApiController
 
         $his['checklist_id'] = $checklist->id ;
 
-        $this->setHistory($domainId,$taskId,25,$his) ;
+        $this->setHistory($domainId, $taskId, 25, $his) ;
 
-        $data['task_checklists'] = Task::getTaskChecklist($domainId,$taskId);
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
+        $data['task_checklists'] = Task::getTaskChecklist($domainId, $taskId);
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
         $data['lastest_id'] = $checklist->id ;
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
     }
 
-    public function checklistItem(Request $request,$domainId,$taskId,$checklistId){
+    public function checklistItem(Request $request, $domainId, $taskId, $checklistId)
+    {
 
         $userId = Auth()->user()->id;
         $title = $request->input("title") ;
@@ -587,35 +614,37 @@ class TaskController extends ApiController
         $checklist->domain_id = $domainId ;
         $checklist->save();
 
-        $data['task_checklists'] = Task::getTaskChecklist($domainId,$taskId);
+        $data['task_checklists'] = Task::getTaskChecklist($domainId, $taskId);
         $data['lastest_id'] = $checklistId ;
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
-    } 
-    public function checklistItemDelete(Request $request,$domainId,$taskId,$checklistItemId){
+    }
+    public function checklistItemDelete(Request $request, $domainId, $taskId, $checklistItemId)
+    {
         $checklist = TaskChecklistItem::find($checklistItemId);
         $checklistId = $checklist->checklist_id ;
         $checklist->delete() ;
-        $data['task_checklists'] = Task::getTaskChecklist($domainId,$taskId);
+        $data['task_checklists'] = Task::getTaskChecklist($domainId, $taskId);
         $data['lastest_id'] = $checklistId ;
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
-    } 
-    public function checklistItemUpdate(Request $request,$domainId,$taskId,$checklistItemId){
-        $post = $request->all();
+    }
+    public function checklistItemUpdate(Request $request, $domainId, $taskId, $checklistItemId)
+    {
+        $post = $request->except('api_token', '_method');
         unset($post['api_token']);
         $userId = Auth()->user()->id;
-        $member = TaskMember::where('domain_id',$domainId)
-        ->where('task_id',$taskId)
-        ->where('user_id',$userId)
+        $member = TaskMember::where('domain_id', $domainId)
+        ->where('task_id', $taskId)
+        ->where('user_id', $userId)
         ->first();
-        if(empty($member)){
+        if (empty($member)) {
             return $this->respondWithError('ผู้ใช้นี้ไม่มีสิทธิ์บันทึกรายการนี้ได้ค่ะ');
         }
 
-        if(!empty($post)){
+        if (!empty($post)) {
             TaskChecklistItem::find($checklistItemId)->update($post);
-        }else{
+        } else {
             $checklist = TaskChecklistItem::find($checklistItemId);
             $checklist->status = ($checklist->status==0) ? 1 : 0 ;
             $checklist->save() ;
@@ -623,66 +652,69 @@ class TaskController extends ApiController
         }
 
        
-        $data['task_checklists'] = Task::getTaskChecklist($domainId,$taskId);
+        $data['task_checklists'] = Task::getTaskChecklist($domainId, $taskId);
        
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
     }
 
-    public function checklistDelete(Request $request,$domainId,$taskId,$checklistId){
+    public function checklistDelete(Request $request, $domainId, $taskId, $checklistId)
+    {
         $userId = Auth()->user()->id;
-        $task = TaskChecklist::where('domain_id',$domainId)
-        ->where('task_id',$taskId)
-        ->where('id',$checklistId)
+        $task = TaskChecklist::where('domain_id', $domainId)
+        ->where('task_id', $taskId)
+        ->where('id', $checklistId)
         ->delete();
 
-        $task = TaskChecklistItem::where('domain_id',$domainId)
-        ->where('task_id',$taskId)
-        ->where('checklist_id',$checklistId)
+        $task = TaskChecklistItem::where('domain_id', $domainId)
+        ->where('task_id', $taskId)
+        ->where('checklist_id', $checklistId)
         ->delete();
 
         $his['checklist_id'] = $checklistId ;
-        $this->setHistory($domainId,$taskId,26,$his) ;
+        $this->setHistory($domainId, $taskId, 26, $his) ;
 
 
-        $data['task_checklists'] = Task::getTaskChecklist($domainId,$taskId);
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
+        $data['task_checklists'] = Task::getTaskChecklist($domainId, $taskId);
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
     }
-    public function checklistUpdate(Request $request,$domainId,$taskId,$checklistId){
-        $post = $request->all();
+    public function checklistUpdate(Request $request, $domainId, $taskId, $checklistId)
+    {
+        $post = $request->except('api_token', '_method');
 
         unset($post['api_token']);
 
         $userId = Auth()->user()->id;
-        $task = TaskChecklist::where('domain_id',$domainId)
-        ->where('task_id',$taskId)
-        ->where('id',$checklistId)
+        $task = TaskChecklist::where('domain_id', $domainId)
+        ->where('task_id', $taskId)
+        ->where('id', $checklistId)
         ->update($post);
 
         $his['checklist_id'] = $checklistId ;
-        $this->setHistory($domainId,$taskId,31,$his) ;
+        $this->setHistory($domainId, $taskId, 31, $his) ;
 
 
-        $data['task_checklists'] = Task::getTaskChecklist($domainId,$taskId);
-        $data['task_historys'] = Task::getTaskHistory($domainId,$taskId);
+        $data['task_checklists'] = Task::getTaskChecklist($domainId, $taskId);
+        $data['task_historys'] = Task::getTaskHistory($domainId, $taskId);
         $data['task_id'] = $taskId;
         return $this->respondWithItem($data);
-    } 
+    }
 
-    public function filter(Request $request,$domainId){
+    public function filter(Request $request, $domainId)
+    {
         $name = $request->input('name');
         $type = $request->input('type');
         $lang = App::getLocale() ;
 
-        if(!empty($name)){
+        if (!empty($name)) {
             $name = addslashes($name);
         }
 
         $sqlCategorySelect = "name_en as name" ;
         $sqlCategoryWhere = "name_en like '%".$name."%'" ;
-        if($lang=="th"){
+        if ($lang=="th") {
             $sqlCategorySelect = "name_th as name" ;
             $sqlCategoryWhere = "name_th like '%".$name."%'" ;
         }
@@ -693,48 +725,49 @@ class TaskController extends ApiController
                 AND type =$type 
                 AND ( $sqlCategoryWhere ) " ;
         $category = DB::select(DB::raw($sql));
-        $member = Search::memberTask($domainId,$name);
-        $data['task_filter_member'] = $member ; 
+        $member = Search::memberTask($domainId, $name);
+        $data['task_filter_member'] = $member ;
         $data['task_filter_category'] = $category ;
         return $this->respondWithItem($data);
     }
 
-    public function searchFilter(Request $request,$domainId){
-        $post = $request->all();
+    public function searchFilter(Request $request, $domainId)
+    {
+        $post = $request->except('api_token', '_method');
         $search = "";
-        if(isset($post['no_categoty'])&&$post['no_categoty']){
+        if (isset($post['no_categoty'])&&$post['no_categoty']) {
             $search .=  ((!empty($search)) ? " OR " : "" )." tc.id is null " ;
         }
 
-        if(isset($post['category'])&&!empty($post['category'])){
+        if (isset($post['category'])&&!empty($post['category'])) {
             $categoryList = "";
             foreach ($post['category'] as $key => $c) {
                 $categoryList .= ",$c";
             }
-            $categoryList = substr($categoryList,1);
+            $categoryList = substr($categoryList, 1);
             $search .= " tc.id in ($categoryList) " ;
         }
 
-        if(isset($post['unsign'])&&$post['unsign']){
+        if (isset($post['unsign'])&&$post['unsign']) {
             $search .=  ((!empty($search)) ? " OR " : "" )." u.id is null " ;
-        } 
+        }
 
 
-        if(isset($post['member'])&&!empty($post['member'])){
+        if (isset($post['member'])&&!empty($post['member'])) {
             $memberList = "";
             foreach ($post['member'] as $key => $m) {
                 $memberList .= ",$m";
             }
-            $memberList = substr($memberList,1);
+            $memberList = substr($memberList, 1);
             $search .= ((!empty($search)) ? " OR " : "" )." tm.user_id in ($memberList) " ;
         }
 
 
         $searchQuery ="";
-        if(!empty($search)){
+        if (!empty($search)) {
             $searchQuery = " AND ($search) " ;
         }
-        $data['tasks'] = Task::getTaskListData($domainId,$post['type'],$searchQuery);
+        $data['tasks'] = Task::getTaskListData($domainId, $post['type'], $searchQuery);
         return $this->respondWithItem($data);
     }
 
@@ -753,16 +786,22 @@ class TaskController extends ApiController
         ]);
     }
 
-    private function saveImage($domainId,$files)
+
+    
+
+    private function saveImage($domainId, $files)
     {
         try {
             $result = ['result'=>true,'error'=>''];
 
-            foreach($files as $key=>$file){
-                if(gettype($file)=="array"){
+            if (!Images::validateImage($files)) {
+                return ['result'=>false,'error'=> getLang()=='en' ? 'file size over than 500kb' : 'ไม่สามารถอัพไฟล์ขนาดเกิน 500kb' ];
+            }
+            foreach ($files as $key => $file) {
+                if (gettype($file)=="array") {
                     $fileData = $file['data'];
                     $fileName = time().'_'.$file['name'];
-                }else{
+                } else {
                     $fileData = $file->data ;
                     $fileName = time().'_'.$file->name;
                 }
@@ -772,17 +811,14 @@ class TaskController extends ApiController
                
                 $folderName = $domainId."/".date('Ym') ;
                 if (!is_dir(public_path('storage/'.$folderName))) {
-                    File::makeDirectory(public_path('storage/'.$folderName),0755,true);  
+                    File::makeDirectory(public_path('storage/'.$folderName), 0755, true);
                 }
                 $savePath = public_path('storage/'.$folderName.'/').$fileName;
                 file_put_contents($savePath, $data);
                 $result['path'][$key] = $folderName;
                 $result['filename'][$key] = $fileName;
-
             }
-
-
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $result = ['result'=>false,'error'=>$e->getMessage()] ;
         }
         return $result ;

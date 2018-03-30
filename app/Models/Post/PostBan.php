@@ -10,7 +10,5 @@ class PostBan extends Model
     public $timestamps = false;
 
     protected $fillable = ['user_id','created_at', 'created_by','domain_id'];
-   	protected $dates = ['created_at'];
-
-   	
-}	
+    protected $dates = ['created_at'];
+}

@@ -29,7 +29,7 @@
 
 
       <!-- Small boxes (Stat box) -->
-        <div class="row">
+        <div class="row connectedSortable" >
           <div class="col-sm-12 ">
             <div class="" style="background: #ecf0f5;" >
                   <div class="box-body "  >
@@ -70,35 +70,15 @@
                   <!-- /.chat -->
             </div>
           </div>
+
+          @if(auth()->user()->checkApprove())
+
           @if(count($lists)>0)
-          <div class="col-sm-6">
-              <div class=" box-primary">
-                  <div class="box-header  with-border" style="background: #FFF;">
+           <div class="col-sm-6">     
+                <div class="box box-primary">
+                  <div class="box-header with-border" style="background: #FFF;">
                     <h3 class="box-title">@lang('sidebar.notice')</h3>
 
-                    <div class="box-tools pull-right">
-                     
-                     <!--  <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button> -->
-                    </div>
-                  </div>
-                  <!-- /.box-header -->
-                  <div class="box-body bg-gray">
-                     @include('widgets.post.main')
-                  </div>
-                  <!-- /.box-body -->
-                  <div class="box-footer text-center">
-                    <!-- <a href="javascript:void(0)" class="uppercase">View All Products</a> -->
-                  </div>
-                  <!-- /.box-footer -->
-                </div>
-          @endif
-           
-          </div>
-          @if(count($notifications)>0)
-          <div class="col-sm-6">
-                <div class="box box-primary">
-                  <div class="box-header with-border">
-                    <h3 class="box-title">@lang('dash.recent_task')</h3>
 
                     <div class="box-tools pull-right">
                       <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -107,6 +87,35 @@
                     </div>
                   </div>
                   <!-- /.box-header -->
+                  <div class="box-body bg-gray box-child">
+                     @include('widgets.post.main')
+                  </div>
+                  <!-- /.box-body -->
+                  <div class="box-footer text-center">
+                    <!-- <a href="javascript:void(0)" class="uppercase">View All Products</a> -->
+                  </div>
+                  <!-- /.box-footer -->
+                </div> 
+          </div>
+
+
+          
+          @endif
+           
+          
+          <!-- @if(count($notifications)>0)
+          <div class="col-sm-6">
+                <div class="box box-primary">
+                  <div class="box-header with-border">
+                    <h3 class="box-title">@lang('dash.recent_task')</h3>
+
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                      </button>
+                    
+                    </div>
+                  </div>
+                
                   <div class="box-body">
                     <ul class="products-list product-list-in-box">
                       @foreach ($notifications as $noti)                    
@@ -125,14 +134,14 @@
                       
                     </ul>
                   </div>
-                  <!-- /.box-body -->
+                  
                   <div class="box-footer text-center">
-                    <!-- <a href="javascript:void(0)" class="uppercase">View All Products</a> -->
+                    
                   </div>
-                  <!-- /.box-footer -->
+                
                 </div>
           </div>
-          @endif
+          @endif -->
           @if(count($quotations)>0)
           <div class="col-sm-6">     
                 <div class="box box-primary">
@@ -146,16 +155,137 @@
                     </div>
                   </div>
                   <!-- /.box-header -->
-                  <div class="box-body">
+                  <div class="box-body bg-gray box-child">
                     <ul class="products-list product-list-in-box">
                       @foreach ($quotations as $quotation)                    
-                    
                       <li class="item">
                         <div class="product-img">
                         </div>
                         <div class="product-info">
-                           <span class="pull-right">{{ $quotation['created_at'] }}</span>
-                          <a href="{{ url($domainName.'/purchase/quotation/'.$quotation['id']) }}" class="product-title">{{$quotation['title'] }}</a>
+                           <a href="{{ url($domainName.'/purchase/quotation/'.$quotation['id']) }}" class="product-title">{{$quotation['title'] }}</a>
+                          <span class="product-description">
+                               {{ $quotation['created_at'] }}
+                          </span>
+                        </div>
+                      </li>
+                      @endforeach
+                      
+                    </ul>
+                  </div>
+                  <!-- /.box-body -->
+                  <div class="box-footer text-center">
+                    <!-- <a href="javascript:void(0)" class="uppercase">View All Products</a> -->
+                  </div>
+                  <!-- /.box-footer -->
+                </div> 
+          </div>
+          @endif
+           @if(count($tasksOfficer)>0)
+          <div class="col-sm-6">     
+                <div class="box box-primary">
+                  <div class="box-header with-border">
+                    <h3 class="box-title">@lang('dash.task_user')</h3>
+
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                      </button>
+                     <!--  <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button> -->
+                    </div>
+                  </div>
+                  <!-- /.box-header -->
+                  <div class="box-body bg-gray box-child">
+                    <ul class="products-list product-list-in-box">
+                      @foreach ($tasksOfficer as $to)    
+                      <li class="item">
+                        <div class="product-img">
+                        </div>
+                        <div class="product-info">
+                          @if($to['type']==1)
+                          <a href="{{ url($domainName.'/task/'.$to['id']) }}" class="product-title">{{$to['title'] }}</a>
+                          @else
+                          <a href="{{ url($domainName.'/officer/task/'.$to['id']) }}" class="product-title">{{$to['title'] }}</a>
+                          @endif
+                          <span class="product-description">
+                               {{ $to['created_at'] }}
+                          </span>
+                        </div>
+                      </li>
+
+                     
+                      @endforeach
+                      
+                    </ul>
+                  </div>
+                  <!-- /.box-body -->
+                  <div class="box-footer text-center">
+                    <!-- <a href="javascript:void(0)" class="uppercase">View All Products</a> -->
+                  </div>
+                  <!-- /.box-footer -->
+                </div> 
+          </div>
+          @endif
+          @if(count($tasksUser)>0)
+          <div class="col-sm-6">     
+                <div class="box box-primary">
+                  <div class="box-header with-border">
+                    <h3 class="box-title">@lang('dash.task_user')</h3>
+
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                      </button>
+                     <!--  <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button> -->
+                    </div>
+                  </div>
+                  <!-- /.box-header -->
+                  <div class="box-body box-child">
+                    <ul class="products-list product-list-in-box">
+                      @foreach ($tasksUser as $tu)                    
+                      <li class="item">
+                        <div class="product-img">
+                        </div>
+                        <div class="product-info">
+                          <a href="{{ url($domainName.'/user/'.$tu['room_id'].'/task/'.$tu['id']) }}" class="product-title">{{$tu['title'] }}</a>
+                          <span class="product-description">
+                               {{ $tu['created_at'] }}
+                          </span>
+                        </div>
+                      </li>
+                      @endforeach
+                      
+                    </ul>
+                  </div>
+                  <!-- /.box-body -->
+                  <div class="box-footer text-center">
+                    <!-- <a href="javascript:void(0)" class="uppercase">View All Products</a> -->
+                  </div>
+                  <!-- /.box-footer -->
+                </div> 
+          </div>
+          @endif
+           @if(count($parcels)>0)
+          <div class="col-sm-6">     
+                <div class="box box-primary">
+                  <div class="box-header with-border">
+                    <h3 class="box-title">@lang('dash.parcels')</h3>
+
+                    <div class="box-tools pull-right">
+                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                      </button>
+                     <!--  <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button> -->
+                    </div>
+                  </div>
+                  <!-- /.box-header -->
+                  <div class="box-body box-child">
+                    <ul class="products-list product-list-in-box">
+                      @foreach ($parcels as $p)                    
+                      <li class="item">
+                        <div class="product-img">
+                        </div>
+                        <div class="product-info">
+                          <a href="{{ url($domainName.'/parcel/'.$p['room_id'].'/user/'.$p['id']) }}" class="product-title">{{ $p['parcel_type_name'] }}</a>
+                          <span class="product-description">
+                               {{ $p['created_at'] }}
+                          </span>
                         </div>
                       </li>
 
@@ -168,13 +298,13 @@
                     <!-- <a href="javascript:void(0)" class="uppercase">View All Products</a> -->
                   </div>
                   <!-- /.box-footer -->
-                </div>
-               
+                </div> 
           </div>
           @endif
-       
+          
+          @endif
         </div>
-		  
+		    
   
     </section>
     <!-- /.content -->
@@ -188,6 +318,22 @@
 	<script type="text/javascript">
 		var userId = {{ Auth()->user()->id }} ;
 
+$(function() {
+   $('.connectedSortable').sortable({
+    placeholder         : 'sort-highlight',
+    connectWith         : '.connectedSortable',
+    handle              : '.box-header, .nav-tabs',
+    forcePlaceholderSize: true,
+    zIndex              : 999999
+  });
+  $('.connectedSortable .box-header, .connectedSortable .nav-tabs-custom').css('cursor', 'move');
+
+
+  $('.box-child').slimScroll({
+      height: '250px'
+  });
+
+});
 
 	</script>
 @endsection		

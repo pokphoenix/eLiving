@@ -2,15 +2,15 @@
 
 namespace App\Models\Esticker;
 
-
 use Illuminate\Database\Eloquent\Model;
 use App;
 use DB;
+
 class EstickerLicensePlate extends Model
 {
     protected $table = 'e_sticker_license_plate';
-     public $timestamps = false;
-    protected $fillable = ['license_plate', 'license_plate_category','province_id','e_sticker_id'];
+    public $timestamps = false;
+    protected $fillable = ['license_plate', 'license_plate_category','province_id','e_sticker_id','car_owner_name','car_owner_tel'];
    
    
     public function esticker()

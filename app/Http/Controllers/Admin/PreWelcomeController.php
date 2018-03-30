@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
 use Auth;
@@ -9,13 +10,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Route;
 use stdClass ;
+
 class PreWelcomeController extends Controller
 {
     private $route = 'pre-welcome' ;
     private $title ;
     private $view = 'admin.pre_welcome' ;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->title = (App::isLocale('en')) ? "Pre Welcome" : "ข้อความต้อนรับ" ;
     }
     /**
@@ -26,7 +29,7 @@ class PreWelcomeController extends Controller
     public function index($domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
         
         $title = $this->title ;
@@ -37,18 +40,20 @@ class PreWelcomeController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = $action;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $preWelcome = $json['response']['pre_welcome'] ;
-        $data = $preWelcome['text'];
-        return view($this->view.'.index',compact('title','route','domainId','domainName','data','action'));
+        $data = (!empty($preWelcome)) ? $preWelcome['text'] : null;
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'data', 'action'));
     }
 
     /**
@@ -76,9 +81,8 @@ class PreWelcomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$Id)
+    public function show(Request $request, $domainId, $Id)
     {
-       
     }
 
     /**
@@ -87,7 +91,7 @@ class PreWelcomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -98,7 +102,7 @@ class PreWelcomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -108,7 +112,7 @@ class PreWelcomeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

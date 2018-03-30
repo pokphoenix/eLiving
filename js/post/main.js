@@ -58,10 +58,15 @@ $("#file_upload").change(function() {
 $(document).on("click",".btn-delete-post",function(){
 
 	var post_id = $(this).data('id') ;
+ 
+  if( $("table#notice_table").length > 0  ){
+      var parent = $(this).closest('tr') ;
+  }else{
+      var parent = $(this).closest('.box-widget') ;
+  }
 
 
-	// var parent = $(this).closest('.box-widget') ;
-	var parent = $(this).closest('tr') ;
+	
 	
 	
 	swal({
@@ -78,10 +83,10 @@ $(document).on("click",".btn-delete-post",function(){
   }).then((result) => {
           if (result.value) {
          	
-			var route = "/post/"+post_id+"?api_token="+api_token ;
-			ajaxPromise('DELETE',route,null).done(function(data){
-				parent.remove();
-			})
+    			     var route = "/post/"+post_id+"?api_token="+api_token ;
+        			ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
+        				parent.remove();
+        			})
 
           } else if (result.dismiss === 'cancel') {
             

@@ -11,5 +11,4 @@ class Address extends Model
 
     protected $fillable = ['id_card','domain_id', 'address','district_id','amphur_id','province_id','zip_code','address_name','active'];
     protected $dates = ['created_at', 'updated_at'];
-
 }

@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Http\Controllers\Main;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller ;
 use DB;
 use Route;
 use stdClass ;
 use Auth;
+
 class NitiController extends Controller
 {
     public $route = 'admin/healthtip' ;
@@ -14,7 +16,8 @@ class NitiController extends Controller
     public $view = 'main.niti' ;
     public $resize ;
 
-    public function __construct(){
+    public function __construct()
+    {
         $resize[0] = ['w'=>174,'h'=>174];
         $resize[1] = ['w'=>334,'h'=>224];
         $this->resize = $resize ;
@@ -30,7 +33,7 @@ class NitiController extends Controller
         $route = $this->route ;
         // $url = $request->fullUrl();
         // $sortBy = $request->input('sortby', 'created_at');
-        // $sortType = $request->input('type', 'desc'); 
+        // $sortType = $request->input('type', 'desc');
         // $search = $request->input('search');
         // $sortNextType = ($sortType=='desc') ? 'asc' : 'desc' ;
         // if(isset($search)){
@@ -47,7 +50,7 @@ class NitiController extends Controller
         // $data['sortType'] = $sortType;
         // $data['sortNextType'] = $sortNextType;
         // $data['auth'] = Auth::user()->isAdmin() ;
-        return view($this->view.'.index',compact('title','route'));
+        return view($this->view.'.index', compact('title', 'route'));
     }
 
     /**
@@ -108,5 +111,5 @@ class NitiController extends Controller
      */
     public function destroy($id)
     {
-    } 
+    }
 }

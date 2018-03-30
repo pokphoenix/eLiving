@@ -1,21 +1,25 @@
 <?php
 
 namespace App\Http\Controllers\Parking;
+
+use App;
 use App\Http\Controllers\Controller ;
+use App\Models\Domain;
 use Auth;
 use DB;
+use DateTime;
 use Illuminate\Http\Request;
-use App;
 use Route;
 use stdClass ;
-use DateTime;
+
 class GuardController extends Controller
 {
     private $route = 'parking/guard' ;
     private $title  ;
     private $view = 'parking.guard' ;
 
-    public function __construct(){
+    public function __construct()
+    {
 
         $this->title = App::isLocale('en') ? 'Parking' : 'ระบบจอดรถ' ;
     }
@@ -26,6 +30,9 @@ class GuardController extends Controller
      */
     public function index($domainId)
     {
+         $domainName = $domainId ;
+        $query = Domain::where('url_name', $domainName)->first();
+        $domainId = $query->id ;
         $title = $this->title ;
         $route = $domainId."/".$this->route ;
         $action = url('/api/'.$route)."?api_token=".Auth()->user()->api_token ;
@@ -33,20 +40,43 @@ class GuardController extends Controller
         $url = url('').'/api/'.$route."?api_token=".Auth()->user()->api_token ;
 
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
 
         $lists = $json['response']['parking_guard_search'] ;
-     
-        return view($this->view.'.index',compact('title','route','domainId','lists','action'));
+
+        $client = new \GuzzleHttp\Client();
+        $url = url('')."/api/master/debt-type?api_token=".Auth()->user()->api_token ;
+        $response = $client->get($url);
+        $json = json_decode($response->getBody()->getContents(), true);
+
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
+        }
+        $debtType = $json['response']['debt_type'] ;
+
+        $client = new \GuzzleHttp\Client();
+        $url = url('').'/api/search/province?api_token='.Auth()->User()->api_token ;
+        $res =  $client->get($url);
+        $json = json_decode($res->getBody()->getContents(), true);
+        $province = $json ;
+       
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'debtType', 'province'));
     }
 
     /**
@@ -74,7 +104,7 @@ class GuardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$taskId)
+    public function show(Request $request, $domainId, $taskId)
     {
     }
 
@@ -84,7 +114,7 @@ class GuardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -95,7 +125,7 @@ class GuardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -105,7 +135,7 @@ class GuardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

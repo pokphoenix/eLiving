@@ -411,18 +411,15 @@ var validator = $("#form-routine").validate({
         $( element ).next( "span" ).addClass( "glyphicon-ok" ).removeClass( "glyphicon-remove" );
       },
       submitHandler:function(form) {
-
+      		var formData = new FormData($("#form-routine")[0]); 
       		var route = "/routine?api_token="+api_token ;
-      		var method = 'POST';
       		if($("#card_insert").val()=="false"){
       			var cardId = $("#current_card_id").val();
       			route = "/routine/"+cardId+"?api_token="+api_token ;
-      			method = 'PUT';
+      			 formData.append('_method','PUT');
       		}
-
-      		
-      		data = $(form).serialize() ;
-      		ajaxPromise(method,route,data).done(function(res){
+      		// data = $(form).serialize() ;
+      		ajaxPromise('POST',route,formData).done(function(res){
       			console.log(res);
       			appendCard(res.routine);
       			$("#modal_routine").modal("toggle");

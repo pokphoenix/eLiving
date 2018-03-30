@@ -15,8 +15,4 @@ class Service extends Model
     const SOCKET_URL     = CONST_SOCKET_URL;
 
     const FACEBOOK_APP_ID     = CONST_FACEBOOK_APP_ID;
-
-
-
-
 }

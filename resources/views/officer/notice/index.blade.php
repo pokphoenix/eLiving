@@ -84,7 +84,7 @@
             </div>
             <!-- /.box-header -->
             <div class="box-body">
-              <table id="example1" class="table table-bordered table-striped">
+              <table id="notice_table" class="table table-bordered table-striped">
                 <thead>
                 <tr>
                   <th>@lang('user.no')</th>
@@ -253,7 +253,7 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
                 <button type="button" class="btn btn-primary  btn-save-post">@lang('main.btn_save')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
                 </button>
               </div>
             </div>
@@ -277,7 +277,7 @@
 <script src=" {{ url('js/utility/data_table.js') }}"></script>	
 <script type="text/javascript">
 $(function() {
-	var table = $('#example1').DataTable(
+	var table = $('#notice_table').DataTable(
     {
         "bSortCellsTop": true
         ,"order": [[ 0, 'desc' ]]
@@ -440,10 +440,10 @@ $(document).on("click",".btn-cancel-edit",function(){
 $(document).on("click",".btn-save-edit",function(){
 	var parent = $(this).closest('.box-widget');
 	var text = parent.find('.text-edit textarea').val();
-	var data = { 'description':text  } ;
+	var data = { 'description':text,'_method':'PUT'  } ;
 	var post_id = parent.find('.post-id').val();
 	var route = "/post/"+post_id+"?api_token="+api_token ;
-	ajaxPromise('PUT',route,data).done(function(data){
+	ajaxPromise('POST',route,data).done(function(data){
 		parent.find('.text-show').text(text).show();
 		parent.find('.text-edit').hide();
 	})
@@ -453,7 +453,7 @@ $(document).on("click",".btn-delete-image",function(){
 	var post_id = $(this).data('post-id');
 	var parent = $(this).closest('.parent-img') ;
 	var route = "/post/"+post_id+"/attachment/"+id+"?api_token="+api_token ;
-	ajaxPromise('DELETE',route,null).done(function(data){
+	ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
 		parent.remove();
 	})
 });

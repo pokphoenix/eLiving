@@ -8,6 +8,7 @@ use Session;
 use Config;
 use Cookie;
 use Auth;
+
 class ActiveUser
 {
     /**

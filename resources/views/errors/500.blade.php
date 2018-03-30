@@ -1,4 +1,4 @@
-@extends('main.layouts.main')
+@extends('front.app')
 @section('style')
 
 @endsection

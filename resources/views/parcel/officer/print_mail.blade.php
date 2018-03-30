@@ -68,7 +68,7 @@
                   <th>@lang('parcel.created_at')</th>
                   <th>@lang('parcel.send_date')</th>
                   <th>@lang('parcel.received_at')</th>
-                  
+                  <th>@lang('parcel.gift_receive_name')</th>
                 </tr>
                  <tr class="thead-search" >
                   <th></th>
@@ -78,7 +78,7 @@
                   <th class="input-filter">@lang('parcel.created_at')</th>
                   <th class="input-filter">@lang('parcel.send_date')</th>
                   <th class="input-filter">@lang('parcel.received_at')</th>
-                 
+                   <th class="input-filter">@lang('parcel.gift_receive_name')</th>
                  
                 </tr>
                 </thead>
@@ -103,6 +103,7 @@
                     @lang('parcel.wait_receive')
                     @endif
                   </td>
+                  <td>{{ $list['supplies_send_name'] }}</td>
                   
 
                 </tr>
@@ -142,7 +143,7 @@ $(function () {
      var table = $('#example1').DataTable(
       {
         "bSortCellsTop": true
-        ,"order": [[ 4, 'asc' ]]
+     
       }
       );
     

@@ -2,10 +2,10 @@
 
 namespace App\Models\Post;
 
-
 use Illuminate\Database\Eloquent\Model;
 use App;
 use DB;
+
 class Post extends Model
 {
     protected $table = 'posts';
@@ -13,15 +13,15 @@ class Post extends Model
     protected $fillable = ['description', 'status','domain_id','created_by','public_start_at','public_end_at','type','public_role','prioritize'];
     protected $dates = ['created_at', 'updated_at','public_start_at','public_end_at'];
 
-    public static function getListData($domainId,$type=1,$searchQuery=null,$order=null){
-        $sqlLang =  (App::isLocale('en')) ? 'tc.name_en' : 'tc.name_th' ;
-    	$prioLang =  (App::isLocale('en')) ? 'mp.name_en' : 'mp.name_th' ;
-
-        if(is_null($order)){
+    public static function getListData($domainId, $type = 1, $searchQuery = null, $order = null)
+    {
+        
+        $lang = getLang();
+        if (is_null($order)) {
             $order = " ORDER BY p.created_at DESC " ;
         }
 
-    	$sql = "select p.*
+        $sql = "select p.*
                 ,u.id as member_id
                 ,CONCAT( u.first_name,' ',u.last_name) as member_name 
                 ,u.first_name 
@@ -32,7 +32,7 @@ class Post extends Model
              
                ,IFNULL(t2.cnt_like,0) as cnt_like
                ,IFNULL(t3.cnt_comment,0) as cnt_comment
-                ,$prioLang as prioritize_name
+                ,mp.name_$lang as prioritize_name
                 ,p.prioritize as prioritize_id
             
                 from posts as p 
@@ -78,8 +78,8 @@ class Post extends Model
             $data['posts'][$q->id]['public_end_at'] = $q->public_end_at ;
 
             $roles = [];
-            if(isset($q->public_role)){
-                $roles = explode(',',$q->public_role) ;
+            if (isset($q->public_role)) {
+                $roles = explode(',', $q->public_role) ;
             }
 
              $data['posts'][$q->id]['public_role'] = $roles ;
@@ -92,8 +92,8 @@ class Post extends Model
                   
             $data['posts'][$q->id]['post_like'] = $q->cnt_like ;
             $data['posts'][$q->id]['post_comment'] = $q->cnt_comment ;
-            $data['posts'][$q->id]['comments'] = self::getComment($domainId,$q->id) ;
-            $data['posts'][$q->id]['attachments'] = self::getAttachment($domainId,$q->id) ;
+            $data['posts'][$q->id]['comments'] = self::getComment($domainId, $q->id) ;
+            $data['posts'][$q->id]['attachments'] = self::getAttachment($domainId, $q->id) ;
         }
 
        
@@ -102,8 +102,9 @@ class Post extends Model
         return array_values($data['posts']) ;
     }
 
-    public static function getComment($domainId,$id){
-		$sql = "SELECT u.id as user_id,CONCAT( u.first_name,' ',u.last_name) as user_name
+    public static function getComment($domainId, $id)
+    {
+        $sql = "SELECT u.id as user_id,CONCAT( u.first_name,' ',u.last_name) as user_name
                 ,CASE WHEN u.profile_url is not null AND u.avartar_id=0 THEN u.profile_url
                 ELSE CONCAT( '".url('')."/public/img/profile/',u.avartar_id,'.png') 
                 END as img 
@@ -115,23 +116,23 @@ class Post extends Model
                 ON tc.created_by = u.id 
                 WHERE tc.domain_id =$domainId AND tc.post_id=$id ORDER BY tc.created_at DESC";
         $query = DB::select(DB::raw($sql));
-		foreach ($query as $key => $q) {
-			$query[$key]->img = getBase64Img($q->img);
-		}
+        foreach ($query as $key => $q) {
+            $query[$key]->img = getBase64Img($q->img);
+        }
         return  $query;
-	} 
-	public static function getAttachment($domainId,$id){
-		$sql = "SELECT ta.*
+    }
+    public static function getAttachment($domainId, $id)
+    {
+        $sql = "SELECT ta.*
 				,CONCAT( '".url('')."/public/storage/',ta.path,'/',ta.filename) as file_path
                     FROM post_attachments ta
                     WHERE ta.domain_id=$domainId AND ta.post_id=$id
                     ORDER BY ta.id DESC
                 ";
         $query = DB::select(DB::raw($sql));
-		foreach ($query as $key => $q) {
-			$query[$key]->file_path = getBase64Img($q->file_path);
-		}
+        foreach ($query as $key => $q) {
+            $query[$key]->file_path = getBase64Img($q->file_path);
+        }
         return  $query;
-	}
-
+    }
 }

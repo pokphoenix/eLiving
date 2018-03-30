@@ -2,7 +2,6 @@
 
 namespace App\Models\Quotation;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class QuotationHistory extends Model

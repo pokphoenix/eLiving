@@ -2,7 +2,6 @@
 
 namespace App\Models\Quotation;
 
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -14,8 +13,9 @@ class QuotationCompany extends Model
 
 
 
-    public static function companyList($domainId,$id){
-    	 $sql = "SELECT qc.price_net,c.name,c.id
+    public static function companyList($domainId, $id)
+    {
+         $sql = "SELECT qc.price_net,c.name,c.id
                 , CASE WHEN  t2.first_name is null THEN t3.first_name ELSE t2.first_name END as first_name
                 , CASE WHEN  t2.last_name is null THEN t3.last_name ELSE t2.last_name END as last_name
                 FROM quotation_company qc 
@@ -41,29 +41,27 @@ class QuotationCompany extends Model
                 WHERE qc.quotation_id = $id
                 AND qc.domain_id = $domainId
                 ORDER BY qc.id ASC
-                "; 
+                ";
         $query = DB::select(DB::raw($sql));
         $qc = [];
-        if(!empty($query)){
+        if (!empty($query)) {
             foreach ($query as $key => $v) {
                 $qc[$v->id]['id'] = $v->id ;
                 $qc[$v->id]['name'] = $v->name ;
                 $qc[$v->id]['price_net'] = $v->price_net ;
-                if(!isset($qc[$v->id]['user'])){
+                if (!isset($qc[$v->id]['user'])) {
                      $qc[$v->id]['user'] = [];
                 }
-                $user = []; 
-                if(isset($v->first_name)&&isset($v->last_name)){
+                $user = [];
+                if (isset($v->first_name)&&isset($v->last_name)) {
                     $user['name'] = $v->first_name." ".$v->last_name ;
-                    $qc[$v->id]['user'][] = $user ; 
+                    $qc[$v->id]['user'][] = $user ;
                 }
                
                 $qc[$v->id]['vote_count'] = count($qc[$v->id]['user']) ;
             }
-
         }
         $data['quotation_companys'] =  array_values($qc);
         return $data ;
     }
-
 }

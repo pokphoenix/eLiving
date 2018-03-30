@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Master;
+
 use App;
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
@@ -10,13 +11,15 @@ use DateTime;
 use Illuminate\Http\Request;
 use Route;
 use stdClass ;
+
 class ContactController extends Controller
 {
     private $route = 'master/contact' ;
     private $title  ;
     private $view = 'master.contact' ;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->title = App::isLocale('en') ? 'Contact List Type' : 'ประเภทรวมเบอร์ติดต่อ' ;
     }
     /**
@@ -24,14 +27,14 @@ class ContactController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request,$domainId)
+    public function index(Request $request, $domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
-        $startDate = $request->input('start_date',time());
-        $endDate = $request->input('end_date',time()); 
+        $startDate = $request->input('start_date', time());
+        $endDate = $request->input('end_date', time());
         
 
 
@@ -43,13 +46,14 @@ class ContactController extends Controller
         $url = url('').'/api/'.$domainId."/".$route."?api_token=".Auth()->user()->api_token ;
        
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
@@ -57,7 +61,7 @@ class ContactController extends Controller
         $lists = $json['response']['contact_type'] ;
         
        
-        return view($this->view.'.index',compact('title','route','domainId','domainName','lists','action'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action'));
     }
 
     /**
@@ -85,7 +89,7 @@ class ContactController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$taskId)
+    public function show(Request $request, $domainId, $taskId)
     {
     }
 
@@ -95,7 +99,7 @@ class ContactController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -106,7 +110,7 @@ class ContactController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -116,7 +120,7 @@ class ContactController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

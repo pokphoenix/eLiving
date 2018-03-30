@@ -51,6 +51,9 @@ $array = [
             'prefix' => '',
             'strict' => true,
             'engine' => null,
+            'options'   => [
+                \PDO::ATTR_EMULATE_PREPARES => true
+            ]
         ],
 
         'pgsql' => [
@@ -130,7 +133,13 @@ if (file_exists($envPath)){
     $APP_ENV = "production" ;
 }
 
-if($APP_ENV=="production"){
+if($APP_ENV=="productionnew"){
+    $array['connections']['mysql']['host'] = "localhost";
+    $array['connections']['mysql']['port'] = "3306";
+    $array['connections']['mysql']['database'] = "ferretki_pro";
+    $array['connections']['mysql']['username'] = "ferretki_pro";
+    $array['connections']['mysql']['password'] = "T1xxhCOis";
+}elseif($APP_ENV=="production"){
     $array['connections']['mysql']['host'] = "localhost";
     $array['connections']['mysql']['port'] = "3306";
     $array['connections']['mysql']['database'] = "ferretki_fuse";

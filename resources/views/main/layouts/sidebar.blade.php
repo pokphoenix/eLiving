@@ -4,6 +4,7 @@ $hasAdmin = $user->hasRole('admin');
 $hasOfficer = $user->hasRole('officer');
 $hasHeadUser = $user->hasRole('head.user');
 $hasUser = $user->hasRole('user');
+$hasGuard = $user->hasRole('security.guard');
 @endphp
 
 
@@ -119,6 +120,14 @@ $hasUser = $user->hasRole('user');
                     </span>
                   </a>
                 </li>
+                <li class="{{ Request::is($domainName.'/remove-user*')   ? 'active' : ''  }}">
+                  <a href="{{ url($domainName.'/remove-user') }}">
+                     <i class="fa fa-user"></i> 
+                     <span> 
+                        @lang('sidebar.remove_user')
+                     </span>
+                  </a>
+                </li>
               </ul>
             </li>
            
@@ -126,7 +135,17 @@ $hasUser = $user->hasRole('user');
             
           @endif
           
+
+      <!--     <li class="{{ Request::is('domain/join')   ? 'active' : ''  }}" >
+                <a href="{{ route('domain.join') }}">
+                  <i class="fa fa-circle-o"></i> 
+                  <span>@lang('sidebar.domain_join')</span>
+                </a>
+          </li> -->
        
+        
+
+
         <!-- <li class="{{ Request::is('domain*')   ? 'active' : ''  }} treeview">
           <a href="#">
             <i class="fa fa-sitemap"></i> <span>Domain Management</span>
@@ -210,13 +229,51 @@ $hasUser = $user->hasRole('user');
         @endif
 
         @if($hasOfficer||$hasHeadUser)
-        <li>
-          <a href="{{ url($domainName.'/officer/task') }}">
-            <img class="icon-side-menu" src="{{ asset('public/img/icon/icon_external_work_1_edit.png') }}"> 
+  
+
+          <li class="{{ Request::is($domainName.'/officer/task*') || Request::is($domainName.'/officer/work*')   ? 'active' : ''  }} treeview">
+              <a href="#">
+                <img class="icon-side-menu" src="{{ asset('public/img/icon/icon_user_management.png') }}"> <span>
+                  @lang('sidebar.external_task')
+                  <!-- User Management <BR> <span class="sidebar-row-margin"> จัดการผู้ใช้</span>  -->
+                  </span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                  <span class="badge-task-ex">
+                      <span class="label label-primary pull-right"></span>
+                  </span>
+                  
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li class="{{ Request::is($domainName.'/officer/task*')   ? 'active' : ''  }}">
+                  <a href="{{ url($domainName.'/officer/task') }}">
+                    <img class="icon-side-menu" src="{{ asset('public/img/icon/icon_external_work_1_edit.png') }}"> 
+                    <span>
+                          @lang('sidebar.external_task')
+                    </span>
+                     <span class="pull-right-container badge-task-ex">
+                      <span class="label label-primary pull-right"></span>
+                    </span>
+                  </a>
+                </li>
+                 <li class="{{ Request::is($domainName.'/officer/work*')   ? 'active' : ''  }}">
+                  <a href="{{ url($domainName.'/officer/work') }}" >
+                    <i class="fa fa-circle-o"></i>
+                    <span>
+                       @lang('sidebar.work')
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+        <li class="{{ Request::is($domainName.'/important_day*')   ? 'active' : ''  }}" >
+          <a href="{{ url($domainName.'/important_day') }}"><img class="icon-side-menu" src="{{ asset('public/img/icon/icon_purchasing_bidding.png') }}"> 
             <span>
-               @lang('sidebar.external_task')
+               @lang('sidebar.important_day')
             </span>
-             <span class="pull-right-container badge-task-ex">
+            <span class="pull-right-container badge-quotation">
               <span class="label label-primary pull-right"></span>
             </span>
           </a>
@@ -254,6 +311,7 @@ $hasUser = $user->hasRole('user');
             
           </a>
         </li>
+
         @endif
 
 
@@ -299,7 +357,23 @@ $hasUser = $user->hasRole('user');
             </span>
           </a>
           <ul class="treeview-menu">
-           
+            <li class="{{ Request::is($domainName.'/setting/domain*')   ? 'active' : ''  }}" >
+              <a href="{{ url($domainName.'/setting/domain') }}"><i class="fa fa-circle-o"></i>
+                <span>
+                   @lang('sidebar.domain_setting')
+                </span>
+              </a>
+            </li>
+            <li class="{{ Request::is($domainName.'/setting/officer*')   ? 'active' : ''  }}" >
+              <a href="{{ url($domainName.'/setting/officer') }}"><i class="fa fa-circle-o"></i>
+                <span>
+                   @lang('sidebar.officer_setting')
+                </span>
+              </a>
+            </li>
+
+    
+
             <li class="{{ Request::is($domainName.'/quotation-vote-setting*')   ? 'active' : ''  }}" >
               <a href="{{ url($domainName.'/quotation-vote-setting') }}"><i class="fa fa-circle-o"></i>
                 <span>
@@ -317,8 +391,29 @@ $hasUser = $user->hasRole('user');
               </li>
           </ul>
         </li>
-
-
+       
+       <li class="{{ Request::is('bill*')   ? 'active' : ''  }} treeview">
+              <a href="#">
+                <i class="fa fa-money"></i><span>
+                 @lang('sidebar.bill')
+                  <!-- User Management <BR> <span class="sidebar-row-margin"> จัดการผู้ใช้</span>  -->
+                    
+                  </span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>                  
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li class="{{ Request::is($domainName.'/bill*')   ? 'active' : ''  }}">
+                  <a href="{{ url($domainName.'/bill') }}">
+                    <i class="fa fa-upload"></i> 
+                     <span> 
+                       @lang('sidebar.bill_import')
+                     </span>
+                  </a>
+                </li>
+              </ul>
+            </li>
         
         @endif
 
@@ -343,14 +438,36 @@ $hasUser = $user->hasRole('user');
                  @lang('sidebar.notice')
               </span></a>
           </li>
-          <li class="{{ Request::is($domainName.'/e-sticker*')   ? 'active' : ''  }}" >
-            <a href="{{ url($domainName.'/e-sticker') }}">
-               <i class="fa fa-circle-o"></i> 
-              <span>
-                @lang('sidebar.e-sticker')
-              </span>
-            </a>
-          </li>
+
+          <li class="{{ ( Request::is($domainName.'/e-sticker*') || Request::is($domainName.'/report-e-sticker*') )    ? 'active' : ''  }} treeview">
+          <a href="#">
+            <i class="fa fa-cog"></i>
+            <span> @lang('sidebar.e-sticker')</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+           
+            <li class="{{ Request::is($domainName.'/e-sticker*')   ? 'active' : ''  }}" >
+              <a href="{{ url($domainName.'/e-sticker') }}"><i class="fa fa-circle-o"></i>
+                <span>
+                   @lang('sidebar.e-sticker-print')
+                </span>
+              </a>
+            </li>
+            <li class="{{ Request::is($domainName.'/report-e-sticker*')   ? 'active' : ''  }}" >
+                <a href="{{ url($domainName.'/report-e-sticker') }}">
+                  <i class="fa fa-circle-o"></i> 
+                  <span>
+                    @lang('sidebar.e-sticker-report')
+                  </span>
+                </a>
+              </li>
+          </ul>
+        </li> 
+
+         
           @endif 
           @if($hasOfficer)
          <li class="{{ ( Request::is($domainName.'/parking*') )    ? 'active' : ''  }} treeview">
@@ -378,14 +495,7 @@ $hasUser = $user->hasRole('user');
                   </span>
                 </a>
               </li>
-               <li class="{{ Request::is($domainName.'/parking/cancel*')   ? 'active' : ''  }}" >
-                <a href="{{ url($domainName.'/parking/cancel') }}">
-                  <i class="fa fa-circle-o"></i> 
-                  <span>
-                    @lang('sidebar.parking_cancel')
-                  </span>
-                </a>
-              </li>
+              
               <li class="{{ Request::is($domainName.'/parking/report*')   ? 'active' : ''  }}" >
                 <a href="{{ url($domainName.'/parking/report') }}">
                   <i class="fa fa-circle-o"></i> 
@@ -404,6 +514,33 @@ $hasUser = $user->hasRole('user');
               </li>
           </ul>
         </li>
+        <li class="{{ ( Request::is($domainName.'/manual/parking/*') )    ? 'active' : ''  }} treeview">
+          <a href="#">
+            <i class="fa fa-circle-o"></i>
+            <span> @lang('sidebar.set_e_coupon_manual')</span>
+           
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+           
+            <li class="{{ Request::is($domainName.'/manual/parking/in*')   ? 'active' : ''  }}" >
+              <a href="{{ url($domainName.'/manual/parking/in') }}"><i class="fa fa-circle-o"></i>
+                <span>
+                   @lang('sidebar.set_e_coupon_in_manual')
+                </span>
+              </a>
+            </li>
+            <li class="{{ Request::is($domainName.'/manual/parking/out*')   ? 'active' : ''  }}" >
+              <a href="{{ url($domainName.'/manual/parking/out') }}"><i class="fa fa-circle-o"></i>
+                <span>
+                   @lang('sidebar.set_e_coupon_out_manual')
+                </span>
+              </a>
+            </li>
+          </ul>
+        </li>
           @endif
            @if($hasOfficer)
          <li class="{{ ( Request::is($domainName.'/parcel*') )    ? 'active' : ''  }} treeview">
@@ -412,6 +549,9 @@ $hasUser = $user->hasRole('user');
             <span> @lang('sidebar.parcel')</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
+               <span class="badge-parcel-all">
+                  <span class="label label-primary pull-right"></span>
+              </span>
             </span>
           </a>
           <ul class="treeview-menu">
@@ -444,6 +584,16 @@ $hasUser = $user->hasRole('user');
                 </span>
               </a>
             </li>
+            <li class="{{ Request::is($domainName.'/parcel/backdate*')   ? 'active' : ''  }}" >
+              <a href="{{ url($domainName.'/parcel/backdate') }}"><i class="fa fa-circle-o"></i>
+                <span>
+                   @lang('sidebar.parcel_backdate')
+                   <span class="pull-right-container badge-parcel-backdate">
+                      <span class="label label-primary pull-right"></span>
+                    </span>
+                </span>
+              </a>
+            </li>
             
           </ul>
         </li>
@@ -467,6 +617,24 @@ $hasUser = $user->hasRole('user');
             @endforeach
           </ul>
         </li>
+         <li class="{{ Request::is($domainName.'/work/*/user/*')   ? 'active' : ''  }} treeview">
+          <a href="#">
+            <i class="fa fa-car"></i> 
+            <span>
+               @lang('sidebar.work')
+            </span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            @foreach ($user->getRoom() as $room)
+             <li class="{{ Request::is($domainName.'/work/'.$room->id.'/user*')   ? 'active' : ''  }}">
+              <a href="{{ url($domainName.'/work/'.$room->id.'/user') }}"><i class="fa fa-key"></i>  @lang('sidebar.work_room') {{ $room->name_prefix.$room->name.$room->name_surfix }}</a>
+            </li>
+            @endforeach
+          </ul>
+        </li>  
           @endif 
            @if($hasUser)
           <li class="{{ Request::is($domainName.'/parcel/*/user*')   ? 'active' : ''  }} treeview">
@@ -488,21 +656,39 @@ $hasUser = $user->hasRole('user');
           </ul>
         </li>
           @endif 
-           @if($user->hasRole('system.admin'))
-          <li class="{{ Request::is($domainName.'/log-activity*')   ? 'active' : ''  }}" >
-            <a href="{{ url($domainName.'/log-activity') }}"> <i class="fa fa-tasks"></i>
+
+          
+
+
+          @if($user->hasRole('system.admin'))
+             @include('main.layouts.system_admin_sidebar')
+          @endif
+          @if($hasGuard)
+         
+          <li class="{{ Request::is($domainName.'/guard/parking-in*')   ? 'active' : ''  }}" >
+            <a href="{{ url($domainName.'/guard/parking-in') }}"> <i class="fa fa-car"></i>
               <span>
-                 @lang('sidebar.log_activity')
+                 @lang('sidebar.check_e_coupon_in')
               </span></a>
           </li>
-          @endif
-           @if($user->hasRole('security.guard'))
           <li class="{{ Request::is($domainName.'/parking/guard*')   ? 'active' : ''  }}" >
             <a href="{{ url($domainName.'/parking/guard') }}"> <i class="fa fa-car"></i>
               <span>
                  @lang('sidebar.check_e_coupon_out')
               </span></a>
           </li>
+          
+          @if($hasOfficer||$hasGuard)
+
+           <li class="{{ Request::is($domainName.'/parking/cancel*')   ? 'active' : ''  }}" >
+                <a href="{{ url($domainName.'/parking/cancel') }}">
+                  <i class="fa fa-circle-o"></i> 
+                  <span>
+                    @lang('sidebar.parking_cancel')
+                  </span>
+                </a>
+              </li>
+          @endif
           @endif
        
 

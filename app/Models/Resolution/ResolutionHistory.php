@@ -2,7 +2,6 @@
 
 namespace App\Models\Resolution;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class ResolutionHistory extends Model

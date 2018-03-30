@@ -632,7 +632,7 @@ socket.on('task', function(data){
     }
 
    	if(data.task!=null&&data.task_category!=null&&data.task_comments.length==0&&data.task_checklists.length==0&&data.task_members.length==0){
-    	appendCard('#card_new',data.task.id,data.task.title,data.task_category.color,data.task_category.name_en);
+    	appendCard('#card_new',data.task.id,data.task.title,data.task_category.color,data.task_category.name);
     }
 
    	if(data.task!=null&&data.task_id==currentCardId){

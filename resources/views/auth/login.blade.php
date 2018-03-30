@@ -72,7 +72,7 @@
                                 <a  href="{{ url('/signup') }}" class="mu-success-btn" ><span>@lang('main.signup') </span></a>
                                </div>
                              </div> 
-                            <div class="row">
+                          <!--   <div class="row">
                                 <div class="col-sm-offset-4 col-sm-4" >
                                     <div class="row" style="margin:10px 0;color: #ccc;border-top: 1px solid #CCC;">
                                         
@@ -87,7 +87,7 @@
                                     </div>
                                     
                                 </div>
-                            </div>
+                            </div> -->
                       
 
                     

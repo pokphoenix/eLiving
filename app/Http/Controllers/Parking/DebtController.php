@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Parking;
+
 use App;
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
@@ -10,14 +11,15 @@ use DateTime;
 use Illuminate\Http\Request;
 use Route;
 use stdClass ;
+
 class DebtController extends Controller
 {
     private $route = 'parking/debt' ;
     private $title  ;
     private $view = 'parking.debt' ;
 
-    public function __construct(){
-
+    public function __construct()
+    {
         $this->title = App::isLocale('en') ? 'Parking Dept' : 'รายงาน อี-คูปอง จ่ายเกิน' ;
     }
     /**
@@ -25,14 +27,14 @@ class DebtController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request,$domainId)
+    public function index(Request $request, $domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
-        $startDate = $request->input('start_date',strtotime(date('Y-m-d 00:00')));
-        $endDate = $request->input('end_date',strtotime(date('Y-m-d 23:59:59')));
+        $startDate = $request->input('start_date', strtotime(date('Y-m-d 00:00')));
+        $endDate = $request->input('end_date', strtotime(date('Y-m-d 23:59:59')));
         $title = $this->title ;
         $route = $domainId."/".$this->route ;
         $action = url('/api/'.$route)."?api_token=".Auth()->user()->api_token ;
@@ -40,13 +42,14 @@ class DebtController extends Controller
         $url = url('').'/api/'.$route."?api_token=".Auth()->user()->api_token ;
 
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
@@ -54,7 +57,7 @@ class DebtController extends Controller
         $lists = $json['response']['parking_debt'] ;
        
      
-        return view($this->view.'.index',compact('title','route','domainId','domainName','lists','action','startDate','endDate'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'startDate', 'endDate'));
     }
 
     /**
@@ -82,7 +85,7 @@ class DebtController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$taskId)
+    public function show(Request $request, $domainId, $taskId)
     {
     }
 
@@ -92,7 +95,7 @@ class DebtController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -103,7 +106,7 @@ class DebtController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -113,7 +116,7 @@ class DebtController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

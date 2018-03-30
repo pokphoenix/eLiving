@@ -11,6 +11,4 @@ class PreWelcome extends Model
     public $timestamps = false;
 
     protected $fillable = ['text','domain_id'];
-    
-
 }

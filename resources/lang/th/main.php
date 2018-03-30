@@ -17,6 +17,16 @@ return [
     'start_time' => 'เวลาที่เริ่ม',
     'end_date' => 'วันที่สิ้นสุด',
     'end_time' => 'เวลาที่สิ้นสุด',
+    'send_password_reset_link' => 'ส่งคำขอรีเซ็ตรหัสผ่าน',
+    'reset_password' => 'รีเซ็ตรหัสผ่าน',
+    'password' => 'รหัสผ่าน',
+    'token_expire' => 'โทเค็นหมดอายุ',
+    'you_can_reset_new_password' => 'คุณสามารถขอรีเซ็ตรหัสผ่านใหม่ได้',
+    'id_card' => 'รหัสบัตรประชาชน',
+    'here' => 'ที่นี่',
+    'select_domain' => 'กรุณาเลือกโครงการ',
+    'color' => 'รหัสสี( #hex )',
+    'word' => 'คำ',
 
 
     'btn_save' => 'บันทึก',
@@ -32,6 +42,7 @@ return [
     'total_registor_user' => 'จำนวนผู้สมัครใช้งาน (คน)',
     'profile' => 'ข้อมูลส่วนตัว',
     'not_complete' => 'ยังไม่ระบุ',
+    'print' => 'พิมพ์',
 
 
     'room_management' => 'จัดการห้อง',
@@ -81,6 +92,8 @@ return [
     'name_th' => 'ชื่อ (ภาษาไทย)',
 
     'name_en' => 'ชื่อ (ภาษาอังกฤษ)',
+    'by' => 'โดย',
+   
    
 
     

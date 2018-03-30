@@ -46,7 +46,8 @@ class ProfileController extends ApiController
 
   
 
-    public function index($domainId,$roomId){
+    public function index($domainId, $roomId)
+    {
         $url = url('');
         $sql = "select t.*,tc.name_en as category_name 
                 ,tc.color as category_color 
@@ -80,7 +81,7 @@ class ProfileController extends ApiController
                 ORDER BY created_at DESC" ;
         $tasks   =  DB::select(DB::raw($sql));
         $data['tasks'] = [];
-        if (!empty($tasks )){
+        if (!empty($tasks)) {
             foreach ($tasks as $key => $task) {
                 $data['tasks'][$task->id]['id'] = $task->id ;
                 $data['tasks'][$task->id]['title'] = $task->title ;
@@ -100,41 +101,42 @@ class ProfileController extends ApiController
                 $data['tasks'][$task->id]['category_color'] = $task->category_color ;
                 $data['tasks'][$task->id]['checklist_success'] = $task->success_checklist ;
                 $data['tasks'][$task->id]['checklist_total'] = $task->total_checklist ;
-              
             }
         }
       
         $data['tasks'] = array_values($data['tasks']);
-        $data['master_status_history'] = StatusHistory::where('status',1)->get();
-        $data['master_task_category'] = TaskCategory::where('status',1)->where('type',2)->get();
-        $data['member_task'] = Search::memberTask($domainId,'');
+        $data['master_status_history'] = StatusHistory::where('status', 1)->get();
+        $data['master_task_category'] = TaskCategory::where('status', 1)->where('type', 2)->get();
+        $data['member_task'] = Search::memberTask($domainId, '');
         return $this->respondWithItem($data);
-    } 
+    }
    
-    public function show(){
+    public function show()
+    {
         $data['user'] = auth()->user()->getProfile() ;
         $domainId = auth()->user()->recent_domain;
         $idcard = auth()->user()->id_card;
         $sql2 = "SELECT count(*) as cnt
                 FROM  user_address 
                 WHERE id_card = '".$idcard."' AND domain_id=$domainId" ;
-        $data['address'] = DB::select(DB::raw($sql2))[0]->cnt; 
+        $data['address'] = DB::select(DB::raw($sql2))[0]->cnt;
 
         $sql2 = "SELECT count(*) as cnt
                 FROM  user_images 
                 WHERE id_card = '".$idcard."' AND domain_id=$domainId" ;
-        $data['attachment'] = DB::select(DB::raw($sql2))[0]->cnt ; 
+        $data['attachment'] = DB::select(DB::raw($sql2))[0]->cnt ;
 
         $sql2 = "SELECT  count(r.id) as cnt
                 FROM  user_rooms ur
                 JOIN rooms r
                 ON ur.room_id = r.id
                 WHERE ur.id_card = '".$idcard."' AND r.domain_id=$domainId" ;
-        $data['room'] = DB::select(DB::raw($sql2))[0]->cnt ; 
+        $data['room'] = DB::select(DB::raw($sql2))[0]->cnt ;
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request,$domainId,$roomId){
+    public function store(Request $request, $domainId, $roomId)
+    {
         $userId = Auth::user()->id ;
         $post = $request->all();
         $validator = $this->validator($post);
@@ -166,9 +168,9 @@ class ProfileController extends ApiController
         $viewer->task_id = $task->id;
         $viewer->created_at = Carbon::now();
         $viewer->save();
-        $data = Task::getTaskData($domainId,$task->id,2);
+        $data = Task::getTaskData($domainId, $task->id, 2);
         return $this->respondWithItem($data);
-    }  
+    }
     
     public function update(Request $request)
     {
@@ -179,14 +181,14 @@ class ProfileController extends ApiController
         }
         $userId =  auth()->user()->id ;
 
-        $repeat = User::where('id_card',$post['id_card'])->where('id','<>',$userId)->first();
-        if(!empty($repeat)){
+        $repeat = User::where('id_card', $post['id_card'])->where('id', '<>', $userId)->first();
+        if (!empty($repeat)) {
             return $this->respondWithError('เลขบัตรประชาชนซ้ำกับผู้อื่นค่ะ');
         }
 
         $emailOld = auth()->user()->email ;
         $emailNew = $post['email'] ;
-        if($emailOld!=$emailNew) {
+        if ($emailOld!=$emailNew) {
             $history = new UserHistoryEmail();
             $history->created_at = Carbon::now();
             $history->created_by = $userId;
@@ -198,16 +200,16 @@ class ProfileController extends ApiController
         $user = User::find($userId);
 
 
-        $user->fill($post)->save(); 
+        $user->fill($post)->save();
 
         $domainId = auth()->user()->recent_domain ;
         $idcard = auth()->user()->id_card ;
         $sql = "SELECT *
                 FROM  user_domains 
-                WHERE id_card = $idcard AND domain_id=".$domainId ;
+                WHERE id_card = '$idcard' AND domain_id=".$domainId ;
         $userDomain = collect(DB::select(DB::raw($sql)))->first();
-        if($userDomain->approve!=1){
-            $user->joinDomain( $domainId ,3); //สถานะเป็น Re submit
+        if ($userDomain->approve!=1) {
+            $user->joinDomain($domainId, 3); //สถานะเป็น Re submit
         }
 
        
@@ -215,7 +217,7 @@ class ProfileController extends ApiController
         return $this->respondWithItem($user);
     }
 
-     public function changePassUpdate(Request $request)
+    public function changePassUpdate(Request $request)
     {
         $post = $request->all();
         $validator = $this->validatorPassword($post);
@@ -223,7 +225,7 @@ class ProfileController extends ApiController
             return $this->respondWithError($validator->errors());
         }
         
-        if($post['old_password']==$post['new_password']){
+        if ($post['old_password']==$post['new_password']) {
             return $this->respondWithError('cannot use same password');
         }
 
@@ -256,9 +258,9 @@ class ProfileController extends ApiController
     {
         $idcard = auth()->user()->id_card ;
         $data['room_user'] = RoomUser::from('user_rooms as ru')
-                    ->join('rooms as r','r.id','=','ru.room_id')  
-                    ->where('ru.id_card',$idcard)
-                    ->select(DB::raw( "ru.*,CONCAT( IFNULL(r.name_prefix,''), IFNULL(r.name,''), IFNULL(r.name_surfix,'') ) as text_name" ))
+                    ->join('rooms as r', 'r.id', '=', 'ru.room_id')
+                    ->where('ru.id_card', $idcard)
+                    ->select(DB::raw("ru.*,CONCAT( IFNULL(r.name_prefix,''), IFNULL(r.name,''), IFNULL(r.name_surfix,'') ) as text_name"))
                     ->get();
         return $this->respondWithItem($data);
     }
@@ -266,12 +268,12 @@ class ProfileController extends ApiController
     public function roomUpdate(Request $request)
     {
         $post = $request->all();
-        if(isset($post['user-room'])){
-            User::userAddRoom($post,auth()->user()->id_card);
+        if (isset($post['user-room'])) {
+            User::userAddRoom($post, auth()->user()->id_card);
         }
         $data['text'] = 'success' ;
         return $this->respondWithItem($data);
-    }  
+    }
     public function avatar(Request $request)
     {
         $post = $request->all();
@@ -283,26 +285,26 @@ class ProfileController extends ApiController
 
         $userId = auth()->user()->id ;
 
-        $user = User::where('id',$userId)->first() ;
+        $user = User::where('id', $userId)->first() ;
         $user->fill($post)->save();
         $data['text'] = 'success' ;
         return $this->respondWithItem($data);
     }
     public function uploadProfileImg(Request $request)
     {
-        $post = $request->all();
-        unset($post['api_token']);
+        $post = $request->except('api_token');
+
         $validator = $this->validatorAvatar($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
         }
 
-        $uploadImg = Images::uploadImage($request,Auth()->user()->recent_domain,false,true);
-        if(!$uploadImg['result']){
+        $uploadImg = Images::uploadImage($request, Auth()->user()->recent_domain, false, true);
+        if (!$uploadImg['result']) {
             return $this->respondWithError($uploadImg['error']);
         }
-        if(isset($uploadImg)&&isset($uploadImg['file'])){
-            if(is_array($uploadImg['file'])){
+        if (isset($uploadImg)&&isset($uploadImg['file'])) {
+            if (is_array($uploadImg['file'])) {
                 foreach ($uploadImg['file'] as $key => $v) {
                     $post['profile_url'] = url('public/profile/'.$v['fileName']);
                 }
@@ -310,7 +312,6 @@ class ProfileController extends ApiController
         }
 
 
-       
 
         // $uploadImg = $this->uploadImg($request,Auth()->user()->recent_domain);
         // if(!$uploadImg['result']){
@@ -330,12 +331,59 @@ class ProfileController extends ApiController
         // }
         unset($post['doc_file']);
         $userId = auth()->user()->id ;
-        $user = User::where('id',$userId)->first() ;
+        $user = User::where('id', $userId)->first() ;
         $user->fill($post)->save();
         $data['text'] = 'success' ;
         return $this->respondWithItem($data);
     }
     
+
+    public function facebook(Request $request)
+    {
+        $post = $request->except('api_token', '_method');
+        $validator = $this->validatorFacebook($post);
+        if ($validator->fails()) {
+            return $this->respondWithError($validator->errors());
+        }
+        $userId = Auth()->user()->id ;
+
+        $user = User::where('facebook_id', $post['fbid'])->where('id', '<>', $userId)->first();
+        if (!empty($user)) {
+            return $this->respondWithError($this->langMessage('รหัสเฟสบุคซ้ำ', 'repeat facebook id'));
+        }
+
+        $token_url="https://graph.facebook.com/me?access_token=".$post['fbtoken'] ;
+        $response = file_get_contents($token_url);
+        $json = json_decode($response, true);
+        if (!isset($json['id'])) {
+            return $this->respondWithError($json['error']);
+        }
+        if ($json['id']!=$post['fbid']) {
+            return $this->respondWithError($this->langMessage('เฟสบุคไม่ถูกต้อง กรุณาล๊อกเอ๊าเฟสบุค', 'invalid facebook please logout facebook'));
+        }
+        User::find($userId)->update(['facebook_id'=>$post['fbid'],'migrate_facebook'=>1]);
+        return $this->respondWithItem(['text'=>'success']);
+    }
+
+    public function username(Request $request)
+    {
+        $post = $request->except('api_token', '_method');
+        $validator = $this->validatorUsername($post);
+        if ($validator->fails()) {
+            return $this->respondWithError($validator->errors());
+        }
+        $userId = Auth()->user()->id ;
+        $post['password'] = bcrypt($post['password']);
+        User::find($userId)->update(['username'=>$post['username'],'password'=>$post['password'],'migrate_username'=>1 ]);
+        return $this->respondWithItem(['text'=>'success']);
+    }
+
+    public function unlinkfacebook(Request $request)
+    {
+        $userId = Auth()->user()->id ;
+        User::find($userId)->update(['facebook_id'=>null,'migrate_facebook'=>0]);
+        return $this->respondWithItem(['text'=>'success']);
+    }
 
     private function validator($data)
     {
@@ -344,9 +392,9 @@ class ProfileController extends ApiController
             'last_name' => 'required|string|max:255',
             'tel' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
-            'id_card' => 'required|string|min:13|max:13',
+            'id_card' => 'required|string|max:13',
         ]);
-    } 
+    }
     private function validatorPassword($data)
     {
         return Validator::make($data, [
@@ -360,8 +408,25 @@ class ProfileController extends ApiController
             'avatar_id' => 'numeric'
         ]);
     }
+    private function validatorFacebook($data)
+    {
+        return Validator::make($data, [
+            'fbid' => 'required|string',
+            'fbtoken' => 'required|string',
+            
+        ]);
+    }
+    private function validatorUsername($data)
+    {
+        return Validator::make($data, [
+            'username' => 'required|string|max:255|unique:users',
+            'password' => 'required|string|min:5|max:40|confirmed',
+            
+        ]);
+    }
     
-    private function uploadImg($request,$domainId){
-        return  uploadfile($request,'doc_file',$domainId,['w'=>150,'h'=>150]) ;
+    private function uploadImg($request, $domainId)
+    {
+        return  uploadfile($request, 'doc_file', $domainId, ['w'=>150,'h'=>150]) ;
     }
 }

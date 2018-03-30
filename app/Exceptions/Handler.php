@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Models\Log\LogExceptionError;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -44,10 +45,53 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        if ($exception instanceof TokenMismatchException){
+
+        $testMode = true;
+
+        if (isset($exception)&&!$testMode) {
+            $message =$exception->getMessage();
+            $file =$exception->getfile();
+            $line =$exception->getLine();
+            $code =$exception->getCode();
+            $method = $_SERVER['REQUEST_METHOD'];
+
+            $userAgent = $_SERVER['HTTP_USER_AGENT'];
+
+            $iPod    = stripos($userAgent, "iPod");
+            $iPhone  = stripos($userAgent, "iPhone");
+            $iPad    = stripos($userAgent, "iPad");
+            $Android = stripos($userAgent, "Android");
+          
+            if ($iPod || $iPhone || $iPad) {
+                $platform = "ios" ;
+            } elseif ($Android) {
+                $platform = "android" ;
+            } else {
+                $platform = "web";
+            }
+            $logid = LogExceptionError::setData($message, $file, $line, $code, $method, $platform);
+            $lang = getLang();
+            if ($lang=='en') {
+                $errorMessage = 'Please contact the supporter with this error code '.$logid ;
+            } else {
+                $errorMessage = 'โปรดติดต่อเจ้าหน้าที่ ด้วยรหัสผิดพลาด '.$logid ;
+            }
+
+
+
+            if (strpos($request->getUri(), '/api/') !== false) {
+                return response()->json(['result'=>'false','errors' => $errorMessage], 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE);
+            } else {
+                return response()->view('front.error.error', ['errors'=>$errorMessage], 500);
+            }
+        }
+
+      
+
+        if ($exception instanceof TokenMismatchException) {
             // Redirect to a form. Here is an example of how I handle mine
 
-            return redirect($request->fullUrl())->with('csrf_error',"Oops! Seems you couldn't submit form for a long time. Please try again.");
+            return redirect($request->fullUrl())->with('csrf_error', "Oops! Seems you couldn't submit form for a long time. Please try again.");
         }
 
         if (!env("APP_DEBUG")) {
@@ -68,7 +112,7 @@ class Handler extends ExceptionHandler
     {
 
 
-        if((strpos($request->url(), 'api'))){
+        if ((strpos($request->url(), 'api'))) {
             return response()->json(['result'=>false,'errors' => 'Unauthenticated.']);
         }
         if ($request->expectsJson()) {

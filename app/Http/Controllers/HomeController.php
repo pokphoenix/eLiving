@@ -14,7 +14,6 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-
     }
 
     /**
@@ -26,5 +25,4 @@ class HomeController extends Controller
     {
         return view('home');
     }
-
 }

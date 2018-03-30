@@ -86,10 +86,12 @@
             </div>
         </div>
 
+        
+
         <div class="col-sm-12" style="height: 50px;">
 
          
-
+          @if(!isset($requestRoom))
            <input type="hidden" id="approve" name="approve" >
            <button type="button" id="save" class="btn btn-primary">@lang('main.btn_save')
              <i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
@@ -104,9 +106,11 @@
             </button>
 
           @endif
+          @endif
             <a href="{{ url($domainName.'/'.$routePath) }}" id="cancel" class="btn btn-danger">@lang('main.btn_cancel')</a>
           
         </div>
+       
         <div class="col-sm-12">
              @include('admin.widgets.attachment')
         </div>
@@ -142,7 +146,7 @@
 @if(!isset($edit))
 
 $(document).on("input","#id_card",function(e) {
-  if($(this).val().length==13){
+  // if($(this).val().length==13){
     var route = "{{ url('api/search/user-data') }}" ;
     var idCard = $(this).val();
     var data ={id_card:idCard} ;
@@ -153,7 +157,7 @@ $(document).on("input","#id_card",function(e) {
         data:data
       })
       .done(function(response) {
-        console.log(response);
+        // console.log(response);
         if(response.result=="true"){
             var res = response.response.user ;
             if(response.response.user.length > 0 ) {
@@ -180,7 +184,7 @@ $(document).on("input","#id_card",function(e) {
       .fail(function() {
        
       })
-  }
+  // }
   
 });
 @endif
@@ -208,7 +212,7 @@ $(function() {
         },
         id_card: {
           required: true,
-          minlength: 13,
+          // minlength: 13,
           maxlength: 13
 
           @if(!isset($edit))
@@ -254,7 +258,7 @@ $(function() {
         zip_code:(($("#app_local").val()=='th') ? 'รหัสไปรษณีไม่ถูกต้อง' : 'Wrong zipcode' ),
         email: (($("#app_local").val()=='th') ? 'อีเมลไม่ถูกต้อง' : 'Wrong email address' ),
       },
-        highlight: function ( element, errorClass, validClass ) {
+      highlight: function ( element, errorClass, validClass ) {
       
         $( element ).parents( ".form-group" ).addClass( "has-error" ).removeClass( "has-success" );
        

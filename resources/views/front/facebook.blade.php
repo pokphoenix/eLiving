@@ -192,7 +192,7 @@ function loginWithFacebook(){
           },
       id_card: {
         required: true,
-        minlength: 13,
+        // minlength: 13,
         maxlength: 13,
         remote: {
                   url: "{{ url('api/validate/idcard') }}",

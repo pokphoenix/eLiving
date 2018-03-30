@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
 class RequestRoomController extends Controller
 {
     private $view = 'admin.request_room';
@@ -41,9 +42,10 @@ class RequestRoomController extends Controller
         $this->middleware('auth');
         $this->title = (App::isLocale('en')) ? "User Request Room" : "รายการขอเพิ่มห้อง" ;
     }
-    public function index($domainId){
+    public function index($domainId)
+    {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
         $title = $this->title ;
@@ -51,24 +53,25 @@ class RequestRoomController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId."/".$this->route.'?api_token='.Auth()->User()->api_token ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
+        if (!isset($json['result'])) {
             return $response->getContent() ;
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $users = $json['response']['user'] ;
         $noCreate = true ;
         $waitUser = true ;
-        return view($this->view.'.index',compact('users','title','route','domainId','domainName','noCreate','waitUser'));
+        return view($this->view.'.index', compact('users', 'title', 'route', 'domainId', 'domainName', 'noCreate', 'waitUser'));
     }
 
-    public function edit($domainId,$idcard){
+    public function edit($domainId, $idcard)
+    {
           $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
         
         $title = $this->title ;
@@ -79,15 +82,14 @@ class RequestRoomController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId.'/create-user/'.$idcard.'/edit?api_token='.Auth()->User()->api_token ;
         $res = $client->get($url);
-        $json = json_decode($res->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
+        $json = json_decode($res->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
                 $json['errors'] = $response->getBody()->getContents() ;
-                return redirect()->back()
+                return redirect('error')
                 ->withError($json['errors']);
-            }
-        if($json['result']=="false")
-        {
-            return redirect()->back()
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
                 ->withError($json['errors']);
         }
         $data = $json['response']['user'] ;
@@ -99,15 +101,14 @@ class RequestRoomController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/master/role?api_token='.Auth()->User()->api_token ;
         $res = $client->get($url);
-        $json = json_decode($res->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
+        $json = json_decode($res->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
                 $json['errors'] = $response->getBody()->getContents() ;
-                return redirect()->back()
+                return redirect('error')
                 ->withError($json['errors']);
-            }
-        if($json['result']=="false")
-        {
-            return redirect()->back()
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
                 ->withError($json['errors']);
         }
 
@@ -115,31 +116,29 @@ class RequestRoomController extends Controller
       
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/search/province?api_token='.Auth()->User()->api_token ;
-        $res =  $client->post($url,  ['form_params'=>['name'=>'']] );
-        $json = json_decode($res->getBody()->getContents(),true); 
+        $res =  $client->post($url, ['form_params'=>['name'=>'']]);
+        $json = json_decode($res->getBody()->getContents(), true);
         $province = $json ;
 
         $amphur = [];
-        if(isset($address['province_id'])){
+        if (isset($address['province_id'])) {
             $client = new \GuzzleHttp\Client();
             $url = url('').'/api/search/amphur-id?api_token='.Auth()->User()->api_token ;
-            $res =  $client->post($url,  ['form_params'=>['id'=>$address['province_id']]] );
-            $json = json_decode($res->getBody()->getContents(),true); 
+            $res =  $client->post($url, ['form_params'=>['id'=>$address['province_id']]]);
+            $json = json_decode($res->getBody()->getContents(), true);
             $amphur = $json['response']['amphurs'] ;
         }
 
         $district = [];
-        if(isset($address['province_id'])){
+        if (isset($address['province_id'])) {
             $client = new \GuzzleHttp\Client();
             $url = url('').'/api/search/district-id?api_token='.Auth()->User()->api_token ;
-            $res =  $client->post($url,  ['form_params'=>['id'=>$address['amphur_id']]] );
-            $json = json_decode($res->getBody()->getContents(),true); 
+            $res =  $client->post($url, ['form_params'=>['id'=>$address['amphur_id']]]);
+            $json = json_decode($res->getBody()->getContents(), true);
             $district = $json['response']['districts'] ;
         }
         $waitUser = true ;
-        return view('admin.create_user.create',compact('title','route','roles','domainId','domainName','defaultRole','data','edit','address','docs','routePath','roomUser','province','amphur','district','waitUser'));
+        $requestRoom = true;
+        return view('admin.create_user.create', compact('title', 'route', 'roles', 'domainId', 'domainName', 'defaultRole', 'data', 'edit', 'address', 'docs', 'routePath', 'roomUser', 'province', 'amphur', 'district', 'waitUser', 'requestRoom'));
     }
-
-    
-
 }

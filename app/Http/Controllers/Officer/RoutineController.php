@@ -1,19 +1,22 @@
 <?php
 
 namespace App\Http\Controllers\Officer;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller ;
 use DB;
 use Route;
 use stdClass ;
 use Auth;
+
 class RoutineController extends Controller
 {
     private $route = 'routine' ;
     private $title = 'นิติ' ;
     private $view = 'officer.routine' ;
 
-    public function __construct(){
+    public function __construct()
+    {
     }
     /**
      * Display a listing of the resource.
@@ -28,20 +31,20 @@ class RoutineController extends Controller
         $url = url('').'/api/'.$route ;
 
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
+        if (!isset($json['result'])) {
             return $response->getContent() ;
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
 
         $cards = $json['response']['routines'] ;
         $routineCategory = $json['response']['routine_category'] ;
 
-        return view($this->view.'.index',compact('title','route','domainId','cards','routineCategory'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'cards', 'routineCategory'));
     }
 
     /**
@@ -63,7 +66,8 @@ class RoutineController extends Controller
     {
     }
 
-    public function view($domainId){
+    public function view($domainId)
+    {
 
         $title = $this->title ;
         
@@ -72,17 +76,19 @@ class RoutineController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$route ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $cards = $json['response']['routines'] ;
 
-        return view($this->view.'.view',compact('title','route','domainId','tasks','statusHistory','taskCategory','taskMember'));
+        return view($this->view.'.view', compact('title', 'route', 'domainId', 'tasks', 'statusHistory', 'taskCategory', 'taskMember'));
     }
 
     /**
@@ -91,7 +97,7 @@ class RoutineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$routineId)
+    public function show(Request $request, $domainId, $routineId)
     {
         $title = $this->title ;
         
@@ -100,19 +106,21 @@ class RoutineController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$route ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $cards = $json['response']['routines'] ;
-        $cardId = $routineId; 
+        $cardId = $routineId;
         $routineCategory = $json['response']['routine_category'] ;
 
-        return view($this->view.'.index',compact('title','route','domainId','cards','cardId','routineCategory'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'cards', 'cardId', 'routineCategory'));
     }
 
     /**
@@ -121,7 +129,7 @@ class RoutineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -132,7 +140,7 @@ class RoutineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -142,7 +150,7 @@ class RoutineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

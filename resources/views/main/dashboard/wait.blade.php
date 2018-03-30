@@ -124,7 +124,7 @@ $(function() {
         last_name: "required",
         id_card: {
           required: true,
-          minlength: 13,
+          // minlength: 13,
           maxlength: 13
         },
         // room:"required",

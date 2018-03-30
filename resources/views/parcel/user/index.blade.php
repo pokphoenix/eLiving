@@ -26,296 +26,275 @@
 
 	
     <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-      	 <i class="fa fa-send"></i>
-      	 @lang('sidebar.parcel')
-        <small></small>
-      </h1>
-      <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-home"></i> @lang('main.home')</a></li>
-        <li class="active"> @lang('sidebar.parcel')</li>
-      </ol>
-    </section>
-   
-	
-    <!-- Main content -->
-    <section class="content">
-      
-		<input type="hidden" id="current_card_id" >
-		<input type="hidden" id="room_id" value="{{ $roomId }}" >
-		<input type="hidden" id="first_open_card" value="false">
-		<input type="hidden" id="asset_url" value="{{ asset('public/img/icon/') }}" >
-	 	
-      <!-- Main row -->
-      <div class="row" >
+<section class="content-header">
+	<h1>
+	<i class="fa fa-send"></i>
+	@lang('sidebar.parcel')
+	<small></small>
+	</h1>
+	<ol class="breadcrumb">
+		<li><a href="#"><i class="fa fa-home"></i> @lang('main.home')</a></li>
+		<li class="active"> @lang('sidebar.parcel')</li>
+	</ol>
+</section>
 
+
+<!-- Main content -->
+<section class="content">
 	
+	<input type="hidden" id="current_card_id" >
+	<input type="hidden" id="room_id" value="{{ $roomId }}" >
+	<input type="hidden" id="first_open_card" value="false">
+	<input type="hidden" id="asset_url" value="{{ asset('public/img/icon/') }}" >
+	
+	<!-- Main row -->
+	<div class="row" >
 		<section class="col-md-12">
 			
 			<div class="box box-solid bg-rm-user-task box-parent"  >
 				
-		            	<div class="box-header">
-		            		
-		            	   <h3 class="box-title">
-		            	   		<select id="filter-status" style="color: #000;" >
-		            	   			<option value="0" >@lang('parcel.all') </option>
-		            	   			<option value="1" >@lang('parcel.received')</option>
-		            	   			<option value="2" >@lang('parcel.wait_receive')</option>
-		            	   		</select>
-		            	   </h3>
-		            	  
-		            	</div>
-
-			            <div class="box-body "  >
-			            	
-							<div class="append-card">
-	
-
-							
-							@if(count($lists)>0)
-							 <?php $dateTxt = ""; ?>
-								@foreach($lists as $list)
-									
-
-									<?php 
-									$createdAt = date('d M Y', strtotime($list['created_at']));  
-									if( $createdAt!= $dateTxt){
-										$dateTxt = $createdAt ; 
-										echo "<h4 class=\"title\" >$dateTxt : </h4>" ;
-									}
-									
-									?>
-								
-
-								<div class="box box-solid card show-content" style="border-left: 5px solid {{ $list['status_color'] }};">
-						            <div class="box-header">
-						              	<h3 class="box-title">{{ $list['parcel_type_name'] }}
-										@if($list['type']==2)
-										({{ $list['supplies_type_name'] }})
-										@endif
-						              	</h3>
-						            </div>
-						             <div class="box-body "  >
-						             	
-
-						             	@if(isset($list['supplies_send_name']))
-											@lang('parcel.supplies_send_name') : 
-											{{ $list['supplies_send_name'] }} <BR>
-						             	@endif
-						             	@if(isset($list['supplies_code']))
-											@lang('parcel.supplies_code') : 
-											{{ $list['supplies_code'] }} <BR>
-						             	@endif
-
-						             	@if(isset($list['gift_receive_name']))
-											@lang('parcel.gift_receive_name') : 
-											{{ $list['gift_receive_name'] }} <BR>
-						             	@endif
-										
-						              	@lang('parcel.send_date') : {{ created_date_format($list['send_date']) }}
-						             	<BR>
-						             	@lang('parcel.received_status') : 
-						             	@if(isset($list['receive_at']))
-						              		<span class="received_status">@lang('parcel.received')</span>
-
-						              	@else
-						              		<span class="received_status">@lang('parcel.wait_receive')</span>
-						              			 <button class="btn btn-default btn-receive btn-xs" data-id="{{ $list['id'] }}" data-room-id="{{ $list['room_id'] }}" title="@lang('parcel.receive')"><i class="fa fa-share"></i></button>
-						              	@endif
-						             </div>
-						            <input type="hidden" class="box-id" value="{{ $list['id'] }}" >
-					        	</div>
-								@endforeach
-							
-								
-							@endif
+				<div class="box-header">
+					
+					<h3 class="box-title">
+					<select id="filter-status" style="color: #000;" >
+						<option value="0" >@lang('parcel.all') </option>
+						<option value="1" >@lang('parcel.received')</option>
+						<option value="2" >@lang('parcel.wait_receive')</option>
+					</select>
+					</h3>
+					
+				</div>
+				<div class="box-body "  >
+					
+					<div class="append-card">
+						
+						
+						@if(count($lists)>0)
+						<?php $dateTxt = ""; ?>
+						@foreach($lists as $list)
+						
+						<?php
+						$createdAt = date('d M Y', strtotime($list['created_at']));
+						if( $createdAt!= $dateTxt){
+							$dateTxt = $createdAt ;
+							echo "<h4 class=\"title\" >$dateTxt : </h4>" ;
+						}
+						
+						?>
+						
+						<div class="box box-solid card show-content" style="border-left: 5px solid {{ $list['status_color'] }};">
+							<div class="box-header">
+								<h3 class="box-title">{{ $list['parcel_type_name'] }}
+								@if($list['type']==2)
+								({{ $list['supplies_type_name'] }})
+								@endif
+								</h3>
 							</div>
-			            </div>
-			            <!-- /.chat -->
-			           
-
-		    </div>
-			
+							<div class="box-body "  >
+								
+								@if(isset($list['supplies_send_name']))
+								@lang('parcel.supplies_send_name') :
+								{{ $list['supplies_send_name'] }} <BR>
+								@endif
+								@if(isset($list['supplies_code']))
+								@lang('parcel.supplies_code') :
+								{{ $list['supplies_code'] }} <BR>
+								@endif
+								@if(isset($list['gift_receive_name']))
+								@lang('parcel.gift_receive_name') :
+								{{ $list['gift_receive_name'] }} <BR>
+								@endif
+								
+								@lang('parcel.send_date') : {{ created_date_format($list['send_date']) }}
+								<BR>
+								@lang('parcel.received_status') :
+								@if(isset($list['receive_at']))
+								<span class="received_status">@lang('parcel.received')</span>
+								@else
+								<span class="received_status">@lang('parcel.wait_receive')</span>
+								<button class="btn btn-default btn-receive btn-xs" data-id="{{ $list['id'] }}" data-room-id="{{ $list['room_id'] }}" title="@lang('parcel.receive')"><i class="fa fa-share"></i></button>
+								@endif
+							</div>
+							<input type="hidden" class="box-id" value="{{ $list['id'] }}" >
+						</div>
+						@endforeach
+						
+						
+						@endif
+					</div>
+				</div>
+				<!-- /.chat -->
+				
+			</div>
 		</section>
-      </div>
-      <!-- /.row (main row) -->
-
+	</div>
+	<!-- /.row (main row) -->
 	
-
-    </section>
-    <!-- /.content -->
-
-  <!-- /.content-wrapper -->
-  <div class="modal fade" id="modal-receive">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">@lang('parcel.receive')</h4>
-      </div>
-      <div class="modal-body">
-         <form  id="receive-form" role="form" method="POST" action="{{$action}}" enctype="multipart/form-data"  >
-          <input type="hidden" id="parcel_id" >
-          <div class="form-group">
-            <label for="name">@lang('parcel.receiver_name')</label>
-            <input type="text" class="form-control" id="receive_name" name="receive_name" placeholder="@lang('parcel.receiver_name')">
-          </div>
-          <div class="form-group">
-            <label for="name">@lang('parcel.receive_tel')</label>
-            <input type="text" class="form-control" id="receive_tel" name="receive_tel" placeholder="@lang('parcel.receiver_name')">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
-        <button type="button" class="btn btn-primary btn-save-receive">@lang('main.btn_save')
-           <i class="fa fa-spinner fa-spin fa-fw none" ></i>
-        </button>
-      </div>
-    </div>
-    <!-- /.modal-content -->
-  </div>
-  <!-- /.modal-dialog -->
+</section>
+<!-- /.content -->
+<!-- /.content-wrapper -->
+<div class="modal fade" id="modal-receive">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title">@lang('parcel.receive')</h4>
+			</div>
+			<div class="modal-body">
+				<form  id="receive-form" role="form" method="POST" action="{{$action}}" enctype="multipart/form-data"  >
+					<input type="hidden" id="parcel_id" >
+					<div class="form-group">
+						<label for="name">@lang('parcel.receiver_name')</label>
+						<input type="text" class="form-control" id="receive_name" name="receive_name" placeholder="@lang('parcel.receiver_name')">
+					</div>
+					<div class="form-group">
+						<label for="name">@lang('parcel.receive_tel')</label>
+						<input type="text" class="form-control" id="receive_tel" name="receive_tel" placeholder="@lang('parcel.receiver_name')">
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
+				<button type="button" class="btn btn-primary btn-save-receive">@lang('main.btn_save')
+				<i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
+				</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
 </div>
-
-
 <div class="modal fade " id="modal-card-content" >
-          <div class="modal-dialog" style="width: 90%;">
-            <div class="modal-content " style="background: #EEE;">
-            	<div class="cotent-cover text-center" style="display: none;background: #ccc;">
-            		<img src="" height="100">
-            	</div>
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span></button>
-                  <div class="row">
-						<div class="col-sm-12">
-							<h4 class="modal-title">
-								<div class="show-title">
-									<i class="fa fa-address-card-o"></i>
-									<span>Title</span> 
-									
-								</div>
-							</h4>
+	<div class="modal-dialog" style="width: 90%;">
+		<div class="modal-content " style="background: #EEE;">
+			<div class="cotent-cover text-center" style="display: none;background: #ccc;">
+				<img src="" height="100">
+			</div>
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span></button>
+				<div class="row">
+					<div class="col-sm-12">
+						<h4 class="modal-title">
+						<div class="show-title">
+							<i class="fa fa-address-card-o"></i>
+							<span>Title</span>
+							
+						</div>
+						</h4>
+					</div>
+				</div>
+				
+			</div>
+			<div class="modal-body">
+				
+				
+				
+				
+				<div class="col-sm-12" style="height: 20px;"></div>
+				<div class="col-sm-10" >
+					<div class="row row-supplies-send-name none">
+						<div class="col-sm-4" >
+							<h4 class="title">@lang('parcel.supplies_send_name')</h4>
+							<div class="form-group">
+								<span></span>
+								
+							</div>
 						</div>
 					</div>
-                	
-              </div>
-              <div class="modal-body">
+					<div class="row row-supplies-code none">
+						<div class="col-sm-4" >
+							<h4 class="title">@lang('parcel.supplies_code')</h4>
+							<div class="form-group">
+								<span></span>
+							</div>
+						</div>
+					</div>
+					<div class="row row-supplies-type-name none">
+						<div class="col-sm-4" >
+							<h4 class="title">@lang('parcel.supplies_type_name')</h4>
+							<div class="form-group">
+								<span></span>
+								
+							</div>
+						</div>
+					</div>
+					<div class="row row-gift-receive-name none">
+						<div class="col-sm-4" >
+							<h4 class="title">@lang('parcel.gift_receive_name')</h4>
+							<div class="form-group">
+								<span></span>
+								
+							</div>
+						</div>
+					</div>
+					<div class="row row-gift-send-name none">
+						<div class="col-sm-4" >
+							<h4 class="title">@lang('parcel.gift_send_name')</h4>
+							<div class="form-group">
+								<span></span>
+								
+							</div>
+						</div>
+					</div>
+					<div class="row row-gift-description none">
+						<div class="col-sm-4" >
+							<h4 class="title">@lang('parcel.gift_description')</h4>
+							<div class="form-group">
+								<span></span>
+								
+							</div>
+						</div>
+					</div>
+					<div class="row row-send-date">
+						<div class="col-sm-4" >
+							<h4 class="title">@lang('parcel.send_date')</h4>
+							<div class="form-group">
+								<span></span>
+								
+							</div>
+						</div>
+					</div>
+					<div class="row row-received-status">
+						<div class="col-sm-4" >
+							<h4 class="title">@lang('parcel.received_status')</h4>
+							<div class="form-group">
+								<span></span>
+								
+							</div>
+						</div>
+					</div>
 					
-		
-				 	
+				</div>
+				
+				<div class="col-sm-2">
+					
+					
+					<button type="button" class="btn btn-block btn-social btn-default btn-receive"   data-id="" data-room-id="" id="btn-receive" >
+					@lang('parcel.btn_receive')
+					</button>
+					<button type="button" class="btn btn-block btn-social btn-default "   data-id="" data-room-id="" id="btn-un-receive" >
+					@lang('parcel.btn_un_receive')
+					</button>
+					
+					
+					
+					
+					<!--  <button type="button" class="btn btn-block btn-social" id="btn_attach" >
+					<i class="fa fa-paperclip"></i> Attach file
+					</button>
+					<input id="file-upload" name='doc_file[]' type="file" style="display:none;"> -->
+				</div>
+			</div>
+			<div class="modal-footer">
+				
+			</div>
 			
-	                <div class="col-sm-12" style="height: 20px;"></div>
-	                <div class="col-sm-10" >
-	                	<div class="row row-supplies-send-name none">
-							<div class="col-sm-4" >
-								<h4 class="title">@lang('parcel.supplies_send_name')</h4> 
-								<div class="form-group">
-									 <span></span>
-						        	
-						    	</div>
-							</div>
-						</div>
-						<div class="row row-supplies-code none">
-							<div class="col-sm-4" >
-								<h4 class="title">@lang('parcel.supplies_code')</h4> 
-								<div class="form-group">
-									 <span></span>
-						    	</div>
-							</div>
-						</div>
-						<div class="row row-supplies-type-name none">
-							<div class="col-sm-4" >
-								<h4 class="title">@lang('parcel.supplies_type_name')</h4> 
-								<div class="form-group">
-									 <span></span>
-						        	
-						    	</div>
-							</div>
-						</div>
-						<div class="row row-gift-receive-name none">
-							<div class="col-sm-4" >
-								<h4 class="title">@lang('parcel.gift_receive_name')</h4> 
-								<div class="form-group">
-									 <span></span>
-						        	
-						    	</div>
-							</div>
-						</div>
-						<div class="row row-gift-send-name none">
-							<div class="col-sm-4" >
-								<h4 class="title">@lang('parcel.gift_send_name')</h4> 
-								<div class="form-group">
-									 <span></span>
-						        	
-						    	</div>
-							</div>
-						</div>
-						<div class="row row-gift-description none">
-							<div class="col-sm-4" >
-								<h4 class="title">@lang('parcel.gift_description')</h4> 
-								<div class="form-group">
-									 <span></span>
-						        	
-						    	</div>
-							</div>
-						</div>
-
-						<div class="row row-send-date">
-							<div class="col-sm-4" >
-								<h4 class="title">@lang('parcel.send_date')</h4> 
-								<div class="form-group">
-									 <span></span>
-						        	
-						    	</div>
-							</div>
-						</div>
-						<div class="row row-received-status">
-							<div class="col-sm-4" >
-								<h4 class="title">@lang('parcel.received_status')</h4> 
-								<div class="form-group">
-									 <span></span>
-						        	
-						    	</div>
-							</div>
-						</div>
-						
-	                </div>
-	                
-	                <div class="col-sm-2">
-						
-						
-						<button type="button" class="btn btn-block btn-social btn-default btn-receive"   data-id="" data-room-id="" id="btn-receive" >
-					        @lang('parcel.btn_receive')
-					    </button>
-					    <button type="button" class="btn btn-block btn-social btn-default "   data-id="" data-room-id="" id="btn-un-receive" >
-					        @lang('parcel.btn_un_receive')
-					    </button>
-						
-							
-							
-					
-		               <!--  <button type="button" class="btn btn-block btn-social" id="btn_attach" >
-		                    <i class="fa fa-paperclip"></i> Attach file
-		                </button>
-		                <input id="file-upload" name='doc_file[]' type="file" style="display:none;"> -->
-	                </div>
-              </div>
-              <div class="modal-footer">
-                	
-                </div>
-                
-              </div>
-            </div>
-            <!-- /.modal-content -->
-          </div>
-          <!-- /.modal-dialog -->
-        </div>
-		
-
+		</div>
+	</div>
+	<!-- /.modal-content -->
+</div>
 
 @endsection
 
@@ -379,7 +358,7 @@ $(".btn-save-receive").on("click",function(){
 $("#btn-un-receive").on("click",function(){
 
 	var route = "/parcel/receive/"+$(this).data('id')+"?api_token="+api_token ;
-	ajaxPromise('DELETE',route,null).done(function(){
+	ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(){
 		$("#btn-receive").show();
     	$("#btn-un-receive").hide();
 	});

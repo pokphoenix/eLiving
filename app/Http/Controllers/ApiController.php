@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Log\LogError;
 use Illuminate\Support\Facades\App;
 
-
 class ApiController extends Controller
 {
 
@@ -20,15 +19,15 @@ class ApiController extends Controller
     protected function respondWithError($error, $headers = [])
     {
 
-        LogError::SetLogError(json_encode(['result'=>'false','errors' => $error]),0);
+        LogError::SetLogError(json_encode(['result'=>'false','errors' => $error]), 0);
 
         return response()->json(['result'=>'false','errors' => $error], 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE);
-    } 
+    }
 
     protected function langMessage($msgThai, $msgEng)
     {
 
-        return App::isLocale('en') ? $msgEng : $msgThai ;
+        return getLang()=='en' ? $msgEng : $msgThai ;
     }
 
 
@@ -39,16 +38,16 @@ class ApiController extends Controller
      */
     protected function respondWithItem($data)
     {
-    	$response = ['result'=>'true','errors'=>'','response'=>$data] ; 
-         LogError::SetLogError(json_encode($response ),1);
+        $response = ['result'=>'true','errors'=>'','response'=>$data] ;
+         LogError::SetLogError(json_encode($response), 1);
         return response()->json($response, 200, ['Content-type'=> 'application/json; charset=utf-8'], JSON_UNESCAPED_UNICODE);
     }
 
     protected function catchError($e)
     {
-        if ($e->getCode()=="23000"){
+        if ($e->getCode()=="23000") {
             $errors = "ข้อมูลซ้ำ" ;
-        }else{
+        } else {
             $errors = $e->getMessage();
         }
         return $errors ;

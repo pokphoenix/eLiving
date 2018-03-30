@@ -3,7 +3,7 @@
 
       <div class="box box-primary">
               <div class="box-header with-border">
-                <h3 class="box-title">โครงการที่มีอยู่</h3>
+                <h3 class="box-title">@lang('domain.has_domain')</h3>
 
                 <div class="box-tools pull-right">
                   <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -22,14 +22,14 @@
                     </div>
                     <div class="product-info">
                       <a href="javascript:void(0)" class="product-title"> {{ $domain['name'] }}
-                          <span class="label label-warning pull-right">unit {{ $domain['unit'] }}</span>
+                          <span class="label label-warning pull-right">@lang('domain.unit_count') {{ $domain['unit'] }}</span>
                         </a>
                         <span class="pull-right" style="margin-right: 10px;">
                           @if($domain['approve'])
 
-                          <a href="{{ url( $domain['id'].'/dashboard') }}" class="btn btn-default"> คลิก </a>
+                          <a href="{{ url( $domain['url_name'].'/dashboard') }}" class="btn btn-default"> @lang('domain.click') </a>
                           @else
-                           รอยืนยัน
+                           @lang('domain.wait_approve')
                           @endif
                         </span>
                         <span class="product-description">
@@ -48,9 +48,9 @@
               </div>
             <!-- /.box-body -->
               @if(count($domains)>1)
-              <div class="box-footer text-center">
+             <!--  <div class="box-footer text-center">
                 <a href="javascript:void(0)" class="uppercase">View All Products</a>
-              </div>
+              </div> -->
               @endif
             <!-- /.box-footer -->
             </div>

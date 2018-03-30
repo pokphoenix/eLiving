@@ -18,12 +18,12 @@ class CreateUsersTable extends Migration
             $table->string('username');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('api_token',60)->unique();
+            $table->string('api_token', 60)->unique();
             $table->string('first_name');
             $table->string('last_name');
           
             $table->string('tel')->nullable();
-            $table->string('id_card',13);
+            $table->string('id_card', 13);
             $table->integer('recent_domain')->unsigned()->default(0);
             $table->rememberToken();
             $table->timestamps();

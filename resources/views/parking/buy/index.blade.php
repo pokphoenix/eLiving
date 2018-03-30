@@ -163,18 +163,25 @@
                   </div>
                   <div class="form-group">
                     <label for="name">@lang('parking.id_card_buyer')</label>
-                    <input type="text" class="form-control" id="id_card_buyer" name="id_card_buyer" maxlength="13" minlength="13" placeholder="@lang('parking.id_card_buyer')"  >
+                    <input type="text" class="form-control" id="id_card_buyer" name="id_card_buyer" maxlength="13" placeholder="@lang('parking.id_card_buyer')"  >
                   </div> 
                   <div class="form-group">
                     <label for="name">@lang('parking.buyer_tel')</label>
                     <input type="text" class="form-control" id="buyer_tel" name="buyer_tel" maxlength="20" placeholder="@lang('parking.buyer_tel')"  >
                   </div>
+                  <div class="form-check">
+                      <label class="form-check-label">
+                      <input type="checkbox" id="is_offline" name="is_offline" class="form-check-input" >
+                         @lang('parking.is_offline') 
+                      </label>
+                  </div>
+                     
                 </form>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
                 <button type="button" class="btn btn-primary btn-save">@lang('main.btn_save')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
                 </button>
               </div>
             </div>
@@ -216,7 +223,7 @@ $(function () {
   
   $("#package_id").select2();
   setTimeout(function() {
-    $('#package_id').val(1).trigger('change');
+    $('#package_id').val($("#package_id option:first").val()).trigger('change');
   }, 500);
    
    $(".select2-container").css('width',"100%");
@@ -227,7 +234,7 @@ function goEdit(idCard){
 
 $(".btn-create").on("click",function(){
     $('#room_id').val('').trigger('change');
-    $('#package_id').val(1).trigger('change');
+    $('#package_id').val($("#package_id option:first").val()).trigger('change');
 
     d = new Date();
 
@@ -261,7 +268,7 @@ $(".btn-delete").on("click",function(){
   }).then((result) => {
           if (result.value) {
               var route = "/parking/buy/"+buyId+"?api_token="+api_token ;
-              ajaxPromise('DELETE',route).done(function(data){
+              ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
                parent.addClass('text-delete');
                parent.find('td:last-child').html((($("#app_local").val()=='th') ? 'ยกเลิกรายการ' : 'deleted' ));
               }).fail(function(txt) {
@@ -297,7 +304,7 @@ $(".btn-edit").on("click",function(){
     var route = "/parking/buy/"+parkingId+"/edit?api_token="+api_token ;
 
     ajaxPromise('GET',route,null).done(function(data){
-        console.log(data);
+        // console.log(data);
         var r = data.parking_buys ;
         $('#room_id').val(r.room_id).trigger('change');
         $('#package_id').val(r.package_id).trigger('change');
@@ -316,6 +323,9 @@ $(".btn-edit").on("click",function(){
          var html = '<input type="hidden" id="_method"  name="_method" value="PUT">';
         $("#parking-form").append(html);
        
+        $("#is_offline").prop('checked',((r.is_offline==1)? true : false));
+
+
         $("#modal-default input,#modal-default select").attr('disabled',true);
         $("#modal-default").modal("toggle");
     });
@@ -373,7 +383,7 @@ $(function() {
           maxlength:1000
         },
          id_card_buyer: {
-          minlength:13,
+        
           maxlength:13
         },
       
@@ -408,6 +418,13 @@ $(function() {
         //console.log(period);
         period = moment(period).format("YYYY-MM-DD");
         form_data.append('period_at',period);
+
+        if($("#is_offline").is(':checked')){
+          form_data.append('is_offline',1);
+        }else{
+          form_data.append('is_offline',0);
+        }
+
 
              $.ajax({
                  type: $("#parking-form").attr('method') ,

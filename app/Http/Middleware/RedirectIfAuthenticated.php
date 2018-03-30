@@ -22,8 +22,8 @@ class RedirectIfAuthenticated
 
         if (Auth::guard($guard)->check()) {
             return redirect('/domain');
-        }else{
-            if($guard=='api'){
+        } else {
+            if ($guard=='api') {
                 $response = ['result'=>false,'errors'=>'Unauthorized.'];
                 return response($response);
             }

@@ -2,7 +2,6 @@
 
 namespace App\Models\Routine;
 
-
 use App\Facades\Permission;
 use App\Models\Room;
 use App\Models\Task\TaskCategory;
@@ -18,31 +17,34 @@ class Routine extends Model
     protected $dates = ['created_at', 'repeat_ended_at','started_at','ended_at','lastest_at'];
     protected $hidden = ['api_token'];
 
-    public function setStartedAtAttribute($value) {
-      $this->attributes['started_at'] = (isset($value)) ? Carbon::createFromTimestamp(strtotime($value))->toDateTimeString()  : null ;
-	} 
-	public function setEndedAtAttribute($value) {
-      	$this->attributes['ended_at'] = (isset($value)) ? Carbon::createFromTimestamp(strtotime($value))->toDateTimeString() : null ;
-	} 
-	public function setLastestAtAttribute($value) {
-      $this->attributes['lastest_at'] = (isset($value)) ? Carbon::createFromTimestamp(strtotime($value))->toDateTimeString() : null ;
-	} 
-	public function setRepeatEndedAtAttribute($value) {
-      $this->attributes['repeat_ended_at'] = (isset($value)) ? Carbon::createFromTimestamp(strtotime($value))->toDateTimeString() : null ;
-	} 
+    public function setStartedAtAttribute($value)
+    {
+        $this->attributes['started_at'] = (isset($value)) ? Carbon::createFromTimestamp(strtotime($value))->toDateTimeString()  : null ;
+    }
+    public function setEndedAtAttribute($value)
+    {
+        $this->attributes['ended_at'] = (isset($value)) ? Carbon::createFromTimestamp(strtotime($value))->toDateTimeString() : null ;
+    }
+    public function setLastestAtAttribute($value)
+    {
+        $this->attributes['lastest_at'] = (isset($value)) ? Carbon::createFromTimestamp(strtotime($value))->toDateTimeString() : null ;
+    }
+    public function setRepeatEndedAtAttribute($value)
+    {
+        $this->attributes['repeat_ended_at'] = (isset($value)) ? Carbon::createFromTimestamp(strtotime($value))->toDateTimeString() : null ;
+    }
 
 
-	public static function getData($domainId,$cardId){
+    public static function getData($domainId, $cardId)
+    {
 
-      $data['routine'] = Routine::find($cardId);
+        $data['routine'] = Routine::find($cardId);
 
-      return $data ;
-  }
+        return $data ;
+    }
 
-  public static function category(){
-      return [ ['id'=>1,'name'=>'Technician'] ,['id'=>2,'name'=>'Adminitation'] ];
-  }
-	
-
-
+    public static function category()
+    {
+        return [ ['id'=>1,'name'=>'Technician'] ,['id'=>2,'name'=>'Adminitation'] ];
+    }
 }

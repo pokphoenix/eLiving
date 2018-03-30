@@ -2,7 +2,6 @@
 
 namespace App\Models\Channel;
 
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -13,8 +12,9 @@ class ChannelUser extends Model
     protected $fillable = ['channel_id','domain_id', 'user_id','accept','owner','created_at','push_notification','show_list','push_off_at'];
     protected $dates = ['created_at', 'updated_at'];
 
-    public static function getMember($domainId,$channelId,$accept=1){
-    	$sql = "SELECT u.id as user_id,u.first_name,u.last_name
+    public static function getMember($domainId, $channelId, $accept = 1)
+    {
+        $sql = "SELECT u.id as user_id,u.first_name,u.last_name
                 , UNIX_TIMESTAMP(cu.created_at) as created_at
                ,CASE WHEN u.profile_url is not null AND u.avartar_id=0 THEN u.profile_url
                 ELSE CONCAT( '".url('')."/public/img/profile/',u.avartar_id,'.png') 
@@ -37,8 +37,4 @@ class ChannelUser extends Model
         }
         return $query;
     }
-
 }
-
-
-

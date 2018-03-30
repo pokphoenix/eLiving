@@ -9,7 +9,4 @@ class Amphur extends Model
 {
     protected $table = 'amphures';
     public $timestamps = false;
-    
-   
-
 }

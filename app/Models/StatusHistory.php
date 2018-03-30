@@ -13,8 +13,8 @@ class StatusHistory extends Model
     protected $fillable = ['name','status'];
     // protected $dates = ['created_at', 'updated_at'];
 
-    public static function getStatus($name){
-    	return StatusHistory::where('name',$name)->first()->id ;
-    } 
-  
+    public static function getStatus($name)
+    {
+        return StatusHistory::where('name', $name)->first()->id ;
+    }
 }

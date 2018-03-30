@@ -67,102 +67,125 @@ margin-top:10px; border-radius: 20px;background: #3c8dbc;color:#FFF; padding:5px
                         @foreach ($messages as $message)
                           @if($message['pin'])
                           <div class="item">
-                            @if($actionStatus['is_owner'])
-                            <div class="btn-group pull-right message-tools">
-                                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                  <i class="fa fa-gear"></i>
-                                </button>
-                                <ul class="dropdown-menu pull-right" role="menu">
-                                  <li>
-                                    <a href="javascript:void(0)" class="btn-del-msg" >
-                                    @lang('chat.delete_message')
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a href="javascript:void(0)" class="btn-unpin-msg" >
-                                    @lang('chat.unpin_message')
-                                    </a>
-                                  </li>
-                                </ul>
-                            </div>
-                            @endif
-                           
-                            @if($userId!=$message['created_by'])
-                              <img src="{{ $message['img'] }}" class=" {{ ($message['is_online']) ? 'online' : 'offline' }}">
-                              @else
-                              <div style="height: 40px;"></div>
-                            @endif
-                            
-                             <input type="hidden" class="msg-item-user-id" value="{{$message['created_by']}}" >
-                            <input type="hidden" class="msg-id" value="{{$message['id']}}" >
-                            @if($message['type']==1)
-                            <p class="message">
-                              <a href="javascript:void(0)" class="name">
-                                 @if($userId!=$message['created_by'])
-                                  <small class="text-muted pull-right">
-                                  
-                                  <i class="fa fa-clock-o"></i> {{ date('d/m/Y H:i',$message['updated_ts'] )  }}
-                                </small>
-                                    {{ $message['first_name']." ".$message['last_name'] }}
+                             @if($message['hide']==1)
+                             <div>
+                                  <button class="btn btn-default btn-xs  pull-right btn-show-msg" >
+                                  @lang('chat.show_message')
+                                  </button>
+                                  @lang('chat.hide_message')
+                              </div>
+                             @else
+                                  @if($actionStatus['is_owner'])
+                                  <div class="btn-group pull-right message-tools">
+                                      <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-gear"></i>
+                                      </button>
+                                      <ul class="dropdown-menu pull-right" role="menu">
+                                        <li>
+                                          <a href="javascript:void(0)" class="btn-del-msg" >
+                                          @lang('chat.delete_message')
+                                          </a>
+                                        </li>
+                                        <li>
+                                          <a href="javascript:void(0)" class="btn-unpin-msg" >
+                                          @lang('chat.unpin_message')
+                                          </a>
+                                        </li>
+                                        <li>
+                                          <a href="javascript:void(0)" class="btn-hide-msg" >
+                                          @lang('chat.hide_message')
+                                          </a>
+                                        </li>
+                                        <li>
+                                          <a href="javascript:void(0)" class="btn-blacklist-inform-user" >
+                                          @lang('chat.blacklist_inform')
+                                          </a>
+                                        </li>
+                                      </ul>
+                                  </div>
                                   @endif
-                              <!--   <button class="btn btn-xs btn-danger pull-right btn-del-msg" title="@lang('chat.delete_message')"><i class="fa fa-trash"></i></button> -->
-                              </a>
-                              @if($userId==$message['created_by'])
-                              
-                                <div class="pull-right ">
-                                  @if($message['has_seen'])
-                                     @lang('chat.readed')  
-                                     @if($channels['direct_message']==1)  
-                                     {{ $message['has_seen_date'] }}
-                                     @else
-                                     {{ $message['has_seen_count'] }}
-                                     @endif
-                                  @endif
-                                  <span class="owner-message">
-                                     {{ $message['text'] }}
-                                  </span>
                                  
-                                </div>
-                              @else
-                                {{ $message['text'] }}
-                              @endif
-                            </p>
-                            @else
-
-                            <div class="attachment">
-                              @if($userId==$message['created_by'])
-                              <div class="pull-right">
-                                  <p class="filename">
-                                     @if($message['has_seen'])
-                                     @lang('chat.readed')  
-                                     @if($channels['direct_message']==1)  
-                                     {{ $message['has_seen_date'] }}
-                                     @else
-                                     {{ $message['has_seen_count'] }}
-                                     @endif
-                                  @endif
-                                    @if( strpos($message['attachment_extension'],'image') > -1 )
-                                    <a class="fancybox" href="{{ $message['attachment_path'] }}">
-                                    <img src="{{ $message['attachment_path'] }}" height=50 ></a>
+                                  @if($userId!=$message['created_by'])
+                                    <img src="{{ $message['img'] }}" class=" {{ ($message['is_online']) ? 'online' : 'offline' }}">
                                     @else
-                                    {{ $message['attachment_name'] }}
+                                    <div style="height: 40px;"></div>
+                                  @endif
+                                  
+                                   <input type="hidden" class="msg-item-user-id" value="{{$message['created_by']}}" >
+                                  <input type="hidden" class="msg-id" value="{{$message['id']}}" >
+                                  @if($message['type']==1)
+                                  <p class="message">
+                                    <a href="javascript:void(0)" class="name">
+                                       @if($userId!=$message['created_by'])
+                                        <small class="text-muted pull-right">
+                                        
+                                        <i class="fa fa-clock-o"></i> {{ date('d/m/Y H:i',$message['updated_ts'] )  }}
+                                      </small>
+                                          {{ $message['first_name']." ".$message['last_name'] }}
+                                        @endif
+                                    <!--   <button class="btn btn-xs btn-danger pull-right btn-del-msg" title="@lang('chat.delete_message')"><i class="fa fa-trash"></i></button> -->
+                                    </a>
+                                    @if($userId==$message['created_by'])
+                                    
+                                      <div class="pull-right ">
+                                        @if($message['has_seen'])
+                                           @lang('chat.readed')  
+                                           @if($channels['direct_message']==1)  
+                                           {{ $message['has_seen_date'] }}
+                                           @else
+                                           {{ $message['has_seen_count'] }}
+                                           @endif
+                                        @endif
+                                        <span class="owner-message">
+                                           {{ $message['text'] }}
+                                        </span>
+                                       
+                                      </div>
+                                    @else
+                                      {{ $message['text'] }}
                                     @endif
                                   </p>
-                                  <a href="{{ $message['attachment_path'] }}" class="pull-right" target="_blank" download="{{ $message['attachment_name'] }}">Download</a>
-                              </div>
-                              @else
-                               <p class="filename">
-                                <a class="fancybox" href="{{ $message['attachment_path'] }}">
-                                  <img src="{{ $message['attachment_path'] }}" height=50 >
-                                </a>
-                              </p>
-                              <a href="{{ $message['attachment_path'] }}" target="_blank" download="{{ $message['attachment_name'] }}">Download</a>
-                              @endif
+                                  @else
 
-                             
-                            </div>
-                            <!-- /.attachment -->
-                            @endif
+                                  <div class="attachment">
+                                    @if($userId==$message['created_by'])
+                                    <div class="pull-right">
+                                        <p class="filename">
+                                           @if($message['has_seen'])
+                                           @lang('chat.readed')  
+                                           @if($channels['direct_message']==1)  
+                                           {{ $message['has_seen_date'] }}
+                                           @else
+                                           {{ $message['has_seen_count'] }}
+                                           @endif
+                                        @endif
+                                          @if( strpos($message['attachment_extension'],'image') > -1 )
+                                          <a class="fancybox" href="{{ $message['attachment_path'] }}">
+                                          <img src="{{ $message['attachment_path'] }}" height=50 ></a>
+                                          @else
+                                          {{ $message['attachment_name'] }}
+                                          @endif
+                                        </p>
+                                        <a href="{{ $message['attachment_path'] }}" class="pull-right" target="_blank" download="{{ $message['attachment_name'] }}">Download</a>
+                                    </div>
+                                    @else
+                                     <p class="filename">
+                                      <a class="fancybox" href="{{ $message['attachment_path'] }}">
+                                        <img src="{{ $message['attachment_path'] }}" height=50 >
+                                      </a>
+                                    </p>
+                                    <a href="{{ $message['attachment_path'] }}" target="_blank" download="{{ $message['attachment_name'] }}">Download</a>
+                                    @endif
+
+                                   
+                                  </div>
+                                  <!-- /.attachment -->
+                                  @endif
+
+
+                             @endif
+
+                            
                           </div>
                           @endif
                           <!-- /.item -->
@@ -222,106 +245,129 @@ margin-top:10px; border-radius: 20px;background: #3c8dbc;color:#FFF; padding:5px
                          
                           <!-- chat item -->
                           <div class="item"  >
-                            @if($actionStatus['is_owner'] || auth()->user()->hasRole('admin') )
-                            <div class="btn-group pull-right message-tools">
-                                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                  <i class="fa fa-gear"></i>
-                                </button>
-                                <ul class="dropdown-menu pull-right" role="menu">
-                                  <li>
-                                    <a href="javascript:void(0)" class="btn-del-msg" >
-                                    @lang('chat.delete_message')
-                                    </a>
-                                  </li>
-                                  <li>
-                                    <a href="javascript:void(0)" class="btn-pin-msg" >
-                                    @lang('chat.pin_message')
-                                    </a>
-                                  </li>
-                                </ul>
-                            </div>
-                            @endif
-                           
-                            @if($userId!=$message['created_by'])
-                              <img src="{{ $message['img'] }}" class=" {{ ($message['is_online']) ? 'online' : 'offline' }}">
-                              @else
-                              <div style="height: 40px;"></div>
-                            @endif
-                            
-                             <input type="hidden" class="msg-item-user-id" value="{{$message['created_by']}}" >
-                            <input type="hidden" class="msg-id" value="{{$message['id']}}" >
-                            @if($message['type']==1)
-                            <p class="message">
-                              <a href="javascript:void(0)" class="name">
-                                  @if($userId!=$message['created_by'])
-                                  <small class="text-muted pull-right">
+                             <input type="hidden" class="msg-id" value="{{$message['id']}}" >
+                            @if($message['hide']==1)
+                              <div>
+                                  <button class="btn btn-default btn-xs  pull-right btn-show-msg" >
+                                  @lang('chat.show_message')
+                                  </button>
+                                  @lang('chat.hide_message')
+                              </div>
+                            @else
+                                @if($actionStatus['is_owner'] || auth()->user()->hasRole('admin') )
+                                <div class="btn-group pull-right message-tools">
+                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                      <i class="fa fa-gear"></i>
+                                    </button>
+                                    <ul class="dropdown-menu pull-right" role="menu">
+                                      <li>
+                                        <a href="javascript:void(0)" class="btn-del-msg" >
+                                        @lang('chat.delete_message')
+                                        </a>
+                                      </li>
+                                      <li>
+                                        <a href="javascript:void(0)" class="btn-pin-msg" >
+                                        @lang('chat.pin_message')
+                                        </a>
+                                      </li>
+                                       <li>
+                                        <a href="javascript:void(0)" class="btn-hide-msg" >
+                                        @lang('chat.hide_message')
+                                        </a>
+                                      </li>
+                                      <li>
+                                          <a href="javascript:void(0)" class="btn-blacklist-inform-user" >
+                                          @lang('chat.blacklist_inform')
+                                          </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                @endif
+                               
+                                @if($userId!=$message['created_by'])
+                                  <img src="{{ $message['img'] }}" class=" {{ ($message['is_online']) ? 'online' : 'offline' }}">
+                                  @else
+                                  <div style="height: 40px;"></div>
+                                @endif
+                                
+                                 <input type="hidden" class="msg-item-user-id" value="{{$message['created_by']}}" >
+                               
+                                @if($message['type']==1)
+                                <p class="message">
+                                  <a href="javascript:void(0)" class="name">
+                                      @if($userId!=$message['created_by'])
+                                      <small class="text-muted pull-right">
+                                      
+                                      <i class="fa fa-clock-o"></i> {{ date('d/m/Y H:i',$message['updated_ts'] )  }}
+                                    </small>
+                                        {{ $message['first_name']." ".$message['last_name'] }}
+                                      @endif
+                                  </a>
+                                  @if($userId==$message['created_by'])
                                   
-                                  <i class="fa fa-clock-o"></i> {{ date('d/m/Y H:i',$message['updated_ts'] )  }}
-                                </small>
-                                    {{ $message['first_name']." ".$message['last_name'] }}
+                                    <div class="pull-right ">
+                                       @if($message['has_seen'])
+                                         @lang('chat.readed')  
+                                         @if($channels['direct_message']==1)  
+                                         {{ $message['has_seen_date'] }}
+                                         @else
+                                         {{ $message['has_seen_count'] }}
+                                         @endif
+                                      @endif
+                                      <span class="owner-message">
+                                         {{ $message['text'] }}
+                                      </span>
+                                     
+                                    </div>
+                                  @else
+                                    {{ $message['text'] }}
                                   @endif
-                              </a>
-                              @if($userId==$message['created_by'])
-                              
-                                <div class="pull-right ">
-                                   @if($message['has_seen'])
-                                     @lang('chat.readed')  
-                                     @if($channels['direct_message']==1)  
-                                     {{ $message['has_seen_date'] }}
-                                     @else
-                                     {{ $message['has_seen_count'] }}
-                                     @endif
+                                  
+                                   
+                                </p>
+                                @else
+          
+                                <div class="attachment">
+                                  @if($userId==$message['created_by'])
+
+                                  <div class="pull-right">
+
+                                      <p class="filename">
+                                         @if($message['has_seen'])
+                                         @lang('chat.readed')  
+                                         @if($channels['direct_message']==1)  
+                                         {{ $message['has_seen_date'] }}
+                                         @else
+                                         {{ $message['has_seen_count'] }}
+                                         @endif
+                                      @endif
+                                        @if( strpos($message['attachment_extension'],'image') > -1 )
+
+                                        <a class="fancybox" href="{{ $message['attachment_path'] }}">
+                                        <img src="{{ $message['attachment_path'] }}" height=50 ></a>
+                                        @else
+                                        {{ $message['attachment_name'] }}
+                                        @endif
+                                      </p>
+                                      <a href="{{ $message['attachment_path'] }}" class="pull-right" target="_blank" download="{{ $message['attachment_name'] }}">Download</a>
+                                  </div>
+                                  @else
+                                   <p class="filename">
+                                    <a class="fancybox" href="{{ $message['attachment_path'] }}">
+                                      <img src="{{ $message['attachment_path'] }}" height=50 >
+                                    </a>
+                                  </p>
+                                  <a href="{{ $message['attachment_path'] }}" target="_blank" download="{{ $message['attachment_name'] }}">Download</a>
                                   @endif
-                                  <span class="owner-message">
-                                     {{ $message['text'] }}
-                                  </span>
+
                                  
                                 </div>
-                              @else
-                                {{ $message['text'] }}
-                              @endif
-                              
-                               
-                            </p>
-                            @else
-      
-                            <div class="attachment">
-                              @if($userId==$message['created_by'])
-
-                              <div class="pull-right">
-
-                                  <p class="filename">
-                                     @if($message['has_seen'])
-                                     @lang('chat.readed')  
-                                     @if($channels['direct_message']==1)  
-                                     {{ $message['has_seen_date'] }}
-                                     @else
-                                     {{ $message['has_seen_count'] }}
-                                     @endif
-                                  @endif
-                                    @if( strpos($message['attachment_extension'],'image') > -1 )
-
-                                    <a class="fancybox" href="{{ $message['attachment_path'] }}">
-                                    <img src="{{ $message['attachment_path'] }}" height=50 ></a>
-                                    @else
-                                    {{ $message['attachment_name'] }}
-                                    @endif
-                                  </p>
-                                  <a href="{{ $message['attachment_path'] }}" class="pull-right" target="_blank" download="{{ $message['attachment_name'] }}">Download</a>
-                              </div>
-                              @else
-                               <p class="filename">
-                                <a class="fancybox" href="{{ $message['attachment_path'] }}">
-                                  <img src="{{ $message['attachment_path'] }}" height=50 >
-                                </a>
-                              </p>
-                              <a href="{{ $message['attachment_path'] }}" target="_blank" download="{{ $message['attachment_name'] }}">Download</a>
-                              @endif
-
-                             
-                            </div>
-                            <!-- /.attachment -->
+                                <!-- /.attachment -->
+                                @endif
                             @endif
+          
+
+                            
                           </div>
                          
                         @endforeach
@@ -394,6 +440,19 @@ margin-top:10px; border-radius: 20px;background: #3c8dbc;color:#FFF; padding:5px
                           <div class="item">
                             <img src="{{ $member['img'] }}"  class="{{ ($member['is_online']) ? 'online' : 'offline' }}">
                              <input type="hidden" class="msg-item-user-id" value="{{$member['user_id']}}" >
+                             <div class="btn-group pull-right">
+                                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                  <i class="fa fa-gear"></i>
+                                </button>
+                                <ul class="dropdown-menu pull-right" role="menu">
+                                  <li>
+                                    <a href="javascript:void(0)" class="btn-blacklist-user" >
+                                    @lang('chat.blacklist')
+                                    </a>
+                                  </li>
+                              
+                                </ul>
+                            </div>
                             <p class="message" >
                               <a href="javascript:void(0)" class="name" style="margin-top:5px;">
                                 
@@ -492,6 +551,56 @@ margin-top:10px; border-radius: 20px;background: #3c8dbc;color:#FFF; padding:5px
       <div class="modal-footer">
         <button type="button" onclick="$('#invite-form').submit()" class="btn btn-info btn-flat" >
         @lang('chat.invite') </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+        @lang('main.close')</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="blacklist_inform_member" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">@lang('chat.blacklist_inform')</h4>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row">
+             <div class="col-sm-12">
+               
+                <input type="hidden" id="blacklist_user_id" name="blacklist_user_id">
+                <input type="hidden" id="blacklist_message_id" name="blacklist_message_id">
+                <div class="form-group">
+                  <label for="">@lang('chat.blacklist_inform_description')</label>
+                  <input type="text" class="form-control" id="blacklist_inform_description">
+                    
+                </div>
+               
+                
+  
+
+               <!--  <select id="member_select" class="form-control" name="states[]" multiple="multiple">
+                <option value="AL">Alabama</option>
+                 <option value="AL">Alabama</option>
+                 <option value="AL">Alabama</option>
+                 <option value="AL">Alabama</option>
+                <option value="WY">Wyoming</option>
+              </select> -->
+              </div>
+        </div>
+       
+        
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-flat btn-blacklist-inform-user-save" >
+        @lang('main.btn_save') </button>
         <button type="button" class="btn btn-default" data-dismiss="modal">
         @lang('main.close')</button>
       </div>
@@ -694,7 +803,7 @@ function itemMember(data){
         var parent = $(this).closest('.item') ;
         var messageId =  parent.find('.msg-id').val();
         var route = "/channel/message/"+messageId+"?api_token="+api_token ;
-        ajaxPromise('DELETE',route,null).done(function(data){
+        ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
             parent.remove();
             var sd = {} ;
             sd.room = room ;
@@ -713,7 +822,7 @@ function itemMember(data){
         var parent = $(this).closest('.item') ;
         var messageId =  parent.find('.msg-id').val();
         var route = "/channel/message/"+messageId+"/pin?api_token="+api_token ;
-        ajaxPromise('PUT',route,null).done(function(data){
+        ajaxPromise('POST',route,{'_method':'PUT'}).done(function(data){
             // parent.remove();
             var sd = {} ;
             sd.room = room ;
@@ -732,7 +841,7 @@ function itemMember(data){
         var parent = $(this).closest('.item') ;
         var messageId =  parent.find('.msg-id').val();
         var route = "/channel/message/"+messageId+"/unpin?api_token="+api_token ;
-        ajaxPromise('PUT',route,null).done(function(data){
+        ajaxPromise('POST',route,{'_method':'PUT' }).done(function(data){
             // parent.remove();
             var sd = {} ;
             sd.room = room ;
@@ -747,7 +856,22 @@ function itemMember(data){
                       )
         });
     });
-
+ $(document).on("click",".btn-hide-msg,.btn-show-msg",function(event) {  
+        var parent = $(this).closest('.item') ;
+        var messageId =  parent.find('.msg-id').val();
+        var route = "/channel/message/"+messageId+"/hide?api_token="+api_token ;
+        ajaxPromise('POST',route,{'_method':'PUT'}).done(function(data){
+            // parent.remove();
+           location.reload();
+        }).fail(function(txt) {
+          var error = JSON.stringify(txt);
+                       swal(
+                        'Error...',
+                        error,
+                        'error'
+                      )
+        });
+    });
   $(function() {
     
      $("#delete_channel").on('click',function(){
@@ -766,7 +890,7 @@ function itemMember(data){
       if (result.value) {
           var channelId = $("#channel_id").val();
           var route = "/channel/"+channelId+"?api_token="+api_token ;
-          ajaxPromise('DELETE',route,null).done(function(data){
+          ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
                swal({
                           title: "@lang('main.delete_success')" ,
                           type: 'success',
@@ -806,6 +930,50 @@ $(document).on('focus click', '.main-chat',  function(e){
     console.log('focus',channelId);
       var route = "/channel/"+channelId+"/pushoff?api_token="+api_token ;
       ajaxPromise('POST',route,null);
+});
+
+
+$(document).on('click touch', '.btn-blacklist-user',  function(e){
+    var parent = $(this).closest('.item');
+    var userId = parent.find('.msg-item-user-id').val();
+    var route = "/channel/blacklist?api_token="+api_token ;
+    ajaxPromise('POST',route,{'user_id':userId}).done(function(data){
+      location.reload();
+    })
+});
+
+$(document).on('click touch', '.btn-blacklist-inform-user',  function(e){
+    var parent = $(this).closest('.item') ;
+    var messageId = parent.find('.msg-id').val();
+    var userId = parent.find('.msg-item-user-id').val();
+    $("#blacklist_user_id").val(userId);
+    $("#blacklist_message_id").val(messageId);
+    $("#blacklist_inform_description").val('');
+    $("#blacklist_inform_member").modal('toggle');
+});
+
+$(document).on('click touch', '.btn-blacklist-inform-user-save',  function(e){
+    var memberId = $("#blacklist_user_id").val();
+    var msgId = $("#blacklist_message_id").val();
+    var desc = $("#blacklist_inform_description").val();
+    var data = { 
+      'user_id' : memberId
+      ,'text' : desc
+      ,'message_id' : msgId
+    };
+                 
+    var parent = $(this).closest('.item');
+    var userId = parent.find('.msg-item-user-id').val();
+    var route = "/channel/blacklist/inform?api_token="+api_token ;
+    ajaxPromise('POST',route,data).done(function(res){
+      swal({
+            title: res.response.text ,
+            type: 'success',
+            showCancelButton: false,
+            confirmButtonText: "@lang('main.ok')"
+      })
+       $("#blacklist_inform_member").modal('toggle');
+    })
 });
 
 
@@ -952,6 +1120,11 @@ function setChat(data){
                       "@lang('chat.pin_message')"+
                       "</a>"+
                     "</li>"+
+                    "<li>"+
+                      "<a href=\"javascript:void(0)\" class=\"btn-blacklist-inform-user\" >"+
+                      "@lang('chat.blacklist_inform')"+
+                      "</a>"+
+                    "</li>"+
                   "</ul>"+
               "</div>"+   
   @endif
@@ -1039,8 +1212,8 @@ function leaveChannel(){
     var channelId = $("#channel_id").val();
       var text = $("#message_text").val();
       var route = "/channel/"+channelId+"/leave?api_token="+api_token ;
-      var data = null;
-      ajaxPromise('DELETE',route,data).done(function(data){
+
+      ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
             window.location = "{{ url($domainName.'/dashboard') }}" ;
       })
 }

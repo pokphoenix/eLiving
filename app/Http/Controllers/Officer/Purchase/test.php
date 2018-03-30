@@ -1,19 +1,22 @@
 <?php
 
 namespace App\Http\Controllers\Officer\Purchase;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller ;
 use DB;
 use Route;
 use stdClass ;
 use Auth;
+
 class test extends Controller
 {
     private $route = 'admin/healthtip' ;
     private $title = 'นิติ' ;
     private $view = 'officer.purchase.quatation' ;
 
-    public function __construct(){
+    public function __construct()
+    {
     }
     /**
      * Display a listing of the resource.
@@ -25,7 +28,7 @@ class test extends Controller
         $title = $this->controllerName ;
         $route = $this->route ;
       
-        return view($this->view.'.index',compact('title','route'));
+        return view($this->view.'.index', compact('title', 'route'));
     }
 
     /**
@@ -53,7 +56,7 @@ class test extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId)
+    public function show(Request $request, $domainId)
     {
     }
 
@@ -63,7 +66,7 @@ class test extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -74,7 +77,7 @@ class test extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -84,7 +87,7 @@ class test extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

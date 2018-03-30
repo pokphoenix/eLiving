@@ -19,7 +19,7 @@
                   
                   <div class="form-group">
                     <label >@lang('user.id_card')</label>
-                    <input type="text" maxlength="13"  class="form-control" id="id_card" name="id_card" placeholder="@lang('user.id_card')"  value="{{ isset($edit) ? $data['id_card'] : old('id_card') }}" @if(isset($edit)) readonly="" @endif >
+                    <input type="text" maxlength="13"  class="form-control" id="id_card" name="id_card" placeholder="@lang('user.id_card')"  value="{{ isset($edit) ? $data['id_card'] : old('id_card') }}" >
                   </div>
                   @if(isset($edit)&&isset($data['username']))
                   <div class="form-group">

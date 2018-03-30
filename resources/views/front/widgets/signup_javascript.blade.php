@@ -27,35 +27,37 @@ function moveStep(){
   $("section.form-parent").hide();
   $("section.form-parent").each(function(){
      if ($(this).data('id')==currentStep) {
-      if($(this).find('textarea').length > 0){
-        $(this).show().find('textarea').focus().animate({'scrollTop': $(this).offset().top}, 'fast');
-      }else{
-        $(this).show().find('input[type!=hidden]:first').focus();
-      }
+        if($(this).find('textarea').length > 0){
+          $(this).show().find('textarea').focus().animate({'scrollTop': $(this).offset().top}, 'fast');
+        }else{
+          $(this).show().find('input[type!=hidden]:first').focus();
+        }
       
       
      }
   }) 
-
   if(currentStep==0){
     $(".btn-cancel-1,.next-to").show();
     $(".btn-submit,.back-to").hide();
   }else if(currentStep==1){
-    $(".next-to,.back-to").show();
+    $(".back-to,.next-to").show();
     $(".btn-cancel-1,.btn-submit").hide();
   }else if(currentStep==2){
+    $(".next-to,.back-to").show();
+    $(".btn-cancel-1,.btn-submit").hide();
+  }else if(currentStep==3){
     $(".btn-submit,.back-to").show();
     $(".btn-cancel-1,.next-to").hide();
   }
 
   $(".row-facebook").show(); 
-  if(currentStep!=0){
+  if(currentStep>1){
     $(".row-facebook").hide(); 
   }
 
 }
 
-$("#room-form,#address-form").on("submit",function(){
+$("#domain-form,#room-form,#address-form").on("submit",function(){
   return false;
 });
 
@@ -138,6 +140,7 @@ function getSubmitData(){
        form_data.append(name,val);
      });
      form_data.append('user-room', JSON.stringify(data.room));
+     form_data.append('domain_id', $("#domain_id").val());
       dfd.resolve(form_data);
     }
 
@@ -148,7 +151,11 @@ function getSubmitData(){
 
 $(".next-to").on("click touch",function(){
   // console.log('next-to click',currentStep);
-  if(currentStep==0){
+  if(currentStep==2){
+    if($("#domain-form").valid()){
+      moveNext();
+    } 
+  }else if(currentStep==0){
     if($("#signup-form").valid()){
       moveNext();
     } 
@@ -247,6 +254,24 @@ $(function() {
               $( element ).parents( ".form-group" ).find('label').remove();
           }
     });
+  $("#domain-form").validate({
+      rules: {
+        domain_id:"required"
+      },
+       messages: {
+            domain_id:(($("#app_local").val()=='th') ? 'โครงการไม่ถูกต้อง' : 'Wrong Project' ),
+          
+        }
+        ,highlight: function ( element, errorClass, validClass ) {
+            $( element ).parents( ".form-group" ).find('em').remove();
+            $( element ).parents( ".form-group" ).find('span').remove();
+            $( element ).parents( ".form-group" ).addClass( "has-error" ).removeClass( "has-success" );
+          }
+       ,unhighlight: function ( element, errorClass, validClass ) {
+            $( element ).parents( ".form-group" ).addClass( "has-success" ).removeClass( "has-error" );
+              $( element ).parents( ".form-group" ).find('label').remove();
+          }
+    });
 });
 
 $(document).on("click touch","#search_room_list .my-autocomplete-li",function(e) { 
@@ -289,4 +314,15 @@ $(document).on("click touch","#search_room_list .my-autocomplete-li",function(e)
   $("#search_room").val('');
   $("#search_room_list").hide();
 });
+
+
+$("#domain_id").on("change",function(){
+   var url =  $("#search_room").data('action') ;
+  
+   var url = url.split('/api/');
+   var newUrl = url[0]+"/api/"+$("#domain_id").val()+"/search/room" ;
+   $("#search_room").data('action',newUrl) ;
+})
+
+
 </script>

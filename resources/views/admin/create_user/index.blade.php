@@ -91,6 +91,7 @@
                   <td style="font-weight: bold;color: {{ getStatusColor($user['approve']) }}" > {{ getStatusText ($user['approve']) }}</td>
                   <td style="font-weight: bold;color: {{ ($user['registor']==0) ? '#f39c12' : '#255625'  }} " > @if($user['registor']==0) Non Active @else 
                   Active @endif  </td>
+                  
                 </tr>
                 @endforeach
                
@@ -129,7 +130,43 @@ $(function () {
     } );
     
 
+    $(document).on("click",".btn-delete",function(){
 
+      var post_id = $(this).data('id') ;
+      var parent = $(this).closest('tr') ;
+
+
+      
+      
+      
+      swal({
+            title: (($("#app_local").val()=='th') ? 'คุณแน่ใจไหม?' : 'Are you sure?' ) ,
+            text: (($("#app_local").val()=='th') ? 'คุณต้องการลบข้อมูลนี้ใช่หรือไม่' : "You want to delete this data!" ) ,
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: (($("#app_local").val()=='th') ? 'ลบ' : 'Delete' ),
+            cancelButtonText: (($("#app_local").val()=='th') ? 'ยกเลิก' : 'Cancel' ),
+            confirmButtonClass: 'btn btn-danger',
+            cancelButtonClass: 'btn btn-default',
+            buttonsStyling: false,
+            reverseButtons: true
+      }).then((result) => {
+              if (result.value) {
+              
+                   var route = "/create-user/"+post_id+"?api_token="+api_token ;
+                  ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
+                    parent.remove();
+                  })
+
+              } else if (result.dismiss === 'cancel') {
+                
+              }
+            })
+      
+
+
+      
+    });
     
 
 

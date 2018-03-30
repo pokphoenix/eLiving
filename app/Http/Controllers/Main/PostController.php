@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Main;
+
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
 use Auth;
@@ -9,13 +10,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Route;
 use stdClass ;
+
 class PostController extends Controller
 {
     private $route = 'post' ;
     private $title = 'นิติ' ;
     private $view = 'main.post' ;
 
-    public function __construct(){
+    public function __construct()
+    {
     }
     /**
      * Display a listing of the resource.
@@ -25,7 +28,7 @@ class PostController extends Controller
     public function index($domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
         $title = $this->title ;
@@ -35,13 +38,14 @@ class PostController extends Controller
         $url = url('').'/api/'.$action ;
   
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
@@ -51,7 +55,7 @@ class PostController extends Controller
         $members = $json['response']['member_baned'] ;
        
 
-        return view($this->view.'.index',compact('title','route','domainId','domainName','lists','action','canPost','members'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'canPost', 'members'));
     }
 
     /**
@@ -79,9 +83,8 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$taskId)
+    public function show(Request $request, $domainId, $taskId)
     {
-    
     }
 
     /**
@@ -90,7 +93,7 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -101,7 +104,7 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -111,7 +114,7 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

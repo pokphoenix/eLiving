@@ -45,11 +45,12 @@ class ResolutionController extends ApiController
         $this->middleware('auth');
     }
 
-    public function search(Request $request){
-      
+    public function search(Request $request)
+    {
     }
 
-    public function index($domainId){
+    public function index($domainId)
+    {
         $sql = "SELECT count(ru.id_card) as CNT
                 FROM role_user ru 
                 JOIN users u
@@ -67,7 +68,7 @@ class ResolutionController extends ApiController
                 ,IFNULL(t2.cnt,0) as total_vote
                 ,$totalCanVote as total_can_vote";
 
-        if($hasHeaduser){
+        if ($hasHeaduser) {
             $sql .= " , CASE WHEN  t3.user_id is not null THEN 1 ELSE 0 END as user_has_vote  ";
         }
         $sql .= " FROM resolutions as q
@@ -77,28 +78,30 @@ class ResolutionController extends ApiController
                     GROUP BY resolution_id
                 ) t2
                 ON t2.resolution_id = q.id " ;
-        if($hasHeaduser){
+        if ($hasHeaduser) {
             $sql .= " LEFT JOIN (
                     SELECT *
                     FROM resolution_vote 
-                    WHERE domain_id=1 AND user_id=".Auth()->user()->id."
+                    WHERE domain_id=$domainId AND user_id=".Auth()->user()->id."
                 ) t3
                 ON t3.resolution_id = q.id";
         }
         $sql .= " WHERE q.domain_id = $domainId
                 ORDER BY CASE WHEN voting_at IS NULL THEN 1 ELSE 0 END ASC,voting_at ASC , id ASC";
         $data['resolutions']  =  DB::select(DB::raw($sql));
-        $data['status_history'] = StatusHistory::where('status',1)->get();
+        $data['status_history'] = StatusHistory::where('status', 1)->get();
         return $this->respondWithItem($data);
-    } 
-    public function data($domainId,$Id){
+    }
+    public function data($domainId, $Id)
+    {
 
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request,$domainId){
-        $post = $request->all();
+    public function store(Request $request, $domainId)
+    {
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -119,40 +122,41 @@ class ResolutionController extends ApiController
         $history->save();
 
         return $this->respondWithItem(['resolution_id'=>$query->id]);
-    }  
-    public function update(Request $request,$domainId,$Id){
-        $post = $request->all();
+    }
+    public function update(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
         $query = Resolution::find($Id)->update($post);
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
-    } 
-    public function status(Request $request,$domainId,$Id){
-        $post = $request->all();
-        if($post['status']!=1&&$post['status']!=4){
-            $qi = ResolutionItem::where('resolution_id',$Id)->first();
-            if(empty($qi)){
+    }
+    public function status(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
+        if ($post['status']!=1&&$post['status']!=4) {
+            $qi = ResolutionItem::where('resolution_id', $Id)->first();
+            if (empty($qi)) {
                 return $this->respondWithError('Please insert item');
             }
         }
 
-        if($post['status']==7){
+        if ($post['status']==7) {
             $post['doned_at'] = Carbon::now();
-        }else{
+        } else {
             $post['doned_at'] = null;
         }
-        if($post['status']==2){
+        if ($post['status']==2) {
             $post['voting_at'] = Carbon::now();
-
         }
         $query = Resolution::find($Id)->update($post);
 
-        if($post['status']==4||$post['status']==1){
-             ResolutionVote::where('resolution_id',$Id)
-            ->where('domain_id',$domainId)
+        if ($post['status']==4||$post['status']==1) {
+             ResolutionVote::where('resolution_id', $Id)
+            ->where('domain_id', $domainId)
             ->delete();
 
-            $query = Resolution::where('id',$Id)
-            ->where('domain_id',$domainId)
+            $query = Resolution::where('id', $Id)
+            ->where('domain_id', $domainId)
             ->first();
             $query->vote_winner =null;
             $query->voting_at =null;
@@ -162,39 +166,38 @@ class ResolutionController extends ApiController
         $notiRole = "2" ;
         switch ($post['status']) {
             case 1:
-               $statusId = 19 ;
-               $statusTxt = "Re submit" ;
-               break;
+                $statusId = 19 ;
+                $statusTxt = "Re submit" ;
+                break;
             case 2:
-               $statusTxt = "Voting" ;
-               $notiRole = "2,3" ;
-               break;
+                $statusTxt = "Voting" ;
+                $notiRole = "2,3" ;
+                break;
             case 3:
-               $statusTxt = "Voted" ;
-               break;
+                $statusTxt = "Voted" ;
+                break;
             case 4:
-               $statusId = 15 ;
-               $statusTxt = "Cancel" ;
-               break;
+                $statusId = 15 ;
+                $statusTxt = "Cancel" ;
+                break;
             case 5:
-               $statusId = 16 ;
-               $statusTxt = "In progress" ;
-               break;
+                $statusId = 16 ;
+                $statusTxt = "In progress" ;
+                break;
             case 6:
-               $statusId = 17 ;
-               $statusTxt = "Pending" ;
-               break;
+                $statusId = 17 ;
+                $statusTxt = "Pending" ;
+                break;
             case 7:
-               $statusId = 18 ;
-               $statusTxt = "Done" ;
-               break;
-           
+                $statusId = 18 ;
+                $statusTxt = "Done" ;
+                break;
         }
 
 
  
-        if(isset($statusId)){
-            $this->setHistory($domainId,$Id,$statusId) ;
+        if (isset($statusId)) {
+            $this->setHistory($domainId, $Id, $statusId) ;
         }
         
 
@@ -208,58 +211,57 @@ class ResolutionController extends ApiController
                     and ud.domain_id = ru.domain_id 
                     and ud.approve = 1
                     where ru.role_id in ($notiRole) and ru.domain_id = $domainId
-                    and ru.id_card != ".Auth()->user()->id_card."
+                    and ru.id_card != '".Auth()->user()->id_card."'
                 ) x";
         $query = DB::select(DB::raw($sql));
-        if(!empty($query)){
+        if (!empty($query)) {
             $resolution = Resolution::find($Id);
-            Notification::addNotificationMulti($query,$domainId,$resolution->title.' status '.$statusTxt ,4,5,$Id);
+            Notification::addNotificationMulti($query, $domainId, $resolution->title.' status '.$statusTxt, 4, 5, $Id);
         }
 
 
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
-    }  
+    }
     
-    public function itemStore(Request $request,$domainId){
-        $post = $request->all();
+    public function itemStore(Request $request, $domainId)
+    {
+        $post = $request->except('api_token', '_method');
         $data = $post['item'] ;
-        try{
+        try {
             ResolutionItem::upSert($data);
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return $this->respondWithError($e->getMessage());
         }
-        $data = ResolutionItem::getItemData($domainId,$post['resolution_id']);
+        $data = ResolutionItem::getItemData($domainId, $post['resolution_id']);
         return $this->respondWithItem($data);
-    } 
-    public function itemDelelete(Request $request,$domainId,$Id,$itemId){
-        $post = $request->all();
-        try{
-            
-           
-            $model = ResolutionItem::where('domain_id',$domainId) 
-            ->where('resolution_id',$Id)
-            ->where('id',$itemId)
+    }
+    public function itemDelelete(Request $request, $domainId, $Id, $itemId)
+    {
+        $post = $request->except('api_token', '_method');
+        try {
+            $model = ResolutionItem::where('domain_id', $domainId)
+            ->where('resolution_id', $Id)
+            ->where('id', $itemId)
             ->first();
-            if(!empty($model)){
+            if (!empty($model)) {
                 if ($model->trashed()) {
                     $model->forceDelete();
                 }
                 $model->delete();
             }
-           
-
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return $this->respondWithError($e->getMessage());
         }
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
-    } 
+    }
 
   
-    public function voting($domainId,$Id,$itemId){
+    public function voting($domainId, $Id, $itemId)
+    {
 
-        if (ResolutionVote::checkVoted($Id,$domainId)!=="false"){
+        if (ResolutionVote::checkVoted($Id, $domainId)!=="false") {
             return $this->respondWithError('คุณเคยทำการโหวตไปแล้วค่ะ');
         }
         $vote = new ResolutionVote() ;
@@ -269,15 +271,16 @@ class ResolutionController extends ApiController
         $vote->user_id = Auth()->user()->id ;
         $vote->created_at = Carbon::now() ;
         $vote->save();
-        $this->setHistory($domainId,$Id,27) ;
-        $winnerId = ResolutionVote::calculateVoted($Id,$domainId);
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $this->setHistory($domainId, $Id, 27) ;
+        $winnerId = ResolutionVote::calculateVoted($Id, $domainId);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
-    }  
+    }
 
-    public function novote($domainId,$Id){
+    public function novote($domainId, $Id)
+    {
 
-        if (ResolutionVote::checkVoted($Id,$domainId)!=="false"){
+        if (ResolutionVote::checkVoted($Id, $domainId)!=="false") {
             return $this->respondWithError('คุณเคยทำการโหวตไปแล้วค่ะ');
         }
         $vote = new ResolutionVote() ;
@@ -287,44 +290,46 @@ class ResolutionController extends ApiController
         $vote->user_id = Auth()->user()->id ;
         $vote->created_at = Carbon::now() ;
         $vote->save();
-        $this->setHistory($domainId,$Id,30) ;
-        $winnerId = ResolutionVote::calculateVoted($Id,$domainId);
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $this->setHistory($domainId, $Id, 30) ;
+        $winnerId = ResolutionVote::calculateVoted($Id, $domainId);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
-    } 
+    }
 
-    public function voteWinner($domainId,$Id,$itemId){
-        $query = Resolution::where('id',$Id)
-        ->where('domain_id',$domainId)
-        ->where('status',3)
+    public function voteWinner($domainId, $Id, $itemId)
+    {
+        $query = Resolution::where('id', $Id)
+        ->where('domain_id', $domainId)
+        ->where('status', 3)
         ->whereNull('vote_winner')
         ->first();
-        if(empty($query)){
+        if (empty($query)) {
             return $this->respondWithError('ไม่สามารถเปลี่ยนผลโหวตได้ค่ะ');
         }
         $query->vote_winner = $itemId;
         $query->save();
 
-        $this->setHistory($domainId,$Id,29) ;
+        $this->setHistory($domainId, $Id, 29) ;
 
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
     }
 
-    public function changeVoted($domainId,$Id){
+    public function changeVoted($domainId, $Id)
+    {
         $userId = auth()->user()->id;
-        $vote = ResolutionVote::where('resolution_id',$Id)
-        ->where('domain_id',$domainId)
-        ->where('user_id',$userId)
+        $vote = ResolutionVote::where('resolution_id', $Id)
+        ->where('domain_id', $domainId)
+        ->where('user_id', $userId)
         ->delete();
-        $this->setHistory($domainId,$Id,28) ;
+        $this->setHistory($domainId, $Id, 28) ;
         //--- ถ้าอยู่ในสถานะ Voted แล้วมีการเปลี่ยนใจผลโหวต ต้องคำนวนค่าใหม่
-        $query = Resolution::where('id',$Id)
-        ->where('domain_id',$domainId)
-        ->where('status',3)->first();
-        if(!empty($query)){
+        $query = Resolution::where('id', $Id)
+        ->where('domain_id', $domainId)
+        ->where('status', 3)->first();
+        if (!empty($query)) {
             $query->vote_winner = null ;
-            $query->status = 2 ;   
+            $query->status = 2 ;
             $query->save();
 
             $sql = "select distinct(id_card),noti_player_id from (
@@ -335,27 +340,28 @@ class ResolutionController extends ApiController
                         and ud.domain_id = ru.domain_id 
                         and ud.approve = 1
                         where ru.role_id in (2) and ru.domain_id = $domainId
-                        and ru.id_card != ".Auth()->user()->id_card."
+                        and ru.id_card != '".Auth()->user()->id_card."'
                     ) x";
             $query = DB::select(DB::raw($sql));
-            if(!empty($query)){
+            if (!empty($query)) {
                 $resolution = Resolution::find($Id);
-                Notification::addNotificationMulti($query,$domainId,$resolution->title.' status Voting',4,5,$Id);
+                Notification::addNotificationMulti($query, $domainId, $resolution->title.' status Voting', 4, 5, $Id);
             }
         }
 
-        $data = ResolutionItem::getItemData($domainId,$Id);
+        $data = ResolutionItem::getItemData($domainId, $Id);
         return $this->respondWithItem($data);
-    } 
+    }
 
 
 
   
    
 
-    public function commentStore(Request $request,$domainId,$Id){
-        $post = $request->all();
-        if($post['description']==""||$post['description']==" "){
+    public function commentStore(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
+        if ($post['description']==""||$post['description']==" ") {
             return $this->respondWithError('please insert comment');
         }
 
@@ -376,14 +382,14 @@ class ResolutionController extends ApiController
         $history->created_by = Auth()->user()->id ;
         $history->resolution_comment_id = $comment->id ;
         $history->save();
-        $data['resolution_historys'] = ResolutionItem::getResolutionHistory($domainId,$Id);
-        $data['resolution_comments'] = ResolutionItem::getResolutionComment($domainId,$Id);
+        $data['resolution_historys'] = ResolutionItem::getResolutionHistory($domainId, $Id);
+        $data['resolution_comments'] = ResolutionItem::getResolutionComment($domainId, $Id);
         $data['resolution_id'] = $Id;
         
 
         $query = Resolution::find($Id) ;
 
-        $txt = $post['description'] ; 
+        $txt = $post['description'] ;
 
         $notiText = Auth()->user()->first_name." ".Auth()->user()->last_name." : ".$txt." @ ".$query->title ;
 
@@ -395,22 +401,28 @@ class ResolutionController extends ApiController
                         and ud.domain_id = ru.domain_id 
                         and ud.approve = 1
                         where ru.role_id in (2) and ru.domain_id = $domainId
-                        and ru.id_card != ".Auth()->user()->id_card."
+                        and ru.id_card != '".Auth()->user()->id_card."'
                     ) x";
         $query = DB::select(DB::raw($sql));
-        if(!empty($query)){
-            
-            Notification::addNotificationMulti($query,$domainId,
-                 $notiText,4,5,$Id);
+        if (!empty($query)) {
+            Notification::addNotificationMulti(
+                $query,
+                $domainId,
+                $notiText,
+                4,
+                5,
+                $Id
+            );
         }
 
         return $this->respondWithItem($data);
     }
 
-    public function commentUpdate(Request $request,$domainId,$Id,$commentId){
-        $post = $request->all();
+    public function commentUpdate(Request $request, $domainId, $Id, $commentId)
+    {
+        $post = $request->except('api_token', '_method');
         $comment = ResolutionComment::find($commentId);
-        if($comment->created_by!=Auth()->user()->id){
+        if ($comment->created_by!=Auth()->user()->id) {
             return $this->respondWithError('ไม่สามารถแก้ไขข้อมูลคอมเมนท์ของผู้อื่นได้');
         }
         $comment->update($post) ;
@@ -425,15 +437,16 @@ class ResolutionController extends ApiController
         $history->resolution_comment_id = $commentId ;
         $history->save();
         $data['comment_id'] = $commentId ;
-        $data['resolution_historys'] = ResolutionItem::getResolutionHistory($domainId,$Id);
-        $data['resolution_comments'] = ResolutionItem::getResolutionComment($domainId,$Id);
+        $data['resolution_historys'] = ResolutionItem::getResolutionHistory($domainId, $Id);
+        $data['resolution_comments'] = ResolutionItem::getResolutionComment($domainId, $Id);
         $data['resolution_id'] = $Id;
         return $this->respondWithItem($data);
     }
-    public function commentDelete(Request $request,$domainId,$Id,$commentId){
+    public function commentDelete(Request $request, $domainId, $Id, $commentId)
+    {
         $comment = ResolutionComment::find($commentId) ;
        
-        if($comment->created_by!=Auth()->user()->id){
+        if ($comment->created_by!=Auth()->user()->id) {
             return $this->respondWithError('ไม่สามารถลบข้อมูลคอมเมนท์ของผู้อื่นได้');
         }
         $comment->delete();
@@ -447,13 +460,14 @@ class ResolutionController extends ApiController
         $history->resolution_comment_id = $commentId ;
         $history->save();
         $data['comment_id'] = $commentId ;
-        $data['resolution_historys'] = ResolutionItem::getResolutionHistory($domainId,$Id);
-        $data['resolution_comments'] = ResolutionItem::getResolutionComment($domainId,$Id);
+        $data['resolution_historys'] = ResolutionItem::getResolutionHistory($domainId, $Id);
+        $data['resolution_comments'] = ResolutionItem::getResolutionComment($domainId, $Id);
         $data['resolution_id'] = $Id;
         return $this->respondWithItem($data);
     }
 
-     private function setHistory($domainId,$Id,$statusId,$data=null){
+    private function setHistory($domainId, $Id, $statusId, $data = null)
+    {
         $history = new ResolutionHistory();
         $history->resolution_id = $Id;
         $history->domain_id = $domainId;
@@ -477,19 +491,21 @@ class ResolutionController extends ApiController
             'item' => 'required|string',
         ]);
     }
-    private function saveImage($domainId,$files)
+    private function saveImage($domainId, $files)
     {
         try {
             $result = ['result'=>true,'error'=>''];
-
-            foreach($files as $key=>$file){
+            if (!Images::validateImage($files)) {
+                return ['result'=>false,'error'=> getLang()=='en' ? 'file size over than 500kb' : 'ไม่สามารถอัพไฟล์ขนาดเกิน 500kb' ];
+            }
+            foreach ($files as $key => $file) {
                 list($mime, $data)   = explode(';', $file->data);
                 list(, $data)       = explode(',', $data);
                 $data = base64_decode($data);
                 $fileName = time().'_'.$file->name;
                 $folderName = $domainId."/".date('Ym') ;
                 if (!is_dir(public_path('storage/'.$folderName))) {
-                    File::makeDirectory(public_path('storage/'.$folderName),0755,true);  
+                    File::makeDirectory(public_path('storage/'.$folderName), 0755, true);
                 }
 
                 $savePath = public_path('storage/'.$folderName.'/').$fileName;
@@ -497,7 +513,7 @@ class ResolutionController extends ApiController
                 $result['path'][$key] = $folderName;
                 $result['filename'][$key] = $fileName;
             }
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $result = ['result'=>false,'error'=>$e->getMessage()] ;
         }
         

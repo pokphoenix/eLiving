@@ -63,6 +63,8 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'domain' => \App\Http\Middleware\DomainMiddelware::class,
+        'webserver' => \App\Http\Middleware\Server::class,
+        'apiserver' => \App\Http\Middleware\ApiServer::class,
         'role' => \Zizaco\Entrust\Middleware\EntrustRole::class,
         'permission' => \Zizaco\Entrust\Middleware\EntrustPermission::class,
         'ability' => \Zizaco\Entrust\Middleware\EntrustAbility::class,

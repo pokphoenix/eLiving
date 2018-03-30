@@ -15,7 +15,6 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Validator;
 
-
 class ReportController extends ApiController
 {
     /*
@@ -34,13 +33,19 @@ class ReportController extends ApiController
     }
 
     
-    public function index($domainId){
+    public function index($domainId)
+    {
         $sql = "SELECT pu.*,u.first_name,u.last_name
                 ,ud.first_name as deleted_first_name
                 ,ud.last_name as deleted_last_name
                 ,pv.PROVINCE_NAME as province_name
                 ,CONCAT( IFNULL(r.name_prefix,''),IFNULL(r.name,''),IFNULL(r.name_surfix,'') ) as room_name
+                ,IFNULL(pd.debt_hour,0) as debt_hour
                 FROM parking_use as pu  
+                LEFT JOIN parking_debt pd 
+                ON pd.parking_use_id = pu.id 
+                AND pd.domain_id = $domainId
+
                 JOIN rooms as r 
                 ON r.id = pu.room_id
                 JOIN users as u 
@@ -55,19 +60,22 @@ class ReportController extends ApiController
        
        
         return $this->respondWithItem($data);
-    } 
+    }
   
 
-    public function store(Request $request,$domainId){
-    }  
+    public function store(Request $request, $domainId)
+    {
+    }
 
-    public function edit($domainId,$id){
-        
-    } 
+    public function edit($domainId, $id)
+    {
+    }
 
-    public function update(Request $request,$domainId,$Id){
-    } 
-    public function destroy(Request $request,$domainId,$id){
+    public function update(Request $request, $domainId, $Id)
+    {
+    }
+    public function destroy(Request $request, $domainId, $id)
+    {
         $post = $request->all();
 
         // $parkingHistory = ParkingHistory::where('parking_use_id',$id)->where('status',1)->orderBy('id','desc')->first();
@@ -75,7 +83,7 @@ class ReportController extends ApiController
 
       
 
-        ParkingDebt::where('parking_use_id',$query->id)->whereNull('deleted_at')->update(['deleted_at'=>Carbon::now(),'deleted_by'=>Auth()->user()->id]) ;
+        ParkingDebt::where('parking_use_id', $query->id)->whereNull('deleted_at')->update(['deleted_at'=>Carbon::now(),'deleted_by'=>Auth()->user()->id]) ;
 
 
         $query = ParkingUse::find($id)->update(['used_date'=>null]);
@@ -84,16 +92,13 @@ class ReportController extends ApiController
         $history['parking_use_id'] = $id ;
         $history['domain_id'] = $domainId ;
         $history['created_at'] = Carbon::now();
-        $history['created_by'] = Auth()->user()->id; 
-        $history['start_date'] = null; 
-        $history['end_date'] = null; 
-        $history['status'] = 2; 
+        $history['created_by'] = Auth()->user()->id;
+        $history['start_date'] = null;
+        $history['end_date'] = null;
+        $history['status'] = 2;
 
         ParkingHistory::insert($history);
 
         return $this->respondWithItem(['text'=>'success']);
-    } 
-    
-   
-    
+    }
 }

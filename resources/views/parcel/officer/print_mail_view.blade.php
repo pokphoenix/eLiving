@@ -65,8 +65,8 @@
        
         <div class="row">
           <div class="col-xs-12">
-             <button onclick="window.history.back();" class="btn btn-danger" style="margin-left: 10px;" >@lang('main.back')</button>
-             <button onclick="printContent('print_this')" class="btn btn-success" style="margin-left: 10px;" >Print</button>
+             <a href="{{ Request::server('HTTP_REFERER') }}" class="btn btn-danger" style="margin-left: 10px;" >@lang('main.back')</a>
+             <button onclick="printContent('print_this')" class="btn btn-success" style="margin-left: 10px;" >@lang('main.print')</button>
           </div>
         </div>
         <div class="row">
@@ -86,94 +86,120 @@
                   </div>
                  <div class="col-xs-8">
                     <h4 class="text-center">REGISTOR MAIL AND PARCEL POST/pick up form</h4>
-                   <h4 class="text-center">@lang('sidebar.receive_mail_list') </h4>
+                   <h4 class="text-center">@lang('parcel.receive_mail_list') </h4>
                   
                  </div>
                  <div class="col-xs-2 text-right">
-                 </div>
-              </div>
-            
-
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> No. </div>
-                    <div class="col-xs-8 ">
-
-                       {{ $lists[$j]['parcel_code'] }} 
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Date. </div>
-                    <div class="col-xs-5 column-view">
-                       {{ date('d m ',strtotime($lists[$j]['send_date'])).(date('Y',strtotime($lists[$j]['send_date']))+543)." ".date('H:i ',strtotime($lists[$j]['send_date'])) }} 
+                    <div class="col-xs-12">
+                      <h4>{{ $lists[$j]['position'] }}</h4>
                     </div>
                     
-                  </div>
-              </div>
-              <div class="row" style="height: 20px;"></div>
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> Name / ชื่อ </div>
-                    <div class="col-xs-8 column-view">
-                       &nbsp;
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Room No / ห้องเลขที่ </div>
-                    <div class="col-xs-5 column-view">
-                       {{ $lists[$j]['room_name'] }} 
-                    </div>
-                  </div>
-              </div>
-              <div class="row" style="height: 20px;"></div>
-             <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> Ref No. / เลขทะเบียน </div>
-                    <div class="col-xs-8 column-view">
-                       {{ (isset($lists[$j]['supplies_code'])) ? $lists[$j]['supplies_code'] : '&nbsp;' }} 
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Sender / ผู้ส่ง </div>
-                    <div class="col-xs-5 column-view">
-                       {{ (isset($lists[$j]['supplies_send_name'])) ? $lists[$j]['supplies_send_name'] : '&nbsp;' }} 
-                    </div>
-                  </div>
-              </div>
-             
-              <div class="row">
-                  <div class="col-xs-12">
-                    <div class="col-xs-12">กรุณาแสดงเอกสารนี้เพื่อรับพัสดุ หรือ เอกสารอื่นๆ ได้ที่ สำนักงานนิติบุคคลฯ ตั้งแต่เวลา 08.00 - 19.00 น.<BR>
-                    </div>
-                  </div>
-                  
-                 
-              </div>
-              
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4 " >
-                      <div class="col-xs-12 column-view"> &nbsp;</div>
-                   </div>
-                    <div class="col-xs-8 ">
-                       Delivered by: (Signature)
-                    </div>
-                   
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6">ลายเซ็นต์ผู้จ่าย</div>
-                    <div class="col-xs-4 column-view">
-                       &nbsp; 
-                    </div>
-                    <div class="col-xs-1">Date</div>
-                  </div>
-                 
+                 </div>
               </div>
 
+              <div class="row">
+                <div class="col-xs-2">
+                    @if(isset($lists[$j]['qrcode_key']))
+                    <img class="img-responsive" src="{{ getQRCode($lists[$j]['qrcode_key']) }}" >
+                    @else
+                    <img class="img-responsive" src="{{ getQRCode() }}" >
+                    @endif
+                </div>
+                <div class="col-xs-9">
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> No. </div>
+                          <div class="col-xs-8 ">
+                           {{ $lists[$j]['parcel_code'] }}
+                          </div>
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6"> Date. </div>
+                          <div class="col-xs-5 column-view">
+                             {{ date('d/m/',strtotime($lists[$j]['send_date'])).(date('Y',strtotime($lists[$j]['send_date'])))." ".date('H:i ',strtotime($lists[$j]['send_date'])) }} 
+                          </div>
+                          
+                        </div>
+                    </div>
+                    <div class="row" style="height: 20px;"></div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> Name / ชื่อ </div>
+                          <div class="col-xs-8 column-view">
+                            {{ (isset($lists[$j]['supplies_send_name'])) ? $lists[$j]['supplies_send_name'] : '&nbsp;' }}    
+                          </div>
+                        </div>
+                         <div class="col-xs-6">
+                            <div class="col-xs-6"> Room No / เลขห้อง </div>
+                            <div class="col-xs-5 column-view">
+                               {{ $lists[$j]['room_name'] }} 
+                            </div>
+                          </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-12">
+                              (@if($lists[$j]['type']==2&& $lists[$j]['supplies_type']==1 ) <i class="fa fa-check"></i> @else &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @endif
+                              )@lang('parcel.box')
+                              (@if($lists[$j]['type']==2&& $lists[$j]['supplies_type']==2 ) <i class="fa fa-check"></i> @else &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @endif
+                              )@lang('parcel.envelope')
+                              (@if($lists[$j]['type']==1 || ($lists[$j]['type']==2&& $lists[$j]['supplies_type']==3)) <i class="fa fa-check"></i> @else &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @endif
+                              )@lang('parcel.letter')
+                            </div>
+                          </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> Ref No. / เลขทะเบียน </div>
+                          <div class="col-xs-8 column-view">
+                             {{ (isset($lists[$j]['supplies_code'])) ? $lists[$j]['supplies_code'] : '&nbsp;' }} 
+                          </div>
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6"> Sender / ผู้ส่ง </div>
+                          <div class="col-xs-5 column-view">
+                              &nbsp;    
+                          </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                          <div class="col-xs-12">กรุณาแสดงเอกสารนี้เพื่อรับพัสดุ หรือ เอกสารอื่นๆ ได้ที่ สำนักงานนิติบุคคลฯ ตั้งแต่เวลา 08.00 - 19.00 น.<BR>
+                          </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4 " >
+                            
+                          </div>
+                          <div class="col-xs-8 ">
+                             Delivered by: (Signature)
+                          </div>
+                         
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6">ลายเซ็นต์ผู้จ่าย</div>
+                          <div class="col-xs-4 column-view">
+                             &nbsp; 
+                          </div>
+                          <div class="col-xs-1">Date</div>
+                        </div>
+                       
+                    </div>
+                </div>
+                <div class="col-xs-1">
+                    <div class="pull-right text-right">
+               {{ $setting['ads'] }} <BR><img src="{{ url('public/img/eliving.png') }}" height="50" >
+                    </div>
+                </div>
+              </div>
           @else
               <div class="row">
                   <div class="col-xs-2 text-center">
-                   
+                    
                   </div>
                  <div class="col-xs-8">
                     <h4 class="text-center">REGISTOR MAIL AND PARCEL POST/pick up form</h4>
@@ -184,80 +210,98 @@
                  </div>
               </div>
             
+              <div class="row">
+                <div class="col-xs-2">
+                      
+                </div>
+                <div class="col-xs-10">
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> No. </div>
+                          <div class="col-xs-8 column-view">
+                             &nbsp;
+                          </div>
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6"> Date. </div>
+                          <div class="col-xs-5 column-view">
+                             &nbsp;
+                          </div>
+                        </div>
+                    </div>
+                    <div class="row" style="height: 20px;"></div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> Name / ชื่อ </div>
+                          <div class="col-xs-8 column-view">
+                             &nbsp;
+                          </div>
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6"> Room No / เลขห้อง </div>
+                          <div class="col-xs-5 column-view">
+                             &nbsp;
+                          </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-12">
+                              (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)@lang('parcel.box')
+                              (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)@lang('parcel.envelope')
+                              (&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)@lang('parcel.letter')
+                            </div>
+                          </div>
+                    </div>
+                   <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4"> Ref No. / เลขทะเบียน </div>
+                          <div class="col-xs-8 column-view">
+                             &nbsp;
+                          </div>
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6"> Sender / ผู้ส่ง </div>
+                          <div class="col-xs-5 column-view">
+                            &nbsp;
+                          </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-12">
+                          <div class="col-xs-12">กรุณาแสดงเอกสารนี้เพื่อรับพัสดุ หรือ เอกสารอื่นๆ ได้ที่ สำนักงานนิติบุคคลฯ ตั้งแต่เวลา 08.00 - 19.00 น.<BR>
+                          </div>
+                        </div>
+                        
+                       
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-6">
+                          <div class="col-xs-4 " >
+                            
+                         </div>
+                          <div class="col-xs-8 ">
+                             Delivered by: (Signature)
+                          </div>
+                         
+                        </div>
+                        <div class="col-xs-6">
+                          <div class="col-xs-6">ลายเซ็นต์ผู้จ่าย</div>
+                          <div class="col-xs-4 column-view">
+                             &nbsp; 
+                          </div>
+                          <div class="col-xs-1">Date</div>
+                        </div>
+                       
+                    </div>  
+                </div>
+              </div>
 
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> No. </div>
-                    <div class="col-xs-8 column-view">
-                       &nbsp;
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Date. </div>
-                    <div class="col-xs-5 column-view">
-                       &nbsp;
-                    </div>
-                  </div>
-              </div>
-              <div class="row" style="height: 20px;"></div>
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> Name / ชื่อ </div>
-                    <div class="col-xs-8 column-view">
-                       &nbsp;
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Room No / ห้องเลขที่ </div>
-                    <div class="col-xs-5 column-view">
-                       &nbsp;
-                    </div>
-                  </div>
-              </div>
-              <div class="row" style="height: 20px;"></div>
-             <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4"> Ref No. / เลขทะเบียน </div>
-                    <div class="col-xs-8 column-view">
-                       &nbsp;
-                    </div>
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6"> Sender / ผู้ส่ง </div>
-                    <div class="col-xs-5 column-view">
-                      &nbsp;
-                    </div>
-                  </div>
-              </div>
+
+
               
-              <div class="row">
-                  <div class="col-xs-12">
-                    <div class="col-xs-12">กรุณาแสดงเอกสารนี้เพื่อรับพัสดุ หรือ เอกสารอื่นๆ ได้ที่ สำนักงานนิติบุคคลฯ ตั้งแต่เวลา 08.00 - 19.00 น.<BR>
-                    </div>
-                  </div>
-                  
-                 
-              </div>
-              
-              <div class="row">
-                  <div class="col-xs-6">
-                    <div class="col-xs-4 " >
-                      <div class="col-xs-12 column-view"> &nbsp;</div>
-                   </div>
-                    <div class="col-xs-8 ">
-                       Delivered by: (Signature)
-                    </div>
-                   
-                  </div>
-                  <div class="col-xs-6">
-                    <div class="col-xs-6">ลายเซ็นต์ผู้จ่าย</div>
-                    <div class="col-xs-4 column-view">
-                       &nbsp; 
-                    </div>
-                    <div class="col-xs-1">Date</div>
-                  </div>
-                 
-              </div>  
           @endif
            <div class="row" style="height: 20px;"><hr></div>
         @endfor
@@ -305,7 +349,5 @@ $(".btn-search").on('click', function(event) {
 
 </script>
 
-<script>
-  function urlBack();
-</script>
+
 @endsection   

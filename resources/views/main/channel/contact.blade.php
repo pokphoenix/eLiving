@@ -36,7 +36,7 @@
                  <div class="box box-primary">
                     <div class="box-header with-border">
                       <h3 class="box-title">
-                       
+                          <a class="btn btn-primary" href="{{ url($domainName.'/channel/blacklist') }}" >@lang('chat.show_blacklist')</a>
                       </h3>
 
                       <div class="box-tools pull-right">

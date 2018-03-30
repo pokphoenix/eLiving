@@ -70,7 +70,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">@lang('main.close')</button>
         <button type="button" class="btn btn-primary btn-save">@lang('main.btn_save')
-           <i class="fa fa-spinner fa-spin fa-fw none"></i>
+           <i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
         </button>
       </div>
     </div>
@@ -110,9 +110,9 @@ $(function() {
       console.log('text',content);
       var url = "{{ url('api/'.$domainId) }}/phone/1?api_token="+api_token ;
       $.ajax({
-                 type: "PUT",
+                 type: "POST",
                  url: url,
-                 data:{text:content},
+                 data:{text:content,'_method':'PUT'},
                  success: function (data) {
                     $(".btn-save").find('.fa-spinner').hide();
                     if(data.result=="true"){
@@ -168,7 +168,7 @@ $(function() {
 
       var html3 = "<button class=\"btn btn-info btn-sm btn-row-save\" data-id=\""+id+"\" >"+
                 "<i class=\"fa fa-save\"></i> "+
-                " <i class=\"fa fa-spinner fa-spin fa-fw none\" ></i>";
+                " <i class=\"fa fa-spinner fa-spin fa-fw\" style=\"display:none;\" ></i>";
                 "</button>";
 
 

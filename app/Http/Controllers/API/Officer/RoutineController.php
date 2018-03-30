@@ -46,32 +46,33 @@ class RoutineController extends ApiController
         // $this->middleware('auth:api');
     }
 
-    public function search(Request $request){
-      
+    public function search(Request $request)
+    {
     }
 
-    public function index($domainId){
+    public function index($domainId)
+    {
   
-        // $sql = "select t.*,tc.name_en as category_name 
-        //         ,tc.color as category_color 
+        // $sql = "select t.*,tc.name_en as category_name
+        //         ,tc.color as category_color
         //         ,u.id as member_id
-        //         ,CONCAT( u.first_name,' ',u.last_name) as member_name 
-        //         ,CONCAT( '".url('')."/public/img/profile/',avartar_id,'.png') as member_img 
+        //         ,CONCAT( u.first_name,' ',u.last_name) as member_name
+        //         ,CONCAT( '".url('')."/public/img/profile/',avartar_id,'.png') as member_img
         //         ,IFNULL(t2.cnt,0) as success_checklist
         //         ,IFNULL(t3.cnt,0) as total_checklist
         //         ,t4.file_path
-        //         from tasks as t 
-        //         left join ( 
+        //         from tasks as t
+        //         left join (
         //             SELECT task_id,count(task_id) as cnt
         //             FROM task_checklist_items WHERE domain_id=$domainId AND status=1
         //             GROUP BY task_id
         //         ) t2
         //         ON t2.task_id = t.id
-        //         left join ( 
+        //         left join (
         //             SELECT task_id,count(task_id) as cnt
         //             FROM task_checklist_items WHERE domain_id=$domainId
         //             GROUP BY task_id
-        //         ) t3 
+        //         ) t3
         //         ON t3.task_id = t.id
 
         //         left join (SELECT ta.*,CONCAT( '".url('')."/public/storage/',ta.path,'/',ta.filename) as file_path
@@ -80,12 +81,12 @@ class RoutineController extends ApiController
         //             ORDER BY ta.id DESC) t4
         //         ON t4.task_id = t.id
 
-        //         left join master_task_category as tc 
-        //         on t.category_id = tc.id 
-        //         left join task_members as tm 
-        //         on tm.task_id = t.id 
-        //         and tm.domain_id = $domainId 
-        //         left join users as u 
+        //         left join master_task_category as tc
+        //         on t.category_id = tc.id
+        //         left join task_members as tm
+        //         on tm.task_id = t.id
+        //         and tm.domain_id = $domainId
+        //         left join users as u
         //         on tm.user_id = u.id
         //         WHERE t.domain_id = $domainId
         //         AND t.type=2
@@ -131,15 +132,17 @@ class RoutineController extends ApiController
         $data['routine_category'] = Routine::category();
       
         return $this->respondWithItem($data);
-    } 
+    }
    
-    public function show($domainId,$cardId){
-        $data = Routine::getData($domainId,$cardId);
+    public function show($domainId, $cardId)
+    {
+        $data = Routine::getData($domainId, $cardId);
         $data['routine_category'] = Routine::category();
         return $this->respondWithItem($data);
     }
 
-    public function view($domainId){
+    public function view($domainId)
+    {
 
         $sql = "SELECT u.id,CONCAT( u.first_name,' ',u.last_name) as text
                 
@@ -156,46 +159,47 @@ class RoutineController extends ApiController
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request,$domainId){
-        $post = $request->all();
+    public function store(Request $request, $domainId)
+    {
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
         }
-        if(isset($post['is_never'])){
+        if (isset($post['is_never'])) {
             unset($post['repeat_ended_at']);
-            if($post['is_never']=="on"){
+            if ($post['is_never']=="on") {
                 $post['is_never'] = 1;
             }
-        }else{
+        } else {
             $post['is_never'] = 0;
         }
-        if(isset($post['is_all_day'])){
+        if (isset($post['is_all_day'])) {
             $post['started_at'] = Carbon::today();
             $post['ended_at'] = Carbon::tomorrow();
-            if($post['is_all_day']=="on"){
+            if ($post['is_all_day']=="on") {
                 $post['is_all_day'] = 1;
             }
-        }else{
+        } else {
             $post['is_all_day'] = 0;
         }
 
 
         $routine = new Routine ;
         $routine->title = $post['title'];
-        if(isset($post['started_at'])){
+        if (isset($post['started_at'])) {
             $routine->started_at = $post['started_at'];
         }
-        if(isset($post['ended_at'])){
+        if (isset($post['ended_at'])) {
             $routine->ended_at = $post['ended_at'];
         }
-        if(isset($post['repeat_ended_at'])){
+        if (isset($post['repeat_ended_at'])) {
             $routine->started_at = $post['repeat_ended_at'];
         }
-        if(isset($post['is_never'])){
+        if (isset($post['is_never'])) {
             $routine->is_never = $post['is_never'];
         }
-        if(isset($post['is_all_day'])){
+        if (isset($post['is_all_day'])) {
             $routine->is_all_day =  $post['is_all_day'] ;
         }
         
@@ -209,24 +213,25 @@ class RoutineController extends ApiController
         return $this->respondWithItem($data);
     }
 
-    public function update(Request $request,$domainId,$cardId){
-        $post = $request->all();
+    public function update(Request $request, $domainId, $cardId)
+    {
+        $post = $request->except('api_token', '_method');
 
-        if(isset($post['is_never'])){
+        if (isset($post['is_never'])) {
             unset($post['repeat_ended_at']);
-            if($post['is_never']=="on"){
+            if ($post['is_never']=="on") {
                 $post['is_never'] = 1;
             }
-        }else{
+        } else {
             $post['is_never'] = 0;
         }
-        if(isset($post['is_all_day'])){
+        if (isset($post['is_all_day'])) {
             $post['started_at'] = Carbon::today();
             $post['ended_at'] = Carbon::tomorrow();
-            if($post['is_all_day']=="on"){
+            if ($post['is_all_day']=="on") {
                 $post['is_all_day'] = 1;
             }
-        }else{
+        } else {
             $post['is_all_day'] = 0;
         }
 
@@ -236,7 +241,7 @@ class RoutineController extends ApiController
             return $this->respondWithError($validator->errors());
         }
         $routine = Routine::find($cardId)->update($post);
-        $data = Routine::getData($domainId,$cardId);
+        $data = Routine::getData($domainId, $cardId);
         return $this->respondWithItem($data);
     }
    

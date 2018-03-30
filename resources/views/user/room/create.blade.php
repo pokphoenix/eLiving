@@ -294,33 +294,24 @@ $(document).on("click",".my-autocomplete-li",function(e) {
   $("#search_user").val('');
 });
 
-// $(document).on("click",".btn-user-in-room-del",function(event) {
-//     var rows = $(this).closest("tr") ; 
-//     var itemID = $.trim(rows.find('.id-card').val());
-//     console.log(itemID);
-//     if(itemID){
-//     // ajaxDelQuatationItem(itemID).done(function(data){
-//     //         createQuatationTable(data);
-//     //       createQuatationTableItem(data.quotation_items);
-//     //         // addQuotationItem();
-//     //     }).fail(function(txt) {
-//     //     var error = JSON.stringify(txt);
-//     //                    swal(
-//     //                     'Error...',
-//     //                     error,
-//     //                     'error'
-//     //                   )
-//     // });
-//     }
+$(document).on("click",".btn-user-in-room-del",function(event) {
+    var rows = $(this).closest("tr") ; 
+    var userIdCard = $.trim(rows.find('.id-card').val());
+    var roomId =  $.trim($("#room_id").val())  ;
+    console.log(userIdCard);
+    if(userIdCard){
+        var route = "/rooms/"+roomId+"/"+userIdCard+"?api_token="+api_token;
+        ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(){
+            rows.remove();
+             $("#user-in-room-table tbody tr td:nth-child(2)").each(function (i) {
+                var j = ++i;
+                $(this).text(j);
+            });
+        })
+    }
+
    
-
-
-//     rows.remove();
-//     $("#user-in-room-table tbody tr td:nth-child(2)").each(function (i) {
-//         var j = ++i;
-//         $(this).text(j);
-//     });
-//   });
+  });
 
 function userData(res){
    var dfd = $.Deferred();

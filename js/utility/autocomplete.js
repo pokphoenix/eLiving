@@ -32,14 +32,20 @@ function autoData(res,tool){
 }
 
 function ajaxSearchAutoComplete(ele){
-  var data =  ele.val();
+  var name =  ele.val();
+
+  var data = {name:name};
+  if($("#domain_id").length>0){
+    data.domain_id = $("#domain_id").val();
+  }
+
   var dfd = $.Deferred();
-  var url = ele.data('action')
+  var url = ele.data('action');
   $.ajax({
     url: url  ,
     type: 'POST',
     dataType: 'json',
-    data: {name:data} ,
+    data: data ,
   })
   .done(function(res) {
     data = { ele : ele,data : res } ;

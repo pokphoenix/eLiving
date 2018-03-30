@@ -29,3 +29,5 @@
     tr:nth-child(even) td,tr:nth-child(odd) td{
     	border-color: #000 !important;
     }
+
+    

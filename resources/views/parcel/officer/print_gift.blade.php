@@ -68,6 +68,7 @@
                   <th>@lang('parcel.created_at')</th>
                   <th>@lang('parcel.send_date')</th>
                   <th>@lang('parcel.received_at')</th>
+                  <th>@lang('parcel.gift_receive_name')</th>
                   
                 </tr>
                  <tr class="thead-search" >
@@ -78,6 +79,7 @@
                   <th class="input-filter">@lang('parcel.created_at')</th>
                   <th class="input-filter">@lang('parcel.send_date')</th>
                   <th class="input-filter">@lang('parcel.received_at')</th>
+                  <th class="input-filter">@lang('parcel.gift_receive_name')</th>
                  
                  
                 </tr>
@@ -103,6 +105,7 @@
                     @lang('parcel.wait_receive')
                     @endif
                   </td>
+                  <td>{{ $list['gift_receive_name'] }}</td>
                   
 
                 </tr>
@@ -143,7 +146,7 @@ $(function () {
      var table = $('#example1').DataTable(
       {
         "bSortCellsTop": true
-        ,"order": [[ 4, 'asc' ]]
+      
       }
       );
     
@@ -183,36 +186,30 @@ $(".btn-search").on('click', function(event) {
 </script>
 
 <script>
-$(".select-row-all").on("change",function(){
+
+
+$(document).on("change",".select-row-all",function(){
   if($(this).is(':checked')){
     $("#example1 input[type=checkbox]").attr('checked',true);
   }else{
      $("#example1 input[type=checkbox]").attr('checked',false);
   }
 })
-
-
-$(".btn-select-row").on("click",function(){
-  console.log('cli');
+$(document).on("click",".btn-select-row",function(){
     getSelectData().done(function(data){
-      console.log(data);
       var url = $("#baseUrl").val()+'/parcel/print-gift/view?id='+data.id ;
       window.location.href=url ;
       // console.log(url);
       //   $("#frame-print").src(url);
       //   $("#modal-print").modal('toggle');
-
     });
-
-   
-
 })
 
 function getSelectData(){
   var dfd = $.Deferred();
   var data = {id:[]};
   $("#example1 tbody input[type=checkbox]:checked:enabled").each(function(index, el) {
-      console.log($(this).val())
+     
       data.id.push($(this).val());
   });
 

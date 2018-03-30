@@ -2,8 +2,6 @@
 
 namespace App\Models\Task;
 
-
-
 use App\Facades\Permission;
 use App\Models\Company;
 use Illuminate\Database\Eloquent\Model;
@@ -16,5 +14,5 @@ class TaskMember extends Model
     public $timestamps = false;
 
     protected $fillable = ['task_id','domain_id', 'user_id','created_at'];
-   	protected $dates = ['created_at'];
-}	
+    protected $dates = ['created_at'];
+}

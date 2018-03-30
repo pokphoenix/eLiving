@@ -88,6 +88,13 @@ return [
      'password_require' => 'กรุณากรอกพาสเวิด',
      'password_confirm_require' => 'กรุณากรอกพาสเวิดให้ตรงกัน',
      'tel_require' => 'กรุณากรอกเบอร์โทร',
+     'login_with_facebook' => 'ล๊อกอินด้วยเฟสบุค',
+     'login_with_username' => 'ล๊อกอินด้วยรหัสผู้ใช้',
+
+     'username' => 'บัญชีชื่อผู้ใช้',
+     'password' => 'รหัสผ่าน',
+     'password_confirmation' => 'ยืนยันรหัสผ่าน',
+     'unlink_facebook' => 'ยกเลิกการใช้เฟสบุค',
 
 
 

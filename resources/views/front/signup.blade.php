@@ -27,7 +27,25 @@
               <div class="col-sm-offset-1 col-sm-10">
 
                 <div id="form-messages"></div>
-              
+                  <section class="form-parent none" data-id="2">
+
+                      <form action="" id="domain-form" method="post" class="mu-contact-form">
+                          {{ csrf_field() }}
+                          <div class="col-sm-offset-4 col-sm-4">
+                              <div class="form-group">             
+                                <select id="domain_id" name="domain_id" class="form-control" >
+                                    <option value="">@lang('main.select_domain')</option>
+                                    @foreach($domains as $domain)
+                                    <option value="{{ $domain['id'] }}">{{ $domain['name'] }}</option>
+                                    @endforeach
+                                </select>
+                              </div>
+                          </div>
+                      </form>
+
+                  </section>
+
+
                 	 <section class="form-parent" data-id="0">
                 	 	  <form id="signup-form" method="post" action="{{url('api/signup')}}" class="mu-contact-form">
                 	 {{ csrf_field() }}
@@ -104,7 +122,7 @@ https://yourcompany.bamboohr.com
                   		
                   		
                   	
-					<div class="row row-facebook" >
+					<!-- <div class="row row-facebook" >
 						<div class="col-sm-offset-2 col-sm-8" >
 							<div class="row" style="margin:10px 0;color: #ccc;border-top: 1px solid #CCC;">
 								
@@ -119,13 +137,7 @@ https://yourcompany.bamboohr.com
 							</div>
 							
 						</div>
-			                	<!-- <div class="form-group col-sm-4">                
-			                  		<input type="text" class="form-control" placeholder="ตำแหน่งงาน" id="job_title" name="job_title" value="{{old('last_name')}}">
-			                  	</div>
-			                  	<div class="form-group col-sm-4">                
-			                  		<input type="text" class="form-control" placeholder="โทรศัพท์" id="tel" name="tel" value="{{old('tel')}}">
-			                  	</div> -->
-			                  
+			                	
 			                  	
 		            </div> 
 
@@ -138,7 +150,7 @@ https://yourcompany.bamboohr.com
               
 
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </section>
@@ -182,7 +194,7 @@ $(function() {
           },
       id_card: {
         required: true,
-        minlength: 13,
+        // minlength: 13,
         maxlength: 13,
         remote: {
                   url: "{{ url('api/validate/idcard') }}",

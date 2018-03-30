@@ -1251,7 +1251,7 @@ function updateListCard(data){
 				  reverseButtons: true
 				}).then((result) => {
 				  if (result.value) {
-					    ajaxPromise('DELETE',route).done(function(data){
+					    ajaxPromise('POST',route,{_method:'DELETE'}).done(function(data){
 					    	socket.emit('task',data);
 
 					    	location.reload();
@@ -1302,9 +1302,9 @@ function updateListCard(data){
 	  			var cardId = $("#current_card_id").val();
 				var title =  $("#card_title").val();
 				var route = "/purchase/quotation/"+cardId+"?api_token="+api_token;
-				var data={ title :title };
+				var data={ title :title,'_method':'PUT' };
 
-				ajaxPromise('PUT',route,data).done(function(data){
+				ajaxPromise('POST',route,data).done(function(data){
 					socket.emit('quotation',data);
 			        $(".show-title").find('span').text(title);
 					$(".show-edit-title").hide();

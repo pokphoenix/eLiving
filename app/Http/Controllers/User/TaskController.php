@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\User;
+
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
 use Auth;
@@ -8,13 +9,15 @@ use DB;
 use Illuminate\Http\Request;
 use Route;
 use stdClass ;
+
 class TaskController extends Controller
 {
     private $route = 'user/task' ;
     private $title = 'นิติ' ;
     private $view = 'user.task' ;
 
-    public function __construct(){
+    public function __construct()
+    {
         // var_dump("expression");die;
     }
     /**
@@ -22,10 +25,10 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($domainId,$roomId)
+    public function index($domainId, $roomId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
     
@@ -37,21 +40,23 @@ class TaskController extends Controller
         $url = url('').'/api/'.$route ;
 
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
 
         $tasks = $json['response']['tasks'] ;
         $statusHistory = $json['response']['master_status_history'] ;
         $taskCategory = $json['response']['master_task_category'] ;
         $taskMember = $json['response']['member_task'] ;
-        return view($this->view.'.index',compact('title','route','domainId','domainName','tasks','statusHistory','taskCategory','taskMember','roomId'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'tasks', 'statusHistory', 'taskCategory', 'taskMember', 'roomId'));
     }
 
    
@@ -62,10 +67,10 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$roomId,$taskId)
+    public function show(Request $request, $domainId, $roomId, $taskId)
     {
-      $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $domainName = $domainId ;
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
   
@@ -76,18 +81,20 @@ class TaskController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$route ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $tasks = $json['response']['tasks'] ;
         $taskCategory = $json['response']['master_task_category'] ;
         $taskMember = $json['response']['member_task'] ;
        
-        return view($this->view.'.index',compact('title','route','domainId','domainName','tasks','taskId','taskCategory','taskMember','roomId'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'tasks', 'taskId', 'taskCategory', 'taskMember', 'roomId'));
     }
 }

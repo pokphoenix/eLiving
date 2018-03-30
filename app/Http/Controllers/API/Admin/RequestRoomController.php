@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
+
 class RequestRoomController extends ApiController
 {
     private $view = 'admin.request_room';
@@ -44,14 +45,15 @@ class RequestRoomController extends ApiController
      *
      * @return void
      */
-     public function __construct()
+    public function __construct()
     {
 
         $this->middleware('auth');
     }
 
 
-    public function index($domainId){
+    public function index($domainId)
+    {
         try {
             $sql = "SELECT  u.username,u.id_card,u.first_name,u.last_name
                     ,u.created_at,ur.approve
@@ -62,10 +64,10 @@ class RequestRoomController extends ApiController
                     INNER JOIN rooms r ON r.domain_id = d.id
                     INNER JOIN user_rooms ur on r.id = ur.room_id 
                     AND u.id_card = ur.id_card
-                    WHERE ur.approve = 0 AND ud.approve = 1 AND  u.id_card not in ( SELECT id_card FROM role_user WHERE role_id = 7  )" ;
+                    WHERE d.id=$domainId AND ur.approve = 0 AND ud.approve = 1 AND  u.id_card not in ( SELECT id_card FROM role_user WHERE role_id = 7  )" ;
             $query = DB::select(DB::raw($sql));
             $user = [];
-            if (!empty($query)){
+            if (!empty($query)) {
                 foreach ($query as $q) {
                     $user[$q->id_card]['id_card'] = $q->id_card;
                     $user[$q->id_card]['username'] = $q->username;
@@ -75,8 +77,9 @@ class RequestRoomController extends ApiController
                     $user[$q->id_card]['room'][] = $q->room_name;
                 }
             }
-            $data['user'] = array_values($user); ;
-        }catch (\Exception $e) {
+            $data['user'] = array_values($user);
+            ;
+        } catch (\Exception $e) {
             return $this->respondWithError($e->getMessage());
         }
        
@@ -84,13 +87,13 @@ class RequestRoomController extends ApiController
     }
 
    
-     private function validator($data)
+    private function validator($data)
     {
         return Validator::make($data, [
-            'id_card' => 'required|string|min:13|max:13',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
+           'id_card' => 'required|string|max:13',
+           'first_name' => 'required|string|max:255',
+           'last_name' => 'required|string|max:255',
+           'email' => 'required|string|email|max:255',
             
         ]);
     }
@@ -99,9 +102,9 @@ class RequestRoomController extends ApiController
     {
 
         return Validator::make($data, [
-            'id_card' => 'required|string|min:13|max:13|unique:user_temps',
+            'id_card' => 'required|string|max:13|unique:user_temps',
         ]);
-    } 
+    }
     private function validatorRoom($data)
     {
         return Validator::make($data, [
@@ -109,8 +112,8 @@ class RequestRoomController extends ApiController
         ]);
     }
 
-    private function uploadImg($request,$domainId){
-        return  uploadfile($request,'file_upload',$domainId) ;
+    private function uploadImg($request, $domainId)
+    {
+        return  uploadfile($request, 'file_upload', $domainId) ;
     }
-
 }

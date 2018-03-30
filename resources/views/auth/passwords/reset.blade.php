@@ -14,7 +14,7 @@
                 
                 @if(!empty($data))
                 <div class="panel panel-default">
-                    <div class="panel-heading">Reset Password</div>
+                    <div class="panel-heading">@lang('main.reset_password')</div>
 
                     <div class="panel-body">
                         <form class="form-horizontal" id="signup-form" method="POST" action="{{ url('api/reset/change/password') }}">
@@ -22,22 +22,22 @@
 
                             <input type="hidden" name="token" value="{{ $token }}">
 
-                            <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                                <label for="email" class="col-md-4 control-label">E-Mail Address</label>
+                            <div class="form-group{{ $errors->has('username') ? ' has-error' : '' }}">
+                                <label for="username" class="col-md-4 control-label">@lang('reset.username')</label>
 
                                 <div class="col-md-6">
-                                    <input id="email" type="email" class="form-control" name="email" value="{{ $email or old('email') }}" required autofocus>
+                                    <input id="username" type="text" class="form-control" name="username" value="{{ $username or old('username') }}" required autofocus>
 
-                                    @if ($errors->has('email'))
+                                    @if ($errors->has('username'))
                                         <span class="help-block">
-                                            <strong>{{ $errors->first('email') }}</strong>
+                                            <strong>{{ $errors->first('username') }}</strong>
                                         </span>
                                     @endif
                                 </div>
                             </div>
 
                             <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
-                                <label for="password" class="col-md-4 control-label">Password</label>
+                                <label for="password" class="col-md-4 control-label">@lang('reset.password')</label>
 
                                 <div class="col-md-6">
                                     <input id="password" type="password" class="form-control" name="password" required>
@@ -51,7 +51,7 @@
                             </div>
 
                             <div class="form-group{{ $errors->has('password_confirmation') ? ' has-error' : '' }}">
-                                <label for="password-confirm" class="col-md-4 control-label">Confirm Password</label>
+                                <label for="password-confirm" class="col-md-4 control-label">@lang('reset.confirm_password')</label>
                                 <div class="col-md-6">
                                     <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
 
@@ -66,7 +66,7 @@
                             <div class="form-group">
                                 <div class="col-md-6 col-md-offset-4">
                                     <button type="submit" class="btn btn-primary">
-                                        Reset Password
+                                       @lang('reset.btn_reset')
                                     </button>
                                 </div>
                             </div>
@@ -76,11 +76,12 @@
                 @else
                 <div class="text-center" style="margin-top: 50px;">
 
-                    <h3>Token expire</h3>
+                    <h3>@lang('main.token_expire')
+                    </h3>
                     <p>
-                        You can reset new password <BR>
+                        @lang('main.you_can_reset_new_password') <BR>
                         <a href="{{ url('password/reset') }}" class="btn btn-primary">
-                            Go
+                           @lang('main.here')
                         </a>
                     </p>
                 </div>
@@ -102,9 +103,9 @@
     $(function() {
         $("#signup-form").validate({
             rules: {
-                email: {
+                username: {
                     required: true,
-                    email: true
+                    
                 },
                 password: {
                     required: true,
@@ -119,17 +120,17 @@
                 }
             },
             messages: {
-                email: "Please enter a valid email address",
+                username: (($("#app_local").val()=='th') ? 'กรุณากรอกชื่อผู้ใช้ให้ถูกต้อง' : "Wrong Username" ) ,
                 password: {
-                    required: "Please provide a password",
-                    minlength: "Your password must be at least 5 characters long",
-                    maxlength: "Your password cannot over 40 characters long"
+                    required: (($("#app_local").val()=='th') ? 'กรุณากรอกพาสเวิดให้ถูกต้อง' : "Wrong Password" ),
+                    minlength: (($("#app_local").val()=='th') ? 'กรุณากรอกพาสเวิดให้ถูกต้อง' : "Wrong Password" ),
+                    maxlength: (($("#app_local").val()=='th') ? 'กรุณากรอกพาสเวิดให้ถูกต้อง' : "Wrong Password" )
                 },
                 password_confirmation: {
-                    required: "Please provide a password",
-                    minlength: "Your password must be at least 5 characters long",
-                    maxlength: "Your password cannot over 40 characters long",
-                    equalTo: "Please enter the same password as above"
+                    required: (($("#app_local").val()=='th') ? 'กรุณากรอกยืนยันพาสเวิดให้ถูกต้อง' : "Wrong confirm password" ),
+                    minlength: (($("#app_local").val()=='th') ? 'กรุณากรอกยืนยันพาสเวิดให้ถูกต้อง' : "Wrong confirm password" ),
+                    maxlength: (($("#app_local").val()=='th') ? 'กรุณากรอกยืนยันพาสเวิดให้ถูกต้อง' : "Wrong confirm password" ),
+                    equalTo: (($("#app_local").val()=='th') ? 'กรุณากรอกยืนยันพาสเวิดให้ถูกต้อง' : "Wrong confirm password" )
                 },
             },
             submitHandler: function (form) {
@@ -144,7 +145,7 @@
                     // console.log(data,typeof data.response);
                     if(data.result=="true"){
                         swal({
-                          title: 'Change password complete',
+                          title: (($("#app_local").val()=='th') ? 'เปลี่ยนรหัสผ่านสำเร็จ' : 'Change password complete' ) ,
                           type: 'success',
                           showCancelButton: false,
                           confirmButtonText: "@lang('main.ok')"

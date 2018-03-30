@@ -5,6 +5,12 @@ return [
     
     'btn_new' => 'สร้างห้องพูดคุยใหม่',
     'readed' => 'อ่านแล้ว',
+    'hide_message' => 'ซ่อนข้อความ',
+    'show_message' => 'แสดงข้อความ',
+    'blacklist' => 'แบล็คลิส',
+    'blacklist_inform' => 'แจ้งแบล็คลิส',
+    'blacklist_inform_description' => 'เหตุผลที่แจ้ง',
+    'show_blacklist' => 'รายชื่อคนที่ถูกแบล็คลิส',
 
 
     'title_chat' => 'ห้องพูดคุย',

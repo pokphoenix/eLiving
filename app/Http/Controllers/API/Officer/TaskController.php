@@ -46,26 +46,25 @@ class TaskController extends ApiController
         // $this->middleware('auth:api');
     }
 
-    public function search(Request $request){
-      
+    public function search(Request $request)
+    {
     }
 
-    public function index($domainId){
+    public function index($domainId)
+    {
 
-        $data['tasks'] = Task::getTaskListData($domainId,2);
-        $data['master_status_history'] = StatusHistory::where('status',1)->get();
+        $data['tasks'] = Task::getTaskListData($domainId, 2);
+        $data['master_status_history'] = StatusHistory::where('status', 1)->get();
         $data['master_task_category'] = TaskCategory::getTaskCategory(2) ;
-        $data['member_task'] = Search::memberTask($domainId,'');
-        return $this->respondWithItem($data);
-    } 
-   
-    public function show($domainId,$taskId){
-
-      
-        $data = Task::getTaskData($domainId,$taskId,2);
+        $data['member_task'] = Search::memberTask($domainId, '');
         return $this->respondWithItem($data);
     }
+   
+    public function show($domainId, $taskId)
+    {
 
-   
-   
+      
+        $data = Task::getTaskData($domainId, $taskId, 2);
+        return $this->respondWithItem($data);
+    }
 }

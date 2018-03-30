@@ -35,86 +35,98 @@ class ContactController extends ApiController
     }
 
     
-    public function index(Request $request,$domainId){
+    public function index(Request $request, $domainId)
+    {
 
-        $startDate = $request->input('start_date',strtotime(date('Y-m-d 00:00')));
-        $endDate = $request->input('end_date',strtotime(date('Y-m-d 23:59:59')));
+        $startDate = $request->input('start_date', strtotime(date('Y-m-d 00:00')));
+        $endDate = $request->input('end_date', strtotime(date('Y-m-d 23:59:59')));
         
-         $sqlLang = (App::isLocale('en'))  ? 'en' : 'th' ; 
+         $sqlLang = getLang();
 
         $sql = " c.*,mct.name_$sqlLang as type_name " ;
 
         $data['contacts']  = Company::from('companies as c')
-                            ->join('master_contact_type as mct','mct.id','c.type')
+                            ->where('c.domain_id', $domainId)
+                            ->join('master_contact_type as mct', 'mct.id', 'c.type')
                             ->select(DB::raw($sql))
-                            ->orderBy('c.created_at','asc')
+                            ->orderBy('c.created_at', 'asc')
                             ->get();
         
 
 
         return $this->respondWithItem($data);
-    } 
+    }
 
-    public function contactType(Request $request,$domainId){
-        $sqlLang = (App::isLocale('en'))  ? 'en' : 'th' ; 
+    public function contactType(Request $request, $domainId)
+    {
+        $sqlLang = getLang();
 
         $sql = " id,name_$sqlLang as name " ;
 
       
-        $data['contact_type']  = ContactType::where('status',1)->select(DB::raw($sql))->get();
+        $data['contact_type']  = ContactType::where('domain_id', $domainId)->where('status', 1)->select(DB::raw($sql))->get();
 
 
         return $this->respondWithItem($data);
-    } 
+    }
 
     
 
-    public function store(Request $request,$domainId){
-        $post = $request->all();
+    public function store(Request $request, $domainId)
+    {
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
         }
 
-        if(!isset($post['status'])){
+        if (!isset($post['status'])) {
             $post['status'] = 0 ;
         }
 
+        if (!isset($post['credit'])) {
+            $post['credit'] = 0 ;
+        }
+
         $query = new Company();
-        $query->created_by = Auth()->user()->id; 
+        $query->created_by = Auth()->user()->id;
         $query->created_at = Carbon::now();
         $query->domain_id = $domainId ;
         $query->fill($post)->save();
         $companyId = $query->id ;
         return $this->respondWithItem(['company_id'=>$companyId]);
-    }  
+    }
 
-    public function edit($domainId,$id){
+    public function edit($domainId, $id)
+    {
         $data['contact']  = Company::find($id);
         return $this->respondWithItem($data);
-    } 
+    }
 
-    public function update(Request $request,$domainId,$Id){
-        $post = $request->all();
-
+    public function update(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
         unset($post['_method']);
         unset($post['api_token']);
 
-        if(!isset($post['status'])){
+        if (!isset($post['status'])) {
             $post['status'] = 0 ;
         }
-
+        if (!isset($post['credit'])) {
+            $post['credit'] = 0 ;
+        }
         $query = Company::find($Id) ;
       
         $query->fill($post)->save();
         return $this->respondWithItem(['contact_id'=>$Id]);
-    } 
+    }
    
-    public function destroy(Request $request,$domainId,$Id){
-        $post = $request->all();
+    public function destroy(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
         $query = Parcel::find($Id)->delete();
         return $this->respondWithItem(['parcel_id'=>$Id]);
-    } 
+    }
     
 
     private function validator($data)
@@ -125,7 +137,4 @@ class ContactController extends ApiController
            
         ]);
     }
-
-   
-    
 }

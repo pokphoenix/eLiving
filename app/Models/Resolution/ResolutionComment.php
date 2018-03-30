@@ -2,9 +2,6 @@
 
 namespace App\Models\Resolution;
 
-
-
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +12,4 @@ class ResolutionComment extends Model
     public $timestamps = false;
 
     protected $fillable = ['resolution_id','domain_id', 'description','created_at','created_by'];
-   	
-    
-}	
+}

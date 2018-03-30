@@ -2,11 +2,11 @@ var imgCount = 1 ;
 
     
 
-$(function() {
+$(function () {
 
-          $(".content-wrapper").on("click",".del-doc",function(event) {
+          $(".content-wrapper").on("click",".del-doc",function (event) {
               imgCount = $('#append_upload tr').length;
-              var rows = $(this).closest("tr") ; 
+              var rows = $(this).closest("tr") ;
               rows.remove();
               console.log("click",imgCount);
               $("#append_upload tr td:first-child").each(function (i) {
@@ -15,9 +15,9 @@ $(function() {
               });
           });
 
-          $('#file_upload').on('change',function() {
+          $('#file_upload').on('change',function () {
               var doc_type = $(".doc_type option:selected").text();
-              var doc_value = $(".doc_type option:selected").val(); 
+              var doc_value = $(".doc_type option:selected").val();
               var i = $(this).prev('label').clone();
               var file = $('#file_upload')[0].files[0];
               var file_name = file.name;
@@ -33,13 +33,13 @@ $(function() {
 
               // console.log('imgCount',imgCount);
               // console.log('imgCount',);
-              reader.onload = function(e) {
+              reader.onload = function (e) {
                   var renderfileData ;
-                  if(file_ext=="png"||file_ext=="jpg"){
+                if (file_ext=="png"||file_ext=="jpg") {
                     renderfileData = e.target.result ;
-                  }else{
+                } else {
                     renderfileData = $("#mainPath").val()+"/public/img/file_format/file.png";
-                  }
+                }
               
                   var img_render = "<tr>"+
                               "<td>"+imgCount+"</td>"+
@@ -55,16 +55,16 @@ $(function() {
 
                   $("#append_upload").append(img_render);
                   var data = {
-                      name : file_name ,
-                      extension : file_ext ,
-                      size : file_size ,
-                      data : e.target.result ,
+                        name : file_name ,
+                        extension : file_ext ,
+                        size : file_size ,
+                        data : e.target.result ,
                     }
-                  newFile.val(JSON.stringify(data));
+                    newFile.val(JSON.stringify(data));
 
-                  newFile.insertAfter($('.del-doc').last());
+                    newFile.insertAfter($('.del-doc').last());
 
-                  imgCount++;
+                    imgCount++;
                 
               }
              
@@ -74,9 +74,9 @@ $(function() {
               // }else{
               //   reader.readAsDataURL( $("#mainPath").val()+"/public/img/file_format/etc.png" );
               // }
-              reader.readAsDataURL($('#file_upload')[0].files[0]);
+                reader.readAsDataURL($('#file_upload')[0].files[0]);
 
-              $('#file_upload').val('');
+                $('#file_upload').val('');
           });
 
         // $(".btn-upload-file").on("click",function(){
@@ -92,13 +92,14 @@ $(function() {
         //        "</textarea>"+"</div></div>"+
         //        "<button class=\"btn bg-olive margin btn-add-card\" >Add</button>"+
         //        "<button class=\"btn btn-close-card\" ><i class=\"fa fa-close\"></i></button></div>";
-        //  var rows = $(this).parent(".box-solid") ; 
+        //  var rows = $(this).parent(".box-solid") ;
         //  rows.find(".append-card").append(add_card);
         //  rows.find(".box-footer").hide();
         // })
        
 
 
-      });
+});
       
       
+

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
 class CreateAdminController extends Controller
 {
     private $view = 'admin.create_admin';
@@ -41,9 +42,10 @@ class CreateAdminController extends Controller
         $this->middleware('auth');
         $this->title = (App::isLocale('en')) ? "Agent" : "เจ้าหน้าที่" ;
     }
-    public function index($domainId){
+    public function index($domainId)
+    {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
         $title = $this->title ;
@@ -51,23 +53,26 @@ class CreateAdminController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId."/".$this->route.'?api_token='.Auth()->User()->api_token ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $users = $json['response']['user'] ;
         $totaluser = $json['response']['totaluser'] ;
-        return view($this->view.'.index',compact('users','title','route','domainId','domainName','totaluser'));
+        return view($this->view.'.index', compact('users', 'title', 'route', 'domainId', 'domainName', 'totaluser'));
     }
 
-    public function create($domainId){
+    public function create($domainId)
+    {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
         $title = $this->title ;
         $route = url('').'/api/'.$domainId.'/create-admin?api_token='.Auth()->User()->api_token ;
@@ -75,15 +80,14 @@ class CreateAdminController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/master/role?api_token='.Auth()->User()->api_token ;
         $res = $client->get($url);
-        $json = json_decode($res->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
+        $json = json_decode($res->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
                 $json['errors'] = $response->getBody()->getContents() ;
-                return redirect()->back()
+               return redirect('error')
                 ->withError($json['errors']);
-            }
-        if($json['result']=="false")
-        {
-            return redirect()->back()
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
                 ->withError($json['errors']);
         }
        
@@ -93,14 +97,15 @@ class CreateAdminController extends Controller
       
 
         $defaultRole = "admin" ;
-        return view($this->view.'.create',compact('title','route','roles','domainId','domainName','defaultRole','routePath'));
+        return view($this->view.'.create', compact('title', 'route', 'roles', 'domainId', 'domainName', 'defaultRole', 'routePath'));
     }
 
    
 
-    public function edit($domainId,$idcard){
+    public function edit($domainId, $idcard)
+    {
          $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
         $title = $this->title ;
         $route = $domainId."/".$this->route;
@@ -110,15 +115,14 @@ class CreateAdminController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId.'/create-admin/'.$idcard.'/edit?api_token='.Auth()->User()->api_token ;
         $res = $client->get($url);
-        $json = json_decode($res->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
+        $json = json_decode($res->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
                 $json['errors'] = $res->getBody()->getContents() ;
-                return redirect()->back()
+                return redirect('error')
                 ->withError($json['errors']);
-            }
-        if($json['result']=="false")
-        {
-            return redirect()->back()
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
                 ->withError($json['errors']);
         }
         $data = $json['response']['user'] ;
@@ -126,15 +130,14 @@ class CreateAdminController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/master/role?api_token='.Auth()->User()->api_token ;
         $res = $client->get($url);
-        $json = json_decode($res->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
+        $json = json_decode($res->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
                 $json['errors'] = $response->getBody()->getContents() ;
-                return redirect()->back()
+                return redirect('error')
                 ->withError($json['errors']);
-            }
-        if($json['result']=="false")
-        {
-            return redirect()->back()
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
                 ->withError($json['errors']);
         }
         $roles = $json['response']['roles'] ;
@@ -145,58 +148,55 @@ class CreateAdminController extends Controller
       
 
        
-        return view($this->view.'.create',compact('title','route','roles','domainId','domainName','defaultRole','data','edit','routePath'));
+        return view($this->view.'.create', compact('title', 'route', 'roles', 'domainId', 'domainName', 'defaultRole', 'data', 'edit', 'routePath'));
     }
 
-    public function update(Request $request,$domainId,$idcard){
+    public function update(Request $request, $domainId, $idcard)
+    {
          $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId.'/create-user/'.$idcard.'?api_token='.Auth()->User()->api_token ;
         $post = $request->all();
         $post['_method'] = "PUT" ;
-        $response = $client->POST($url,  ['form_params'=>$post] );
-        $json = json_decode($response->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
+        $response = $client->POST($url, ['form_params'=>$post]);
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
                 $json['errors'] = $response->getBody()->getContents() ;
-                 return redirect()->back()
+                 return redirect('error')
                 ->withError($json['errors']);
-            }
-        if($json['result']=="false")
-        {
-            return redirect()->back()
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
                 ->withError($json['errors']);
         }
 
        
-        return redirect($domainId."/".$this->route)->with('success','อัพเดทข้อมูล สำเร็จ');
+        return redirect($domainId."/".$this->route)->with('success', 'อัพเดทข้อมูล สำเร็จ');
     }
 
-    public function approve(Request $request,$domainId,$idcard){
+    public function approve(Request $request, $domainId, $idcard)
+    {
          $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId.'/create-user/'.$idcard.'/approve?api_token='.Auth()->User()->api_token ;
         $res = $client->get($url);
-        $json = json_decode($res->getBody()->getContents(),true); 
+        $json = json_decode($res->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
+        if (!isset($json['result'])) {
                 $json['errors'] = $response->getBody()->getContents() ;
-                 return redirect()->back()
+                 return redirect('error')
                 ->withError($json['errors']);
-            }
-        if($json['result']=="false")
-        {
-            return redirect()->back()
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
                 ->withError($json['errors']);
         }
 
        
-        return redirect($domainId."/".$this->route)->with('success','อัพเดทข้อมูล สำเร็จ');
+        return redirect($domainId."/".$this->route)->with('success', 'อัพเดทข้อมูล สำเร็จ');
     }
-
-    
-
 }

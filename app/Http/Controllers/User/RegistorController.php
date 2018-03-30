@@ -11,6 +11,7 @@ use DB;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Route;
+
 class RegistorController extends Controller
 {
     /*
@@ -37,19 +38,19 @@ class RegistorController extends Controller
     {
     }
 
-    public function signup(Request $request){
+    public function signup(Request $request)
+    {
         
         $post = $request->all();
         $request = Request::create('/api/signup', 'POST', ['data' => 'data_to_be_checked']);
         $response = Route::dispatch($request);
-        $json = json_decode($response->getContent(),true); 
-        if(!isset($json['result'])){
+        $json = json_decode($response->getContent(), true);
+        if (!isset($json['result'])) {
                 $json['errors'] = $response->getContent() ;
                  return redirect()->back()
                 ->withError($json['errors'])->withInput();
-            }
-        if($json['result']=="false")
-        {
+        }
+        if ($json['result']=="false") {
             return redirect()->back()
                 ->withError($json['errors'])->withInput();
         }
@@ -59,46 +60,49 @@ class RegistorController extends Controller
         return redirect('1/dashboard');
     }
 
-    public function facebook(){
+    public function facebook()
+    {
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/search/province' ;
-        $res =  $client->post($url,  ['form_params'=>['name'=>'']] );
-        $json = json_decode($res->getBody()->getContents(),true); 
+        $res =  $client->post($url, ['form_params'=>['name'=>'']]);
+        $json = json_decode($res->getBody()->getContents(), true);
         $province = $json ;
         $domainId = 1 ;
-        return view('front.facebook',compact('province','domainId'));
+        return view('front.facebook', compact('province', 'domainId'));
     }
 
-    public function facebookSignUp(Request $request){
+    public function facebookSignUp(Request $request)
+    {
         $post = $request->all();
         $request = Request::create('/api/facebook_signup', 'POST', ['data' => 'data_to_be_checked']);
         $response = Route::dispatch($request);
-        $json = json_decode($response->getContent(),true); 
-        if(!isset($json['result'])){
+        $json = json_decode($response->getContent(), true);
+        if (!isset($json['result'])) {
                 $json['errors'] = $response->getContent() ;
                  return redirect()->back()
                 ->withError($json['errors'])->withInput();
-            }
-        if($json['result']=="false")
-        {
+        }
+        if ($json['result']=="false") {
             return redirect()->back()
                 ->withError($json['errors'])->withInput();
         }
          return redirect('domain');
     }
 
-    public function resetPassword(Request $request){
+    public function resetPassword(Request $request)
+    {
         $post = $request->all();
         $token = $post['token'] ;
         $sql = "SELECT *
                 FROM password_resets
-                WHERE (UNIX_TIMESTAMP(UTC_TIMESTAMP() ) BETWEEN UNIX_TIMESTAMP(created_at) AND (UNIX_TIMESTAMP(created_at)+(30*60))) AND token = '".$token."' AND active=0";
+                WHERE (UNIX_TIMESTAMP() BETWEEN UNIX_TIMESTAMP(created_at) AND (UNIX_TIMESTAMP(created_at)+(30*60))) AND token = '".$token."' AND active=0";
         $data = DB::select(DB::raw($sql));
 
         
-        return view('auth.passwords.reset',compact('token','data'));
-    } 
-    public function activeCode(Request $request){
+        return view('auth.passwords.reset', compact('token', 'data'));
+    }
+    public function activeCode(Request $request)
+    {
         $post = $request->all();
         $token = $post['token'] ;
         $sql = "SELECT *, CASE WHEN (UNIX_TIMESTAMP(NOW()) BETWEEN UNIX_TIMESTAMP(created_at) AND (UNIX_TIMESTAMP(created_at)+(30*60))) THEN 0
@@ -107,22 +111,22 @@ class RegistorController extends Controller
                 WHERE  token = '".$token."'
                 LIMIT 1";
         $data = collect(DB::select(DB::raw($sql)))->first();
-        if(empty($data)){
+        if (empty($data)) {
             return redirect('notfound')->withError('token wrong');
         }
 
-        if($data->is_expire){
+        if ($data->is_expire) {
             //--- token expire delete user
             UserActive::find($data->id)->delete();
-            User::where('id_card',$data->id_card)->delete();
+            User::where('id_card', $data->id_card)->delete();
             return redirect('notfound')->withError('token expire please signup again');
         }
 
-        $user = User::where('id_card',$data->id_card)->first();
-        if(empty($user)){
+        $user = User::where('id_card', $data->id_card)->first();
+        if (empty($user)) {
              return redirect('notfound')->withError('not found this user');
         }
-        Auth::loginUsingId($user->id, TRUE);
+        Auth::loginUsingId($user->id, true);
         //--- approve all domain
         DB::update("UPDATE user_domains SET approve=?,approved_at=? WHERE  id_card=? ", [1,Carbon::now(),$data->id_card]);
         //-- set token active

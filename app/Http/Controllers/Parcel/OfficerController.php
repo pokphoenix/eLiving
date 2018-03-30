@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Parcel;
+
 use App;
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
@@ -10,13 +11,15 @@ use DateTime;
 use Illuminate\Http\Request;
 use Route;
 use stdClass ;
+
 class OfficerController extends Controller
 {
     private $route = 'parcel/officer' ;
     private $title  ;
     private $view = 'parcel.officer' ;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->title = App::isLocale('en') ? 'Letter' : 'จดหมาย / พัสดุ' ;
     }
     /**
@@ -27,7 +30,7 @@ class OfficerController extends Controller
     public function index($domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
         
         $title = $this->title ;
@@ -36,13 +39,14 @@ class OfficerController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$route."?api_token=".Auth()->user()->api_token ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
@@ -51,14 +55,15 @@ class OfficerController extends Controller
         
         $client = new \GuzzleHttp\Client();
         $url = url('')."/api/".$domainId."/search/room?api_token=".Auth()->user()->api_token ;
-        $response = $client->post($url,  ['form_params'=>['name'=>'']] );
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $response = $client->post($url, ['form_params'=>['name'=>'']]);
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
@@ -68,23 +73,60 @@ class OfficerController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('')."/api/".$domainId."/parcel/master/type?api_token=".Auth()->user()->api_token ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
+        }
+         $parcelTypes = $json['response']['master_parcel_type'] ;
+        $suppliesTypes = $json['response']['master_parcel_supplies_type'] ;
+
+
+        $client = new \GuzzleHttp\Client();
+        $url = url('')."/api/master/title-name?api_token=".Auth()->user()->api_token ;
+        $response = $client->get($url);
+        $json = json_decode($response->getBody()->getContents(), true);
+
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
+        }
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
 
-        $parcelTypes = $json['response']['master_parcel_type'] ;
-        $suppliesTypes = $json['response']['master_parcel_supplies_type'] ;
+        $titleName = $json['response']['title_name'] ;
        
-        // var_dump($parcelTypes);die;
+
+
+        $client = new \GuzzleHttp\Client();
+        $url = url('')."/api/".$domainId."/parcel/letter?api_token=".Auth()->user()->api_token ;
+        $response = $client->get($url);
+        $json = json_decode($response->getBody()->getContents(), true);
+
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
+        }
+
+        $roomNotSend = $json['response']['data'] ;
+
+  
         
-        return view($this->view.'.index',compact('title','route','domainId','domainName','lists','action','room','parcelTypes','suppliesTypes'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'room', 'parcelTypes', 'suppliesTypes', 'titleName', 'roomNotSend'));
     }
 
     /**
@@ -112,7 +154,7 @@ class OfficerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$taskId)
+    public function show(Request $request, $domainId, $taskId)
     {
     }
 
@@ -122,7 +164,7 @@ class OfficerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -133,7 +175,7 @@ class OfficerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -143,7 +185,7 @@ class OfficerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

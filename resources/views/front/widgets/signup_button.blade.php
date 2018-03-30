@@ -8,10 +8,10 @@
 		       ><span>@lang('main.btn_back') </span>
 		    </button> 
 
-		    <button type="button" class="mu-send-msg-btn next-to"><i class="fa fa-spinner fa-spin fa-fw none" style="float:left;"></i>@lang('main.next') 
+		    <button type="button" class="mu-send-msg-btn next-to"><i class="fa fa-spinner fa-spin fa-fw" style="display:none;float:left;"></i>@lang('main.next') 
 		    </button>
 		       
-		    <button type="button" class="mu-send-msg-btn btn-submit none" ><i class="fa fa-spinner fa-spin fa-fw none" style="float:left;"></i>@lang('main.submit') 
+		    <button type="button" class="mu-send-msg-btn btn-submit none" ><i class="fa fa-spinner fa-spin fa-fw" style="display:none;float:left;"></i>@lang('main.submit') 
 		    </button>
 		</div>
 	</div>

@@ -9,6 +9,4 @@ class Zipcode extends Model
 {
     protected $table = 'zipcodes';
     public $timestamps = false;
-    
-
 }

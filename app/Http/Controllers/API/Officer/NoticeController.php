@@ -6,6 +6,7 @@ use App;
 use App\Http\Controllers\ApiController;
 use App\Models\Company;
 use App\Models\Domain;
+use App\Models\Images;
 use App\Models\Notification;
 use App\Models\Post\Post;
 use App\Models\Post\PostAttach;
@@ -52,18 +53,17 @@ class NoticeController extends ApiController
 
     public function __construct()
     {
-       
-       
     }
 
-    public function search(Request $request){
-      
+    public function search(Request $request)
+    {
     }
 
-    public function index($domainId){
+    public function index($domainId)
+    {
         $likeRoleQuery = "";
         $searchQuery = "";
-        // $sql = "SELECT r.name as role_name 
+        // $sql = "SELECT r.name as role_name
         //         FROM role_user  ru
         //         JOIN roles r ON r.id=ru.role_id
         //         WHERE ru.id_card = '".Auth()->user()->id_card."' AND ru.domain_id=".$domainId ;
@@ -78,15 +78,16 @@ class NoticeController extends ApiController
         // }
 
         // $searchQuery = "AND (now() BETWEEN  p.public_start_at  AND p.public_end_at  OR now() >  p.public_start_at )  ".$likeRoleQuery ;
-        $data['posts'] = Post::getListData($domainId,$this->type,$searchQuery);
+        $data['posts'] = Post::getListData($domainId, $this->type, $searchQuery);
      
         return $this->respondWithItem($data);
-    } 
+    }
     
 
-    public function store(Request $request,$domainId){
+    public function store(Request $request, $domainId)
+    {
         $userId = Auth::user()->id ;
-        $post = $request->all();
+        $post = $request->except('api_token', '_method');
 
         $validator = $this->validator($post);
         if ($validator->fails()) {
@@ -99,21 +100,20 @@ class NoticeController extends ApiController
 
         $insert->public_start_at = (isset($post['start'])&& !empty($post['start'])) ? Carbon::Parse($post['start']) : Carbon::now();
         
-        if(isset($post['end'])&& !empty($post['end']) ){
+        if (isset($post['end'])&& !empty($post['end'])) {
             $insert->public_end_at = Carbon::Parse($post['end']) ;
         }
-        if(isset($post['is_never'])&& !empty($post['is_never'])&&$post['is_never']=="true"){
+        if (isset($post['is_never'])&& !empty($post['is_never'])&&$post['is_never']=="true") {
             $insert->public_end_at = null ;
         }
         $publicRole = "user" ;
-        if(isset($post['role'])){
+        if (isset($post['role'])) {
             $publicRole = "" ;
             foreach ($post['role'] as $key => $role) {
                 $publicRole .= ",$role" ;
             }
             $publicRole = substr($publicRole, 1);
-
-        } 
+        }
         
 
 
@@ -133,11 +133,11 @@ class NoticeController extends ApiController
         $history->save();
 
         $attachments = (gettype($post['file_upload'])=="string") ? (array)json_decode($post['file_upload']) : $post['file_upload']  ;
-        try{
-            if(count($attachments)>0){
-                $files = $this->saveImage($domainId,$attachments) ;
+        try {
+            if (count($attachments)>0) {
+                $files = $this->saveImage($domainId, $attachments) ;
                
-                if(!$files['result']){
+                if (!$files['result']) {
                     return $this->respondWithError($files['error']);
                 }
                 foreach ($files['path'] as $key => $i) {
@@ -153,10 +153,8 @@ class NoticeController extends ApiController
                 PostAttach::insert($filesData);
                 // $history['attach_id'] = $attach->id ;
                 // $this->setHistory($domainId,$insert->id,20,$history) ;
-
             }
-
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             return $this->respondWithError($e->getMessage());
         }
 
@@ -165,38 +163,40 @@ class NoticeController extends ApiController
         $data['post'] = Post::find($insert->id);
         $data['post_id'] = $insert->id;
         return $this->respondWithItem($data);
-    }  
+    }
 
-    public function edit(Request $request,$domainId,$id){
+    public function edit(Request $request, $domainId, $id)
+    {
         $searchQuery = " AND p.id=$id " ;
-        $query = Post::getListData($domainId,$this->type,$searchQuery);
+        $query = Post::getListData($domainId, $this->type, $searchQuery);
 
         $data['post'] = (!empty($query)) ? $query[0] :  $query ;
         return $this->respondWithItem($data);
     }
     
-    private function setHistory($domainId,$id,$statusId,$data=null){
+    private function setHistory($domainId, $id, $statusId, $data = null)
+    {
         $history = new PostHistory();
         $history->post_id = $id;
         $history->domain_id = $domainId;
         $history->status = $statusId ;
         $history->created_at = Carbon::now() ;
         $history->created_by = Auth::user()->id;
-        if($statusId==10){
+        if ($statusId==10) {
             $history->duedate_to = Carbon::Parse($data['due_dated_at']) ;
         }
 
-        if ($statusId==7||$statusId==8||$statusId==9){
+        if ($statusId==7||$statusId==8||$statusId==9) {
             $history->post_comment_id = $data['comment_id'];
         }
 
-        if($statusId==20||$statusId==21){
+        if ($statusId==20||$statusId==21) {
             $history->post_attach_id = $data['attach_id'] ;
         }
         // if($statusId==22||$statusId==23){
         //     $history->task_category_id = $data['category_id'] ;
         // }
-        if($statusId==3||$statusId==4){
+        if ($statusId==3||$statusId==4) {
             $history->assign_to_user_id = $data['user_id'] ;
         }
         // if($statusId==25||$statusId==26||$statusId==31){
@@ -223,19 +223,20 @@ class NoticeController extends ApiController
         ]);
     }
 
-    private function saveImage($domainId,$files)
+    private function saveImage($domainId, $files)
     {
 
         try {
             $result = ['result'=>true,'error'=>''];
-
-            foreach($files as $key=>$file){
-                
-                if(gettype($file)=="array"){
+            if (!Images::validateImage($files)) {
+                return ['result'=>false,'error'=> getLang()=='en' ? 'file size over than 500kb' : 'ไม่สามารถอัพไฟล์ขนาดเกิน 500kb' ];
+            }
+            foreach ($files as $key => $file) {
+                if (gettype($file)=="array") {
                     $fileData = $file['data'];
                     $fileName = time().'_'.$file['name'];
                     $name = $file['name'];
-                }else{
+                } else {
                     $fileData = $file->data ;
                     $fileName = time().'_'.$file->name;
                     $name = $file->name;
@@ -246,16 +247,15 @@ class NoticeController extends ApiController
                
                 $folderName = $domainId."/".date('Ym') ;
                 if (!is_dir(public_path('storage/'.$folderName))) {
-                    File::makeDirectory(public_path('storage/'.$folderName),0755,true);  
+                    File::makeDirectory(public_path('storage/'.$folderName), 0755, true);
                 }
                 $savePath = public_path('storage/'.$folderName.'/').$fileName;
                 file_put_contents($savePath, $data);
                 $result['path'][$key] = $folderName;
                 $result['filename'][$key] = $fileName;
                 $result['name'][$key] = $name;
-
             }
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $result = ['result'=>false,'error'=>$e->getMessage()] ;
         }
         return $result ;

@@ -49,7 +49,8 @@ class RoomController extends ApiController
 
   
 
-    public function index($domainId){
+    public function index($domainId)
+    {
         $url = url('');
         $sql = "select r.*
                 ,IFNULL(t2.cnt,0) as room_cnt
@@ -67,24 +68,27 @@ class RoomController extends ApiController
         $data['rooms'] = $query;
        
         return $this->respondWithItem($data);
-    } 
+    }
    
-    public function show($domainId,$roomId,$taskId){
-        $data = Task::getTaskData($domainId,$taskId,2);
+    public function show($domainId, $roomId, $taskId)
+    {
+        $data = Task::getTaskData($domainId, $taskId, 2);
         return $this->respondWithItem($data);
     }
 
-    public function create($domainId,$roomId){
+    public function create($domainId, $roomId)
+    {
         $data = [];
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request,$domainId){
+    public function store(Request $request, $domainId)
+    {
         $userId = Auth::user()->id ;
-        $post = $request->all();
-        if(isset($post['is_run'])){
+        $post = $request->except('api_token', '_method');
+        if (isset($post['is_run'])) {
             $validator = $this->validatorMultiRoom($post);
-        }else{
+        } else {
             $validator = $this->validator($post);
         }
         if ($validator->fails()) {
@@ -96,17 +100,17 @@ class RoomController extends ApiController
         $txtErrorOverLimit ='ไม่สามารถกำหนดเกิน '.$roomLimit.' ห้องในครั้งเดียวได้ค่ะ';
         $txtErrorRepeat = "ชื่อห้องซ้ำค่ะ";
         
-        if(App::isLocale('en')){
+        if (getLang()=='en') {
             $txtErrorOverLimit ='room over limit, please create '.$roomLimit.' room per times';
             $txtErrorRepeat = "room name already exits";
         }
 
-        if(isset($post['is_run'])){
-            if(($post['number_end']-$post['number_start']) > $roomLimit){
+        if (isset($post['is_run'])) {
+            if (($post['number_end']-$post['number_start']) > $roomLimit) {
                 return $this->respondWithError($txtErrorOverLimit);
             }
             $findRoomNumber = "";
-            for ($i = $post['number_start'] ;$i <= $post['number_end'] ; $i++){
+            for ($i = $post['number_start']; $i <= $post['number_end']; $i++) {
                 $room['domain_id'] =  $domainId;
                 $room['name_prefix'] =  $post['name_prefix'] ;
                 $room['name'] =  $i ;
@@ -115,20 +119,19 @@ class RoomController extends ApiController
                 $findRoomNumber .=",'$i'";
             }
 
-            $findRoomNumber = substr($findRoomNumber,1);
+            $findRoomNumber = substr($findRoomNumber, 1);
 
             $sql = "SELECT * FROM rooms WHERE name_prefix = '".$post['name_prefix']."' AND (name_surfix like '%".$post['name_prefix']."%' OR name_surfix is null ) AND name in ($findRoomNumber) " ;
 
             $repeatRoom = DB::select(DB::raw($sql));
-            if(!empty($repeatRoom)){
+            if (!empty($repeatRoom)) {
                 return $this->respondWithError($txtErrorRepeat);
             }
 
             Room::insert($save);
-        }else{
-
-            $repeat = Room::where('name_prefix',$post['name_prefix'])->where('name',$post['name'])->first();
-            if(!empty($repeat)){
+        } else {
+            $repeat = Room::where('name_prefix', $post['name_prefix'])->where('name', $post['name'])->first();
+            if (!empty($repeat)) {
                 return $this->respondWithError($txtErrorRepeat);
             }
 
@@ -136,29 +139,32 @@ class RoomController extends ApiController
 
             $room = new Room();
             $post['domain_id'] =  $domainId;
-            $room->fill($post)->save(); 
+            $room->fill($post)->save();
         }
 
         
 
         $data['text'] = "success" ;
         return $this->respondWithItem($data);
-    }  
-    public function edit($domainId,$roomId){
+    }
+    public function edit($domainId, $roomId)
+    {
         $data = [];
         $room = Room::find($roomId);
         $roomUser = RoomUser::from('user_rooms as ru')
-                    ->join('users as u','u.id_card','=','ru.id_card')  
-                    ->where('ru.room_id',$roomId)
-                    ->select(DB::raw( 'ru.*,CONCAT( first_name," ",last_name) as text_name' ))
+                    ->join('users as u', 'u.id_card', '=', 'ru.id_card')
+                    ->where('ru.room_id', $roomId)
+                    ->select(DB::raw('ru.*,CONCAT( first_name," ",last_name) as text_name'))
                     ->get();
         $data['room'] = $room;
         $data['room_user'] = $roomUser;
         return $this->respondWithItem($data);
     }
-    public function update(Request $request,$domainId,$roomId){
+    public function update(Request $request, $domainId, $roomId)
+    {
+
         $userId = Auth::user()->id ;
-        $post = $request->all();
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -166,24 +172,33 @@ class RoomController extends ApiController
 
       
 
-        $repeat = Room::where('name_prefix',$post['name_prefix'])->where('name',$post['name'])->where('id','<>',$roomId)->first();
-        if(!empty($repeat)){
+        $repeat = Room::where('name_prefix', $post['name_prefix'])->where('name', $post['name'])->where('id', '<>', $roomId)->first();
+        if (!empty($repeat)) {
             return $this->respondWithError('room name already exits');
         }
 
 
         $room = Room::find($roomId);
         $post['domain_id'] =  $domainId;
-        $room->update($post); 
+        $room->update($post);
 
-        if(isset($post['user-room'])){
-            User::userAddRoom($post,Auth()->user()->idcard);
+        if (isset($post['user-room'])) {
+            User::userAddRoom($post, Auth()->user()->idcard, $roomId);
         }
 
 
         $data['text'] = "success" ;
         return $this->respondWithItem($data);
-    }  
+    }
+
+    public function removeUser(Request $request, $domainId, $roomId, $idCard)
+    {
+        RoomUser::where('id_card', $idCard)
+        ->where('room_id', $roomId)
+        ->delete();
+        $data['text'] = "success" ;
+        return $this->respondWithItem($data);
+    }
 
     private function validator($data)
     {
@@ -199,5 +214,4 @@ class RoomController extends ApiController
             'number_start' => 'required|string|max:255',
         ]);
     }
-    
 }

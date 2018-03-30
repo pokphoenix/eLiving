@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Parking;
+
 use App;
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
@@ -10,13 +11,15 @@ use DateTime;
 use Illuminate\Http\Request;
 use Route;
 use stdClass ;
+
 class PackageController extends Controller
 {
     private $route = 'parking/package' ;
     private $title  ;
     private $view = 'parking.package' ;
 
-    public function __construct(){
+    public function __construct()
+    {
 
         $this->title = App::isLocale('en') ? 'Parking Package' : 'แพ็คเกจที่จอดรถ' ;
     }
@@ -28,30 +31,31 @@ class PackageController extends Controller
     public function index($domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
         $title = $this->title ;
         $route = $domainId."/".$this->route ;
         $action = url('/api/'.$route)."?api_token=".Auth()->user()->api_token ;
         $client = new \GuzzleHttp\Client();
-        $url = url('').'/api/'.$route."?api_token=".Auth()->user()->api_token ;
+        $url = url('')."/api/$domainId/parking/package/search?api_token=".Auth()->user()->api_token ;
 
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
 
         $lists = $json['response']['parking_packages'] ;
      
-        return view($this->view.'.index',compact('title','route','domainId','domainName','lists','action'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action'));
     }
 
     /**
@@ -79,7 +83,7 @@ class PackageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$taskId)
+    public function show(Request $request, $domainId, $taskId)
     {
     }
 
@@ -89,7 +93,7 @@ class PackageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -100,7 +104,7 @@ class PackageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -110,7 +114,7 @@ class PackageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

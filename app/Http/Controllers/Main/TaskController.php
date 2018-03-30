@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Main;
+
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
 use Auth;
@@ -10,13 +11,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Route;
 use stdClass ;
+
 class TaskController extends Controller
 {
     private $route = 'task' ;
     private $title = 'นิติ' ;
     private $view = 'main.task' ;
 
-    public function __construct(){
+    public function __construct()
+    {
     }
     /**
      * Display a listing of the resource.
@@ -26,7 +29,7 @@ class TaskController extends Controller
     public function index($domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
         $title = $this->title ;
@@ -35,26 +38,27 @@ class TaskController extends Controller
         $url = url('').'/api/'.$route ;
 
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
 
         $tasks = $json['response']['tasks'] ;
         $taskDone = [];
-        foreach ($tasks as $task){
-            if($task['status']==7){
+        foreach ($tasks as $task) {
+            if ($task['status']==7) {
                 $taskDone[] = $task ;
             }
         }
 
-        usort($taskDone, function($a, $b) {
+        usort($taskDone, function ($a, $b) {
             $ad = new DateTime($a['doned_at']);
             $bd = new DateTime($b['doned_at']);
             if ($ad == $bd) {
@@ -66,7 +70,7 @@ class TaskController extends Controller
         $statusHistory = $json['response']['master_status_history'] ;
         $taskCategory = $json['response']['master_task_category'] ;
         $taskMember = $json['response']['member_task'] ;
-        return view($this->view.'.index',compact('title','route','domainId','domainName','tasks','statusHistory','taskCategory','taskMember','taskDone'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'tasks', 'statusHistory', 'taskCategory', 'taskMember', 'taskDone'));
     }
 
     /**
@@ -94,10 +98,10 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$taskId)
+    public function show(Request $request, $domainId, $taskId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
         $title = $this->title ;
@@ -107,30 +111,31 @@ class TaskController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$route ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
         $tasks = $json['response']['tasks'] ;
         $taskDone = [];
-        foreach ($tasks as $task){
-            if($task['status']==7){
+        foreach ($tasks as $task) {
+            if ($task['status']==7) {
                 $taskDone[] = $task ;
             }
         }
 
-        usort($taskDone, function($a, $b) {
+        usort($taskDone, function ($a, $b) {
             return $b['doned_at']-$a['doned_at'];
         });
         $taskCategory = $json['response']['master_task_category'] ;
         $taskMember = $json['response']['member_task'] ;
        
-        return view($this->view.'.index',compact('title','route','domainId','domainName','tasks','taskId','taskCategory','taskMember','taskDone'));
+        return view($this->view.'.index', compact('title', 'route', 'domainId', 'domainName', 'tasks', 'taskId', 'taskCategory', 'taskMember', 'taskDone'));
     }
 
     /**
@@ -139,7 +144,7 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -150,7 +155,7 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -160,7 +165,7 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Parcel;
+
 use App;
 use App\Http\Controllers\Controller ;
 use App\Models\Domain;
@@ -10,13 +11,15 @@ use DateTime;
 use Illuminate\Http\Request;
 use Route;
 use stdClass ;
+
 class PrintController extends Controller
 {
     private $route = 'parcel/print' ;
     private $title  ;
     private $view = 'parcel.officer' ;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->title = App::isLocale('en') ? 'Letter / Parcel Post' : 'ใบบันทึกรายการจดหมาย / พัสดุ ลงทะเบียน' ;
     }
     /**
@@ -24,14 +27,14 @@ class PrintController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request,$domainId)
+    public function index(Request $request, $domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
-        $startDate = $request->input('start_date',time());
-        $endDate = $request->input('end_date',time()); 
+        $startDate = $request->input('start_date', time());
+        $endDate = $request->input('end_date', time());
         
 
 
@@ -41,19 +44,22 @@ class PrintController extends Controller
         $action = url('/api/'.$route)."?api_token=".Auth()->user()->api_token ;
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$route."?api_token=".Auth()->user()->api_token ;
-        if(isset($startDate))
+        if (isset($startDate)) {
             $url .= "&start_date=".$startDate ;
-        if(isset($endDate))
+        }
+        if (isset($endDate)) {
             $url .= "&end_date=".$endDate ;
+        }
 
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
@@ -63,50 +69,55 @@ class PrintController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId.'/parcel/print/setting?api_token='.Auth()->User()->api_token ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $setting = $json['response'] ;
 
 
         $preview = true;
-       
-        return view($this->view.'.print',compact('title','route','domainId','domainName','lists','action','room','parcelTypes','suppliesTypes','setting','preview','startDate','endDate'));
+  
+        return view($this->view.'.print', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'room', 'parcelTypes', 'suppliesTypes', 'setting', 'preview', 'startDate', 'endDate'));
     }
 
 
-    public function getGift(Request $request,$domainId)
+    public function getGift(Request $request, $domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
-        $startDate = $request->input('start_date',time());
-        $endDate = $request->input('end_date',time()); 
+        $startDate = $request->input('start_date', strtotime('-1 hours'));
+        $endDate = $request->input('end_date', time());
         
-        $title =  App::isLocale('en') ? 'Letter' : 'ใบขอรับของฝาก' ;
+        $title =  getLang()=='en' ? 'Letter' : 'ใบขอรับของฝาก' ;
         $route = $domainId."/".$this->route ;
         $action = url('/api/'.$route)."?api_token=".Auth()->user()->api_token ;
         $client = new \GuzzleHttp\Client();
         $url = url('')."/api/".$domainId."/parcel/print-gift?api_token=".Auth()->user()->api_token ;
-         if(isset($startDate))
+        if (isset($startDate)) {
             $url .= "&start_date=".$startDate ;
-        if(isset($endDate))
+        }
+        if (isset($endDate)) {
             $url .= "&end_date=".$endDate ;
+        }
         $response = $client->get($url);
        
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
@@ -116,31 +127,33 @@ class PrintController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId.'/parcel/print/setting?api_token='.Auth()->User()->api_token ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $setting = $json['response'] ;
 
  
         $preview = true;
         
-        return view($this->view.'.print_gift',compact('title','route','domainId','domainName','lists','action','room','parcelTypes','suppliesTypes','setting','preview','startDate','endDate'));
+        return view($this->view.'.print_gift', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'room', 'parcelTypes', 'suppliesTypes', 'setting', 'preview', 'startDate', 'endDate'));
     }
 
-    public function getGiftView(Request $request,$domainId)
+    public function getGiftView(Request $request, $domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
         $id = $request->input('id');
         
-        $title =  App::isLocale('en') ? 'Letter' : 'ใบขอรับของฝาก' ;
+        $title =  getLang()=='en' ? 'Letter' : 'ใบขอรับของฝาก' ;
         $route = $domainId."/".$this->route ;
         $action = url('/api/'.$route)."?api_token=".Auth()->user()->api_token ;
         $client = new \GuzzleHttp\Client();
@@ -148,13 +161,14 @@ class PrintController extends Controller
        
         $response = $client->get($url);
        
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
@@ -164,95 +178,117 @@ class PrintController extends Controller
         $client = new \GuzzleHttp\Client();
         $url = url('').'/api/'.$domainId.'/parcel/print/setting?api_token='.Auth()->User()->api_token ;
         $response = $client->get($url);
-        $json = json_decode($response->getBody()->getContents(),true); 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
-            return $json['errors'] ;
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
         }
         $setting = $json['response'] ;
 
  
         $preview = true;
         
-        return view($this->view.'.print_gift_view',compact('title','route','domainId','domainName','lists','action','room','parcelTypes','suppliesTypes','setting','preview','startDate','endDate'));
+        return view($this->view.'.print_gift_view', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'room', 'parcelTypes', 'suppliesTypes', 'setting', 'preview', 'startDate', 'endDate'));
     }
 
-    public function getMail(Request $request,$domainId)
+    public function getMail(Request $request, $domainId)
     {
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
-        $startDate = $request->input('start_date',time());
-        $endDate = $request->input('end_date',time()); 
+        $startDate = $request->input('start_date', strtotime('-1 hours'));
+        $endDate = $request->input('end_date', time());
         
 
-        $title =  App::isLocale('en') ? 'Letter / Parcel' : 'ใบขอรับจดหมายและพัสดุลงทะเบียน' ;
+        $title =  getLang()=='en' ? 'Letter / Parcel' : 'ใบขอรับจดหมายและพัสดุลงทะเบียน' ;
         $route = $domainId."/".$this->route ;
         $action = url('/api/'.$route)."?api_token=".Auth()->user()->api_token ;
         $client = new \GuzzleHttp\Client();
         $url = url('')."/api/".$domainId."/parcel/print-mail?api_token=".Auth()->user()->api_token ;
-        if(isset($startDate))
+        if (isset($startDate)) {
             $url .= "&start_date=".$startDate ;
-        if(isset($endDate))
+        }
+        if (isset($endDate)) {
             $url .= "&end_date=".$endDate ;
+        }
         $response = $client->get($url);
        
-        $json = json_decode($response->getBody()->getContents(),true); 
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
 
         $lists = $json['response']['parcel_officer'] ;
+       
         
-    
         $preview = true;
+
         
-        return view($this->view.'.print_mail',compact('title','route','domainId','domainName','lists','action','room','parcelTypes','suppliesTypes','setting','preview','startDate','endDate'));
+        return view($this->view.'.print_mail', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'room', 'parcelTypes', 'suppliesTypes', 'setting', 'preview', 'startDate', 'endDate'));
     }
 
-    public function getMailView(Request $request,$domainId)
+    public function getMailView(Request $request, $domainId)
     {
+
         $domainName = $domainId ;
-        $query = Domain::where('url_name',$domainName)->first();
+        $query = Domain::where('url_name', $domainName)->first();
         $domainId = $query->id ;
 
         $id = $request->input('id');
 
-        $title =  App::isLocale('en') ? 'Letter / Parcel' : 'ใบขอรับจดหมายและพัสดุลงทะเบียน' ;
+        $title =  getLang()=='en' ? 'Letter / Parcel' : 'ใบขอรับจดหมายและพัสดุลงทะเบียน' ;
         $route = $domainId."/".$this->route ;
         $action = url('/api/'.$route)."?api_token=".Auth()->user()->api_token ;
         $client = new \GuzzleHttp\Client();
         $url = url('')."/api/".$domainId."/parcel/print-gift/view?api_token=".Auth()->user()->api_token."&id=".$id  ;
-      
+        
         $response = $client->get($url);
-       
-        $json = json_decode($response->getBody()->getContents(),true); 
+        
+        $json = json_decode($response->getBody()->getContents(), true);
 
-        if(!isset($json['result'])){
-            return $response->getBody()->getContents() ;
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
         }
-        if($json['result']=="false")
-        {
+        if ($json['result']=="false") {
             return redirect('error')
                 ->withError($json['errors']);
         }
 
         $lists = $json['response']['parcel_officer'] ;
         
+         $client = new \GuzzleHttp\Client();
+        $url = url('').'/api/'.$domainId.'/parcel/print/setting?api_token='.Auth()->User()->api_token ;
+        $response = $client->get($url);
+        $json = json_decode($response->getBody()->getContents(), true);
+        if (!isset($json['result'])) {
+             $json['errors'] = $response->getBody()->getContents() ;
+               return redirect('error')
+                ->withError($json['errors']);
+        }
+        if ($json['result']=="false") {
+            return redirect('error')
+                ->withError($json['errors']);
+        }
+        $setting = $json['response'] ;
     
         $preview = true;
         
-        return view($this->view.'.print_mail_view',compact('title','route','domainId','domainName','lists','action','room','parcelTypes','suppliesTypes','setting','preview','startDate','endDate'));
+        return view($this->view.'.print_mail_view', compact('title', 'route', 'domainId', 'domainName', 'lists', 'action', 'room', 'parcelTypes', 'suppliesTypes', 'setting', 'preview', 'startDate', 'endDate'));
     }
 
 
@@ -281,9 +317,8 @@ class PrintController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request,$domainId,$taskId)
+    public function show(Request $request, $domainId, $taskId)
     {
-        
     }
 
     /**
@@ -292,7 +327,7 @@ class PrintController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($domainId,$id)
+    public function edit($domainId, $id)
     {
     }
 
@@ -303,7 +338,7 @@ class PrintController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $domainId,$id)
+    public function update(Request $request, $domainId, $id)
     {
     }
 
@@ -313,7 +348,7 @@ class PrintController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($domainId,$id)
+    public function destroy($domainId, $id)
     {
-    } 
+    }
 }

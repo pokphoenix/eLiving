@@ -170,10 +170,19 @@
       },
     
       submitHandler: function (form) {
+              
+              var formData = new FormData($("#create-form")[0]); 
+              @if(isset($edit))
+              formData.append('_method','PUT');
+              @endif
+
              $.ajax({
-                 type:"{{ isset($edit) ? 'PUT' : 'POST' }}",
+                 type:'POST',
                  url : '{{ url($action) }}',
-                 data: $(form).serialize(),
+                 data: formData ,
+                 cache:false,
+                  contentType: false,
+                  processData: false,
                  success: function (data) {
                     console.log(data,typeof data.response);
                     if(data.result=="true"){

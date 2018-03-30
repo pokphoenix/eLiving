@@ -48,10 +48,11 @@ class TaskController extends ApiController
 
   
 
-    public function index($domainId,$roomId){
+    public function index($domainId, $roomId)
+    {
         $url = url('');
-            $sqlLang =  (App::isLocale('en')) ? 'tc.name_en' : 'tc.name_th' ;
-        $sql = "select t.*,$sqlLang as category_name 
+        $lang =  getLang();
+        $sql = "select t.*,tc.name_$lang as category_name 
                 ,tc.color as category_color 
               
                 ,IFNULL(t2.cnt,0) as success_checklist
@@ -76,14 +77,13 @@ class TaskController extends ApiController
                 left join master_task_category as tc 
                 on t.category_id = tc.id 
               
-                WHERE t.created_by = ".Auth::user()->id."
-                AND t.type = 2
+                WHERE t.type = 2
                 AND t.domain_id = $domainId
                 AND t.room_id = $roomId
                 ORDER BY t.created_at DESC" ;
         $tasks   =  DB::select(DB::raw($sql));
         $data['tasks'] = [];
-        if (!empty($tasks )){
+        if (!empty($tasks)) {
             foreach ($tasks as $key => $task) {
                 $data['tasks'][$task->id]['id'] = $task->id ;
                 $data['tasks'][$task->id]['title'] = $task->title ;
@@ -103,26 +103,27 @@ class TaskController extends ApiController
                 $data['tasks'][$task->id]['category_color'] = $task->category_color ;
                 $data['tasks'][$task->id]['checklist_success'] = $task->success_checklist ;
                 $data['tasks'][$task->id]['checklist_total'] = $task->total_checklist ;
-              
             }
         }
       
         $data['tasks'] = array_values($data['tasks']);
-        $data['master_status_history'] = StatusHistory::where('status',1)->get();
+        $data['master_status_history'] = StatusHistory::where('status', 1)->get();
         $data['master_task_category'] = TaskCategory::getTaskCategory(2) ;
        
-        $data['member_task'] = Search::memberTask($domainId,'');
+        $data['member_task'] = Search::memberTask($domainId, '');
         return $this->respondWithItem($data);
-    } 
+    }
    
-    public function show($domainId,$roomId,$taskId){
-        $data = Task::getTaskData($domainId,$taskId,2);
+    public function show($domainId, $roomId, $taskId)
+    {
+        $data = Task::getTaskData($domainId, $taskId, 2);
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request,$domainId,$roomId){
+    public function store(Request $request, $domainId, $roomId)
+    {
         $userId = Auth::user()->id ;
-        $post = $request->all();
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -152,9 +153,9 @@ class TaskController extends ApiController
         $viewer->task_id = $task->id;
         $viewer->created_at = Carbon::now();
         $viewer->save();
-        $data = Task::getTaskData($domainId,$task->id,2);
+        $data = Task::getTaskData($domainId, $task->id, 2);
         return $this->respondWithItem($data);
-    }  
+    }
     
     private function validator($data)
     {
@@ -163,5 +164,4 @@ class TaskController extends ApiController
             'category_id' => 'required|numeric',
         ]);
     }
-    
 }

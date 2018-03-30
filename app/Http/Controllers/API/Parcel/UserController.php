@@ -12,11 +12,12 @@ use Carbon\Carbon;
 use DB;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+
 use Validator;
 
 class UserController extends ApiController
 {
-    private  $sqlSub ='' ;
+    private $sqlSub ='' ;
     /*
     |--------------------------------------------------------------------------
     | Login Controller
@@ -30,19 +31,14 @@ class UserController extends ApiController
 
     public function __construct()
     {
-
-        if(App::isLocale('en')){
-            $sqlSub = ",mpt.name_en as parcel_type_name ,mst.name_en as supplies_type_name";
-        }else{
-            $sqlSub = ",mpt.name_th as parcel_type_name ,mst.name_th as supplies_type_name";
-        }
-
+        $lang = getLang();
+        $sqlSub = ",mpt.name_$lang as parcel_type_name ,mst.name_$lang as supplies_type_name";
         $this->sqlSub = $sqlSub ;
-
     }
 
     
-    public function index($domainId,$roomId){
+    public function index($domainId, $roomId)
+    {
         $sql = "SELECT p.*
                 ".$this->sqlSub."
                 FROM parcels as p
@@ -65,14 +61,12 @@ class UserController extends ApiController
       
 
         return $this->respondWithItem($data);
-    } 
+    }
 
-    public function masterParcelType(){
-        if(App::isLocale('en')){
-            $sqlSub = "name_en as name";
-        }else{
-            $sqlSub = "name_th as name";
-        }
+    public function masterParcelType()
+    {
+        $lang = getLang();
+        $sqlSub = "name_$lang as name";
         $sql = "SELECT id,$sqlSub
                 FROM master_parcel_type 
                 WHERE status = 1 ORDER BY id ASC" ;
@@ -87,12 +81,13 @@ class UserController extends ApiController
 
 
        
-        return $this->respondWithItem($data);  
+        return $this->respondWithItem($data);
     }
   
 
-    public function store(Request $request,$domainId){
-        $post = $request->all();
+    public function store(Request $request, $domainId)
+    {
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -101,7 +96,7 @@ class UserController extends ApiController
         $post['send_date'] = Carbon::parse($post['send_date']);
        
         $query = new Parcel();
-        $query->created_by = Auth()->user()->id; 
+        $query->created_by = Auth()->user()->id;
         $query->created_at = Carbon::now();
         $query->domain_id = $domainId ;
         $query->fill($post)->save();
@@ -127,13 +122,13 @@ class UserController extends ApiController
 
         $notiMsg = "";
 
-        if (!empty($noti)){
+        if (!empty($noti)) {
             $notiMsg .=  $noti->parcel_type_name;
-            if($noti->type!=1){
-                if($noti->type==2){
-                    $notiMsg .= "ถึง  คุณ ".$noti->supplies_send_name." ".$noti->supplies_code;
-                }elseif($noti->type==3){
-                    $notiMsg .= "ถึง  คุณ ".$noti->gift_receive_name." ".$noti->gift_description;
+            if ($noti->type!=1) {
+                if ($noti->type==2) {
+                    $notiMsg .= "ถึง  ".$noti->supplies_send_name." ".$noti->supplies_code;
+                } elseif ($noti->type==3) {
+                    $notiMsg .= "ถึง  ".$noti->gift_receive_name." ".$noti->gift_description;
                 }
             }
             $notiMsg .=" ส่งห้อง ".$noti->room_name ;
@@ -148,13 +143,14 @@ class UserController extends ApiController
                 AND ud.domain_id = $domainId
                 WHERE ur.approve = 1 AND ur.room_id =".$noti->room_id ;
         $query = DB::select(DB::raw($sql2));
-        if(!empty($query)){
-            Notification::addNotificationMulti($query,$domainId,$notiMsg,3,6,null,true);
+        if (!empty($query)) {
+            Notification::addNotificationMulti($query, $domainId, $notiMsg, 3, 6, null, true);
         }
         return $this->respondWithItem(['parcel_id'=>$parcelId,'noti_msg'=> $notiMsg]);
-    }  
+    }
 
-    public function show($domainId,$roomId,$id){
+    public function show($domainId, $roomId, $id)
+    {
         $sql = "SELECT p.*
                 ".$this->sqlSub."
                 FROM parcels as p
@@ -172,34 +168,57 @@ class UserController extends ApiController
         
 
         return $this->respondWithItem($data);
-    } 
+    }
 
 
-    public function edit($domainId,$id){
+    public function edit($domainId, $id)
+    {
         $data['parking_package']  = Parcel::find($id);
         return $this->respondWithItem($data);
-    } 
+    }
 
-    public function update(Request $request,$domainId,$Id){
-        $post = $request->all();
+    public function update(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
 
         unset($post['_method']);
         unset($post['api_token']);
 
         $query = Parcel::find($Id) ;
-        if(empty($query)){
+        if (empty($query)) {
             $query = new Parcel();
         }
         $query->fill($post)->save();
         return $this->respondWithItem(['parking_package_id'=>$Id]);
-    } 
-    public function destroy(Request $request,$domainId,$Id){
-        $post = $request->all();
+    }
+    public function destroy(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
         $query = Parcel::find($Id)->delete();
         return $this->respondWithItem(['parcel_id'=>$Id]);
-    } 
-     public function receive(Request $request,$domainId,$Id){
-        $post = $request->all();
+    }
+    public function code(Request $request, $domainId, $code)
+    {
+        $post = $request->except('api_token', '_method');
+        unset($post['api_token']);
+        $user= Auth()->user();
+        // echo "name : ".$user->first_name." ".$user->last_name;
+        $query = Parcel::where('qrcode_key', $code)->first() ;
+        if (empty($query)) {
+            return $this->respondWithError($this->langMessage('ไม่พบข้อมูลที่คุณเรียก', 'No data found'));
+        }
+
+        $query->receive_at = Carbon::now();
+        $query->receive_name = $user->first_name." ".$user->last_name;
+        $query->receive_tel = $user->tel;
+        
+
+        $query->save();
+        return $this->respondWithItem(['parcel_id'=>$query->id]);
+    }
+    public function receive(Request $request, $domainId, $Id)
+    {
+        $post = $request->except('api_token', '_method');
 
         $validator = $this->validatorReceive($post);
         if ($validator->fails()) {
@@ -211,8 +230,9 @@ class UserController extends ApiController
         $query->receive_at = Carbon::now();
         $query->fill($post)->save();
         return $this->respondWithItem(['parcel_id'=>$Id]);
-    } 
-     public function unReceive(Request $request,$domainId,$Id){
+    }
+    public function unReceive(Request $request, $domainId, $Id)
+    {
        
     
         $query = Parcel::find($Id) ;
@@ -222,7 +242,7 @@ class UserController extends ApiController
 
         $query->save();
         return $this->respondWithItem(['parcel_id'=>$Id]);
-    } 
+    }
 
     private function validator($data)
     {
@@ -233,12 +253,16 @@ class UserController extends ApiController
            
         ]);
     }
-     private function validatorReceive($data)
+    private function validatorReceive($data)
     {
         return Validator::make($data, [
-            'receive_name' => 'required|',
-           
-           
+           'receive_name' => 'required|',
+        ]);
+    }
+    private function validatorCode($data)
+    {
+        return Validator::make($data, [
+            'code' => 'required|',
         ]);
     }
 }

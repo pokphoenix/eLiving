@@ -2,7 +2,6 @@
 
 namespace App\Models\Post;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class PostHistory extends Model

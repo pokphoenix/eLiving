@@ -10,7 +10,5 @@ class PhoneDirectory extends Model
     protected $table = 'phone_directory';
     public $timestamps = false;
 
-     protected $fillable = ['text'];
-    
-
+    protected $fillable = ['text','domain_id'];
 }

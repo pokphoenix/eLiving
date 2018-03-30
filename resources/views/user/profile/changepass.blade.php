@@ -175,11 +175,19 @@
       submitHandler: function (form) {
 
         // console.log(form.action);
+         var formData = new FormData($("#create-form")[0]); 
+             
+              formData.append('_method','PUT');
+              
+
 
              $.ajax({
-                 type: "PUT",
-                 url: "{{ $apiUpdate }}",
-                 data: $(form).serialize(),
+                  type: "POST",
+                  url: "{{ $apiUpdate }}",
+                  data: formData ,
+                  cache:false,
+                  contentType: false,
+                  processData: false,
                  success: function (data) {
                     console.log(data,typeof data.response);
                     if(data.result=="true"){

@@ -179,7 +179,7 @@ $array = [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -235,6 +235,7 @@ $array = [
         'Entrust'   => Zizaco\Entrust\EntrustFacade::class,
 
         'Service'   =>  App\Models\Service::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

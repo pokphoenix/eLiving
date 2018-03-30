@@ -143,9 +143,9 @@
         $('.del-img').on('click',function(){
             var ele = $(this).closest('.form-group') ;
             $.ajax({
-                method:'DELETE',
+                method:'POST',
                 url: $(this).data('href') ,
-                data: { _token: CSRF_TOKEN }
+                data: { _token: CSRF_TOKEN,'_method':'DELETE'}
                
             })
             .done(function(html) {

@@ -166,7 +166,7 @@
 				            <div class="box-footer">
 				              	<button  class="btn btn-primary btn-save-post" >
 				              		@lang('post.post')
-				              		<i class="fa fa-spinner fa-spin fa-fw none"></i>
+				              		<i class="fa fa-spinner fa-spin fa-fw" style="display:none;"></i>
 				              	</button>
 				            </div>
 		            <!-- /.box-footer -->
@@ -443,7 +443,7 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
                 <button type="button" class="btn btn-primary btn-save-public">@lang('main.btn_save')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
                 </button>
               </div>
             </div>
@@ -598,10 +598,10 @@ $(document).on("click",".btn-cancel-edit",function(){
 $(document).on("click",".btn-save-edit",function(){
 	var parent = $(this).closest('.box-widget');
 	var text = parent.find('.text-edit textarea').val();
-	var data = { 'description':text  } ;
+	var data = { 'description':text,'_method':'PUT'   } ;
 	var post_id = parent.find('.post-id').val();
 	var route = "/post/"+post_id+"?api_token="+api_token ;
-	ajaxPromise('PUT',route,data).done(function(data){
+	ajaxPromise('POST',route,data).done(function(data){
 		parent.find('.text-show').text(text).show();
 		parent.find('.text-edit').hide();
 	})
@@ -653,7 +653,7 @@ $(document).on("click",".btn-delete-post",function(){
           if (result.value) {
          	var post_id = parent.find('.post-id').val();
 			var route = "/post/"+post_id+"?api_token="+api_token ;
-			ajaxPromise('DELETE',route,null).done(function(data){
+			ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
 				parent.remove();
 			})
 
@@ -749,7 +749,7 @@ $(document).on("click",".btn-unban-user",function(){
           if (result.value) {
          
 			var route = "/post/"+user_id+"/unban?api_token="+api_token ;
-			ajaxPromise('DELETE',route,null).done(function(data){
+			ajaxPromise('POST',route,{'_method':'DELETE'}).done(function(data){
 				parent.remove();
 			})
 
@@ -768,7 +768,7 @@ $(document).on("click",".btn-like",function(){
 	var parent = $(this).closest('.box-widget') ;
 	var postId = parent.find('.post-id').val();
 	var route = "/"+$("#route").val()+"/"+postId+"/like?api_token="+api_token;
-	ajaxPromise('PUT',route,null).done(function(data){
+	ajaxPromise('POST',route,{'_method':'PUT' }).done(function(data){
 		console.log(data);
 		var text = data.post_like+" likes - "+data.post_comment+" comments"; 
 		parent.find(".like-comment").text(text);

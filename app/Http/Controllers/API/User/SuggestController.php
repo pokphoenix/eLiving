@@ -50,20 +50,14 @@ class SuggestController extends ApiController
 
   
 
-    public function index($domainId){
+    public function index($domainId)
+    {
         $url = url('');
-            $sqlLang =  (App::isLocale('en')) ? 'tc.name_en' : 'tc.name_th' ;
-        $sql = "select t.*,$sqlLang as category_name 
+        $lang = getLang();
+        $sql = "select t.*
                 ,tc.color as category_color 
-              
-              
-            
+                ,tc.name_$lang as category_name 
                 from suggests as t 
-               
-                
-
-             
-
                 left join master_suggest_category as tc 
                 on t.category_id = tc.id 
               
@@ -73,7 +67,7 @@ class SuggestController extends ApiController
                 ORDER BY t.created_at DESC" ;
         $query   =  DB::select(DB::raw($sql));
         $data['suggests'] = [];
-        if (!empty($query )){
+        if (!empty($query)) {
             foreach ($query as $key => $suggest) {
                 $data['suggests'][$suggest->id]['id'] = $suggest->id ;
                 $data['suggests'][$suggest->id]['title'] = $suggest->title ;
@@ -88,26 +82,26 @@ class SuggestController extends ApiController
                 $data['suggests'][$suggest->id]['category_id'] = $suggest->category_id;
                 $data['suggests'][$suggest->id]['category_name'] = $suggest->category_name ;
                 $data['suggests'][$suggest->id]['category_color'] = $suggest->category_color ;
-              
-              
             }
         }
       
         $data['suggests'] = array_values($data['suggests']);
-        $data['master_status_history'] = StatusHistory::where('status',1)->get();
+        $data['master_status_history'] = StatusHistory::where('status', 1)->get();
         $data['master_suggest_category'] = SuggestCategory::getCategory() ;
        
         return $this->respondWithItem($data);
-    } 
+    }
    
-    public function show($domainId,$suggestId){
-        $data = Suggest::getSuggestData($domainId,$suggestId,2);
+    public function show($domainId, $suggestId)
+    {
+        $data = Suggest::getSuggestData($domainId, $suggestId, 2);
         return $this->respondWithItem($data);
     }
 
-    public function store(Request $request,$domainId){
+    public function store(Request $request, $domainId)
+    {
         $userId = Auth::user()->id ;
-        $post = $request->all();
+        $post = $request->except('api_token', '_method');
         $validator = $this->validator($post);
         if ($validator->fails()) {
             return $this->respondWithError($validator->errors());
@@ -123,9 +117,9 @@ class SuggestController extends ApiController
         $suggest->save();
 
      
-        $data = Suggest::getSuggestData($domainId,$suggest->id,2);
+        $data = Suggest::getSuggestData($domainId, $suggest->id, 2);
         return $this->respondWithItem($data);
-    }  
+    }
     
     private function validator($data)
     {
@@ -134,5 +128,4 @@ class SuggestController extends ApiController
             'category_id' => 'required|numeric',
         ]);
     }
-    
 }

@@ -69,7 +69,7 @@
                             <input type="text" class="form-control" id="peano" name="peano" placeholder="@lang('contact.tin')"  >
                         </div>
                          <button type="button" class="btn btn-primary btn-save">@lang('main.btn_save')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
                 </button>
                       
                   
@@ -107,7 +107,7 @@
               <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">@lang('main.close')</button>
                 <button type="button" class="btn btn-primary btn-save">@lang('main.btn_save')
-                   <i class="fa fa-spinner fa-spin fa-fw none" ></i>
+                   <i class="fa fa-spinner fa-spin fa-fw" style="display:none;" ></i>
                 </button>
               </div>
             </div>

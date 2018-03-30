@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
+
 class WaitUserController extends ApiController
 {
     private $view = 'admin.create_user';
@@ -44,14 +45,20 @@ class WaitUserController extends ApiController
      *
      * @return void
      */
-     public function __construct()
+    public function __construct()
     {
 
         $this->middleware('auth');
     }
 
 
-    public function index($domainId){
+    public function index($domainId)
+    {
+        $isSystemAdmin = Auth()->user()->hasRole('system.admin');
+        $subQuery = "" ;
+        if (!$isSystemAdmin) {
+            $subQuery = " AND  u.id_card not in ( SELECT id_card FROM role_user WHERE role_id = 7  )";
+        }
         try {
             $sql = "SELECT * FROM (
                         SELECT  u.username,u.id_card,u.first_name,u.last_name,u.created_at,r.name as role_name , ud.approve , 1 as registor
@@ -61,7 +68,7 @@ class WaitUserController extends ApiController
                         LEFT JOIN role_user ur ON ur.id_card = u.id_card AND ur.domain_id = d.id
                         LEFT JOIN roles r ON ur.role_id = r.id 
                         WHERE d.id = $domainId AND (ud.approve!=1 AND ud.approve!=4)
-                        AND  u.id_card not in ( SELECT id_card FROM role_user WHERE role_id = 7  )
+                        $subQuery
                         UNION ALL
                         SELECT  '-' as username,u.id_card,u.first_name,u.last_name,u.created_at,r.name as role_name , ud.approve , 0 as registor
                          FROM domains d
@@ -73,13 +80,13 @@ class WaitUserController extends ApiController
                             SELECT u2.id_card FROM users u2
                             INNER JOIN user_domains ud2  ON u2.id_card = ud2.id_card
                             WHERE ud2.domain_id = $domainId
-                        ) AND  u.id_card not in ( SELECT id_card FROM role_user WHERE role_id = 7  )
+                        ) $subQuery
                     ) a
                     ORDER BY created_at ASC
                     " ;
             $query = DB::select(DB::raw($sql));
             $user = [];
-            if (!empty($query)){
+            if (!empty($query)) {
                 foreach ($query as $q) {
                     $user[$q->id_card]['id_card'] = $q->id_card;
                     $user[$q->id_card]['username'] = $q->username;
@@ -91,8 +98,9 @@ class WaitUserController extends ApiController
                     $user[$q->id_card]['registor'] = $q->registor;
                 }
             }
-            $data['user'] = array_values($user); ;
-        }catch (\Exception $e) {
+            $data['user'] = array_values($user);
+            ;
+        } catch (\Exception $e) {
             return $this->respondWithError($e->getMessage());
         }
        
@@ -100,13 +108,13 @@ class WaitUserController extends ApiController
     }
 
    
-     private function validator($data)
+    private function validator($data)
     {
         return Validator::make($data, [
-            'id_card' => 'required|string|min:13|max:13',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
+           'id_card' => 'required|string|max:13',
+           'first_name' => 'required|string|max:255',
+           'last_name' => 'required|string|max:255',
+           'email' => 'required|string|email|max:255',
             
         ]);
     }
@@ -115,9 +123,9 @@ class WaitUserController extends ApiController
     {
 
         return Validator::make($data, [
-            'id_card' => 'required|string|min:13|max:13|unique:user_temps',
+            'id_card' => 'required|string|max:13|unique:user_temps',
         ]);
-    } 
+    }
     private function validatorRoom($data)
     {
         return Validator::make($data, [
@@ -125,8 +133,8 @@ class WaitUserController extends ApiController
         ]);
     }
 
-    private function uploadImg($request,$domainId){
-        return  uploadfile($request,'file_upload',$domainId) ;
+    private function uploadImg($request, $domainId)
+    {
+        return  uploadfile($request, 'file_upload', $domainId) ;
     }
-
 }

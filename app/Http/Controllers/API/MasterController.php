@@ -7,7 +7,9 @@ use App\Models\Amphur;
 use App\Models\District;
 use App\Models\Domain;
 use App\Models\Master\ChannelType;
+use App\Models\Master\DebtType;
 use App\Models\Master\Prioritize;
+use App\Models\Master\TitleName;
 use App\Models\Province;
 use App\Models\Role;
 use Carbon\Carbon;
@@ -35,20 +37,21 @@ class MasterController extends ApiController
     {
     }
 
-    public function channeltype(Request $request){
-        $query = ChannelType::where('status',1)->get();
+    public function channeltype(Request $request)
+    {
+        $query = ChannelType::where('status', 1)->get();
         $data['channel_type'] = $query ;
         return $this->respondWithItem($data);
-
     }
-    public function channelicon(Request $request){
+    public function channelicon(Request $request)
+    {
         $query = ['bank','bed','beer','bell','bicycle','book','camera','coffee','cutlery','gamepad','gift','glass','headphones','lock','soccer-ball-o','star','video-camera'];
         $data['channel_icon'] = $query ;
         return $this->respondWithItem($data);
-
     }
 
-     public function unit(Request $request){
+    public function unit(Request $request)
+    {
         $query = Domain::unitslist();
         $unit = [];
         foreach ($query as $key => $q) {
@@ -57,37 +60,53 @@ class MasterController extends ApiController
         }
         $data['units'] = array_values($unit);
         return $this->respondWithItem($data);
-
     }
 
-    public function address(Request $request){
+    public function address(Request $request)
+    {
         $data['roles'] = Role::all()->toArray();
-        $data['districts'] = District::orderBy('DISTRICT_NAME','ASC')->get()->toArray();
-        $data['amphurs'] = Amphur::orderBy('AMPHUR_NAME','ASC')->get()->toArray();
-        $data['provinces'] = Province::orderBy('PROVINCE_NAME','ASC')->get()->toArray();
+        $data['districts'] = District::orderBy('DISTRICT_NAME', 'ASC')->get()->toArray();
+        $data['amphurs'] = Amphur::orderBy('AMPHUR_NAME', 'ASC')->get()->toArray();
+        $data['provinces'] = Province::orderBy('PROVINCE_NAME', 'ASC')->get()->toArray();
 
-        foreach ( $data['districts'] as $key => $value) {
+        foreach ($data['districts'] as $key => $value) {
              $data['districts'][$key] = array_change_key_case($value, CASE_LOWER);
         }
-        foreach ( $data['amphurs'] as $key => $value) {
+        foreach ($data['amphurs'] as $key => $value) {
              $data['amphurs'][$key] = array_change_key_case($value, CASE_LOWER);
         }
-        foreach ( $data['provinces'] as $key => $value) {
+        foreach ($data['provinces'] as $key => $value) {
              $data['provinces'][$key] = array_change_key_case($value, CASE_LOWER);
         }
 
         return $this->respondWithItem($data);
-
     }
     
-     public function role(Request $request){
-        $data['roles'] = Role::where('id','<>',7)->get()->toArray();
+    public function role(Request $request)
+    {
+        $hasSystemAdmin = Auth()->user()->hasRole('system.admin');
+        $query = Role::from('roles') ;
+        if (!$hasSystemAdmin) {
+            $query->where('id', '<>', 7);
+        }
+        $data['roles'] = $query->get()->toArray();
         return $this->respondWithItem($data);
-    } 
-    public function prioritize(Request $request){
-        $name = (App::isLocale('en')) ? "name_en" : "name_th" ;
+    }
+    public function prioritize(Request $request)
+    {
+        $name = (getLang()=='en') ? "name_en" : "name_th" ;
         $select = " id,$name as name,status" ;
         $data['prioritizes'] = Prioritize::select(DB::raw($select))->get()->toArray();
+        return $this->respondWithItem($data);
+    }
+    public function debtType(Request $request)
+    {
+        $data['debt_type'] = DebtType::getData()->toArray();
+        return $this->respondWithItem($data);
+    }
+    public function titleName(Request $request)
+    {
+        $data['title_name'] = TitleName::getData()->toArray();
         return $this->respondWithItem($data);
     }
 }

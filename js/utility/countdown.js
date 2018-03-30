@@ -3,7 +3,8 @@
 // var count = initial;
 // var counter; //10 will  run it every 100th of a second
 
-function timer() {
+function timer()
+{
     if (count <= 0) {
         clearInterval(counter);
         return;
@@ -12,7 +13,8 @@ function timer() {
     displayCount(count);
 }
 
-function displayCount(count) {
+function displayCount(count)
+{
     var res = count / 100;
     document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " secs";
 }

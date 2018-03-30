@@ -8,6 +8,7 @@ use Google_Service_Drive_Permission;
 use Google_AssertionCredentials;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
 class GoogleDrive
 {
     protected static $instance ;
@@ -18,10 +19,11 @@ class GoogleDrive
 
     // https://drive.google.com/open?id=
 
-    public function __construct(){
+    public function __construct()
+    {
         define('APPLICATION_NAME', 'rmdriveapi');
         // define('CREDENTIALS_PATH', '~/.credentials/drive-php-quickstart.json');
-        define('CREDENTIALS_PATH',  'drive-php-quickstart.json');
+        define('CREDENTIALS_PATH', 'drive-php-quickstart.json');
         define('CLIENT_SECRET_PATH', 'client_secret.json');
         // If modifying these scopes, delete your previously saved credentials
         // at ~/.credentials/drive-php-quickstart.json
@@ -29,7 +31,7 @@ class GoogleDrive
         //   Google_Service_Drive::DRIVE_READONLY,Google_Service_Drive::DRIVE_FILE,Google_Service_Drive::DRIVE_READONLY)
         // ));
 
-        define('SCOPES',implode(' ', array(
+        define('SCOPES', implode(' ', array(
               Google_Service_Drive::DRIVE
               ,Google_Service_Drive::DRIVE_FILE
               ,Google_Service_Drive::DRIVE_APPDATA
@@ -37,40 +39,41 @@ class GoogleDrive
               ,Google_Service_Drive::DRIVE_PHOTOS_READONLY
               ,Google_Service_Drive::DRIVE_METADATA_READONLY
             )));
-
     }
 
-    public static function getInstance() {
-        if (!isset(self::$instance))
-        {
+    public static function getInstance()
+    {
+        if (!isset(self::$instance)) {
             $object = __CLASS__;
             self::$instance = new $object;
         }
         return self::$instance;
     }
 
-     public static function getFileList(){
+    public static function getFileList()
+    {
         $google = GoogleDrive::getInstance();
         $client = $google->getClient();
         $service = new Google_Service_Drive($client);
 
         // Print the names and IDs for up to 10 files.
         $optParams = array(
-          'pageSize' => 10,
-          'fields' => 'nextPageToken, files(id, name)'
+         'pageSize' => 10,
+         'fields' => 'nextPageToken, files(id, name)'
         );
         $results = $service->files->listFiles($optParams);
         if (count($results->getFiles()) == 0) {
-          print "No files found.\n";
+            print "No files found.\n";
         } else {
-          print "Files:\n";
-          foreach ($results->getFiles() as $file) {
-            printf("%s (%s)\n", $file->getName(), $file->getId());
-          }
+            print "Files:\n";
+            foreach ($results->getFiles() as $file) {
+                printf("%s (%s)\n", $file->getName(), $file->getId());
+            }
         }
     }
 
-    public static function getFile($fileId){
+    public static function getFile($fileId)
+    {
 
         // $url = "https://www.googleapis.com/drive/v2/files/$fileId?alt=json" ;
         // $response = self::curl_send($url) ;
@@ -84,12 +87,12 @@ class GoogleDrive
             $fileId = '1GOLiz6A4J8698ysyh_DhqW8gujgWgQQc';
 
             $response = $service->files->export($fileId, 'application/pdf', array(
-    'alt' => 'media'));
-$content = $response->getBody()->getContents();
+            'alt' => 'media'));
+            $content = $response->getBody()->getContents();
             die();
 
             $response = $service->files->get($fileId, array(
-    'alt' => 'media'));
+            'alt' => 'media'));
             $content = $response->getBody()->getContents();
 
             // $response = $service->files->get($fileId, array('alt' => 'media'));
@@ -141,10 +144,10 @@ $content = $response->getBody()->getContents();
         } catch (Exception $e) {
             print "An error occurred: " . $e->getMessage();
         }
-
     }
 
-    public static function uploadfile($title, $description, $parentId, $mimeType, $filename){
+    public static function uploadfile($title, $description, $parentId, $mimeType, $filename)
+    {
         
 
 
@@ -179,7 +182,7 @@ $content = $response->getBody()->getContents();
         // $url = "https://www.googleapis.com/upload/drive/v2?uploadType=media" ;
 
         
-        // $res =  $client->post($url, ['headers'=> [  'Content-Type'=>$mimeType 
+        // $res =  $client->post($url, ['headers'=> [  'Content-Type'=>$mimeType
         //                 ,'Content-Length'=>strlen($content)
         //                 ,'Authorization'=>'Bearer '.$accessToken['access_token']
         //     ]
@@ -189,18 +192,18 @@ $content = $response->getBody()->getContents();
         //             'name'     => $title,
         //             'filename' => $title,
         //             'contents' => $content ,
-        //             'headers'=>  [  'Content-Type'=>$mimeType 
+        //             'headers'=>  [  'Content-Type'=>$mimeType
         //                 ,'Content-Length'=>strlen($content)
         //             ]
         //         ],
-        //     ] 
+        //     ]
         //     ] );
 
         // var_dump($res->getBody()->getContents());die;
 
             
 
-        // $json = json_decode($res->getBody()->getContents(),true); 
+        // $json = json_decode($res->getBody()->getContents(),true);
         // var_dump($res->getBody()->getContents());die;
 
 
@@ -215,7 +218,7 @@ $content = $response->getBody()->getContents();
         $client = $google->getClient($scopes);
 
       
-        //V3 
+        //V3
 
 
         $service = new Google_Service_Drive($client);
@@ -295,11 +298,11 @@ $content = $response->getBody()->getContents();
         $file->setMimeType($mimeType);
 
           // Set the parent folder.
-          if ($parentId != null) {
+        if ($parentId != null) {
             $parent = new Google_Service_Drive_ParentReference();
             $parent->setId($parentId);
             $file->setParents(array($parent));
-          }
+        }
 
         try {
             $data = file_get_contents($filename);
@@ -313,31 +316,35 @@ $content = $response->getBody()->getContents();
             // print 'File ID: %s' % $createdFile->getId();
 
             return $createdFile;
-          } catch (Exception $e) {
+        } catch (Exception $e) {
             print "An error occurred: " . $e->getMessage();
-          }
+        }
     }
 
    
 
-    private function buildService() {//function for first build up service
+    private function buildService()
+    {
+//function for first build up service
 
 
-      $key = file_get_contents(CREDENTIALS_PATH);
-      $auth = new Google_AssertionCredentials(
-          'pokphoenix@gmail.com',
-          array('https://www.googleapis.com/auth/drive'),
-          $key);
-      $client = new Google_Client();
-      $client->setUseObjects(true);
-      $client->setAssertionCredentials($auth);
-      return new Google_DriveService($client);
+        $key = file_get_contents(CREDENTIALS_PATH);
+        $auth = new Google_AssertionCredentials(
+            'pokphoenix@gmail.com',
+            array('https://www.googleapis.com/auth/drive'),
+            $key
+        );
+        $client = new Google_Client();
+        $client->setUseObjects(true);
+        $client->setAssertionCredentials($auth);
+        return new Google_DriveService($client);
     }
 
 
-    private function getClient($scopes=null) {
+    private function getClient($scopes = null)
+    {
 
-        if (is_null($scopes)){
+        if (is_null($scopes)) {
             $scopes = SCOPES ;
         }
 
@@ -350,9 +357,9 @@ $content = $response->getBody()->getContents();
 
           // Load previously authorized credentials from a file.
           $credentialsPath = $this->expandHomeDirectory(CREDENTIALS_PATH);
-          if (file_exists($credentialsPath)) {
+        if (file_exists($credentialsPath)) {
             $accessToken = json_decode(file_get_contents($credentialsPath), true);
-          } else {
+        } else {
             // Request authorization from the user.
             $authUrl = $client->createAuthUrl();
             printf("Open the following link in your browser:\n%s\n", $authUrl);
@@ -363,47 +370,48 @@ $content = $response->getBody()->getContents();
             $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
 
             // Store the credentials to disk.
-            if(!file_exists(dirname($credentialsPath))) {
-              mkdir(dirname($credentialsPath), 0700, true);
+            if (!file_exists(dirname($credentialsPath))) {
+                mkdir(dirname($credentialsPath), 0700, true);
             }
             file_put_contents($credentialsPath, json_encode($accessToken));
             printf("Credentials saved to %s\n", $credentialsPath);
-          }
+        }
           $client->setAccessToken($accessToken);
 
           // Refresh the token if it's expired.
-          if ($client->isAccessTokenExpired()) {
+        if ($client->isAccessTokenExpired()) {
             $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
             file_put_contents($credentialsPath, json_encode($client->getAccessToken()));
-          }
+        }
           return $client;
     }
 
-    private function expandHomeDirectory($path) {
-      $homeDirectory = getenv('HOME');
-      if (empty($homeDirectory)) {
-        $homeDirectory = getenv('HOMEDRIVE') . getenv('HOMEPATH');
-      }
-      return str_replace('~', realpath($homeDirectory), $path);
+    private function expandHomeDirectory($path)
+    {
+        $homeDirectory = getenv('HOME');
+        if (empty($homeDirectory)) {
+            $homeDirectory = getenv('HOMEDRIVE') . getenv('HOMEPATH');
+        }
+        return str_replace('~', realpath($homeDirectory), $path);
     }
 
 
-    private static function curl_send($url,$type=NULL,$fields=NULL){
+    private static function curl_send($url, $type = null, $fields = null)
+    {
         $google = new GoogleDrive ;
         $credentialsPath =  $google->expandHomeDirectory(CREDENTIALS_PATH);
         if (file_exists($credentialsPath)) {
             $accessToken = json_decode(file_get_contents($credentialsPath), true);
         }
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8','Authorization: Bearer '.$accessToken['access_token']));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HEADER, FALSE);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $response = curl_exec($ch);
         curl_close($ch);
         $return = json_decode($response, true);
         return $return ;
     }
-  
 }
